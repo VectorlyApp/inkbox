@@ -1,0 +1,78 @@
+/**
+ * inkbox-mail/resources/mailboxes.ts
+ *
+ * Mailbox CRUD and full-text search.
+ */
+
+import { HttpTransport } from "../_http.js";
+import {
+  Mailbox,
+  Message,
+  RawCursorPage,
+  RawMailbox,
+  RawMessage,
+  parseMailbox,
+  parseMessage,
+} from "../types.js";
+
+const BASE = "/mailboxes";
+
+export class MailboxesResource {
+  constructor(private readonly http: HttpTransport) {}
+
+  /**
+   * Create a new mailbox.
+   *
+   * @param addressLocalPart - Local part of the email address (before @).
+   *   Allowed characters: letters, digits, `.`, `_`, `+`, `-`.
+   * @param displayName - Optional human-readable name shown as the sender.
+   */
+  async create(options: {
+    addressLocalPart: string;
+    displayName?: string;
+  }): Promise<Mailbox> {
+    const body: Record<string, unknown> = {
+      address_local_part: options.addressLocalPart,
+    };
+    if (options.displayName !== undefined) {
+      body["display_name"] = options.displayName;
+    }
+    const data = await this.http.post<RawMailbox>(BASE, body);
+    return parseMailbox(data);
+  }
+
+  /** List all mailboxes for your organisation. */
+  async list(): Promise<Mailbox[]> {
+    const data = await this.http.get<RawMailbox[]>(BASE);
+    return data.map(parseMailbox);
+  }
+
+  /** Get a mailbox by ID. */
+  async get(mailboxId: string): Promise<Mailbox> {
+    const data = await this.http.get<RawMailbox>(`${BASE}/${mailboxId}`);
+    return parseMailbox(data);
+  }
+
+  /** Delete a mailbox. */
+  async delete(mailboxId: string): Promise<void> {
+    await this.http.delete(`${BASE}/${mailboxId}`);
+  }
+
+  /**
+   * Full-text search across messages in a mailbox.
+   *
+   * @param mailboxId - UUID of the mailbox to search.
+   * @param q - Search query string.
+   * @param limit - Maximum number of results (1–100). Defaults to 50.
+   */
+  async search(
+    mailboxId: string,
+    options: { q: string; limit?: number },
+  ): Promise<Message[]> {
+    const data = await this.http.get<RawCursorPage<RawMessage>>(
+      `${BASE}/${mailboxId}/search`,
+      { q: options.q, limit: options.limit ?? 50 },
+    );
+    return data.items.map(parseMessage);
+  }
+}
