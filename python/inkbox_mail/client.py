@@ -31,7 +31,7 @@ class InkboxMail:
         async def main():
             client = InkboxMail(api_key="sk-...")
 
-            mailbox = await client.mailboxes.create(address_local_part="agent-01")
+            mailbox = await client.mailboxes.create(display_name="Agent 01")
 
             await client.messages.send(
                 mailbox.id,

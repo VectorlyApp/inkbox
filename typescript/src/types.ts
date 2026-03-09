@@ -71,6 +71,11 @@ export interface Webhook {
   createdAt: Date;
 }
 
+export interface WebhookCreateResult extends Webhook {
+  /** One-time HMAC-SHA256 signing secret. Save immediately — not returned again. */
+  secret: string;
+}
+
 // ---- internal raw API shapes (snake_case from JSON) ----
 
 export interface RawMailbox {
@@ -127,6 +132,11 @@ export interface RawWebhook {
   event_types: string[];
   status: string;
   created_at: string;
+}
+
+export interface RawWebhookCreateResult extends RawWebhook {
+  /** One-time HMAC-SHA256 signing secret. Save immediately — not returned again. */
+  secret: string;
 }
 
 export interface RawCursorPage<T> {
@@ -210,4 +220,8 @@ export function parseWebhook(r: RawWebhook): Webhook {
     status: r.status,
     createdAt: new Date(r.created_at),
   };
+}
+
+export function parseWebhookCreateResult(r: RawWebhookCreateResult): WebhookCreateResult {
+  return { ...parseWebhook(r), secret: r.secret };
 }

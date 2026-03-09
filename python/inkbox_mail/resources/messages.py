@@ -84,6 +84,7 @@ class MessagesResource:
         cc: list[str] | None = None,
         bcc: list[str] | None = None,
         in_reply_to_message_id: str | None = None,
+        attachments: list[dict[str, str]] | None = None,
     ) -> Message:
         """Send an email from a mailbox.
 
@@ -97,6 +98,10 @@ class MessagesResource:
             bcc: Blind carbon-copy recipients.
             in_reply_to_message_id: RFC 5322 Message-ID of the message being
                 replied to. Threads the reply automatically.
+            attachments: Optional list of file attachments. Each entry must have
+                ``filename`` (str), ``content_type`` (MIME type str), and
+                ``content_base64`` (base64-encoded file content str).
+                Max total size: 25 MB. Blocked extensions: ``.exe``, ``.bat``, ``.scr``.
 
         Returns:
             The sent message metadata.
@@ -114,6 +119,8 @@ class MessagesResource:
             body["body_html"] = body_html
         if in_reply_to_message_id is not None:
             body["in_reply_to_message_id"] = in_reply_to_message_id
+        if attachments is not None:
+            body["attachments"] = attachments
 
         data = await self._http.post(f"/mailboxes/{mailbox_id}/messages", json=body)
         return Message._from_dict(data)

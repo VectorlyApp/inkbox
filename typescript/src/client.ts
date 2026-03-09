@@ -30,7 +30,7 @@ export interface InkboxMailOptions {
  *
  * const client = new InkboxMail({ apiKey: "sk-..." });
  *
- * const mailbox = await client.mailboxes.create({ addressLocalPart: "agent-01" });
+ * const mailbox = await client.mailboxes.create({ displayName: "Agent 01" });
  *
  * await client.messages.send(mailbox.id, {
  *   to: ["user@example.com"],

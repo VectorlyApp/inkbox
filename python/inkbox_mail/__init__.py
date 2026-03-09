@@ -11,6 +11,7 @@ from inkbox_mail.types import (
     Thread,
     ThreadDetail,
     Webhook,
+    WebhookCreateResult,
 )
 
 __all__ = [
@@ -23,4 +24,5 @@ __all__ = [
     "Thread",
     "ThreadDetail",
     "Webhook",
+    "WebhookCreateResult",
 ]

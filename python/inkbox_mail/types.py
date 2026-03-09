@@ -174,3 +174,15 @@ class Webhook:
             status=d["status"],
             created_at=datetime.fromisoformat(d["created_at"]),
         )
+
+
+@dataclass
+class WebhookCreateResult(Webhook):
+    """Returned only on webhook creation. Includes the one-time HMAC signing secret."""
+
+    secret: str = ""
+
+    @classmethod
+    def _from_dict(cls, d: dict[str, Any]) -> WebhookCreateResult:  # type: ignore[override]
+        base = Webhook._from_dict(d)
+        return cls(**base.__dict__, secret=d["secret"])

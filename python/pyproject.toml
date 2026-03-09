@@ -15,8 +15,8 @@ dependencies = [
 
 [project.urls]
 Homepage = "https://inkbox.ai"
-Repository = "https://github.com/inkboxapp/inkbox-python"
-"Bug Tracker" = "https://github.com/inkboxapp/inkbox-python/issues"
+Repository = "https://github.com/vectorlyapp/inkbox/tree/main/inkbox/python"
+"Bug Tracker" = "https://github.com/vectorlyapp/inkbox/issues"
 
 [tool.hatch.build.targets.wheel]
 packages = ["inkbox_mail"]

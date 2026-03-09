@@ -7,4 +7,5 @@ export type {
   Thread,
   ThreadDetail,
   Webhook,
+  WebhookCreateResult,
 } from "./types.js";

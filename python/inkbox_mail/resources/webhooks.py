@@ -9,7 +9,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 from uuid import UUID
 
-from inkbox_mail.types import Webhook
+from inkbox_mail.types import Webhook, WebhookCreateResult
 
 if TYPE_CHECKING:
     from inkbox_mail._http import HttpTransport
@@ -25,7 +25,7 @@ class WebhooksResource:
         *,
         url: str,
         event_types: list[str],
-    ) -> Webhook:
+    ) -> WebhookCreateResult:
         """Register a webhook subscription for a mailbox.
 
         Args:
@@ -35,13 +35,14 @@ class WebhooksResource:
                 Valid values: ``"message.received"``, ``"message.sent"``.
 
         Returns:
-            The created webhook, including the signing secret.
+            The created webhook. ``secret`` is the HMAC-SHA256 signing key —
+            save it immediately, as it will not be returned again.
         """
         data = await self._http.post(
             f"/mailboxes/{mailbox_id}/webhooks",
             json={"url": url, "event_types": event_types},
         )
-        return Webhook._from_dict(data)
+        return WebhookCreateResult._from_dict(data)
 
     async def list(self, mailbox_id: UUID | str) -> list[Webhook]:
         """List all active webhooks for a mailbox."""

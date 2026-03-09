@@ -76,6 +76,9 @@ export class MessagesResource {
    * @param options.bcc - Blind carbon-copy recipients.
    * @param options.inReplyToMessageId - RFC 5322 Message-ID of the message being
    *   replied to. Threads the reply automatically.
+   * @param options.attachments - Optional file attachments. Each entry must have
+   *   `filename`, `contentType` (MIME type), and `contentBase64` (base64-encoded
+   *   file content). Max total size: 25 MB. Blocked: `.exe`, `.bat`, `.scr`.
    */
   async send(
     mailboxId: string,
@@ -87,6 +90,11 @@ export class MessagesResource {
       cc?: string[];
       bcc?: string[];
       inReplyToMessageId?: string;
+      attachments?: Array<{
+        filename: string;
+        contentType: string;
+        contentBase64: string;
+      }>;
     },
   ): Promise<Message> {
     const recipients: Record<string, unknown> = { to: options.to };
@@ -101,6 +109,13 @@ export class MessagesResource {
     if (options.bodyHtml !== undefined) body["body_html"] = options.bodyHtml;
     if (options.inReplyToMessageId !== undefined) {
       body["in_reply_to_message_id"] = options.inReplyToMessageId;
+    }
+    if (options.attachments !== undefined) {
+      body["attachments"] = options.attachments.map((a) => ({
+        filename: a.filename,
+        content_type: a.contentType,
+        content_base64: a.contentBase64,
+      }));
     }
 
     const data = await this.http.post<RawMessage>(
