@@ -21,7 +21,7 @@ class MailboxesResource:
     def __init__(self, http: HttpTransport) -> None:
         self._http = http
 
-    async def create(
+    def create(
         self,
         *,
         display_name: str | None = None,
@@ -39,24 +39,24 @@ class MailboxesResource:
         body: dict[str, Any] = {}
         if display_name is not None:
             body["display_name"] = display_name
-        data = await self._http.post(_BASE, json=body)
+        data = self._http.post(_BASE, json=body)
         return Mailbox._from_dict(data)
 
-    async def list(self) -> list[Mailbox]:
+    def list(self) -> list[Mailbox]:
         """List all mailboxes for your organisation."""
-        data = await self._http.get(_BASE)
+        data = self._http.get(_BASE)
         return [Mailbox._from_dict(m) for m in data]
 
-    async def get(self, mailbox_id: UUID | str) -> Mailbox:
+    def get(self, mailbox_id: UUID | str) -> Mailbox:
         """Get a mailbox by ID."""
-        data = await self._http.get(f"{_BASE}/{mailbox_id}")
+        data = self._http.get(f"{_BASE}/{mailbox_id}")
         return Mailbox._from_dict(data)
 
-    async def delete(self, mailbox_id: UUID | str) -> None:
+    def delete(self, mailbox_id: UUID | str) -> None:
         """Delete a mailbox."""
-        await self._http.delete(f"{_BASE}/{mailbox_id}")
+        self._http.delete(f"{_BASE}/{mailbox_id}")
 
-    async def search(
+    def search(
         self,
         mailbox_id: UUID | str,
         *,
@@ -73,7 +73,7 @@ class MailboxesResource:
         Returns:
             Matching messages ranked by relevance.
         """
-        data = await self._http.get(
+        data = self._http.get(
             f"{_BASE}/{mailbox_id}/search",
             params={"q": q, "limit": limit},
         )

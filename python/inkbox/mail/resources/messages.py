@@ -6,7 +6,7 @@ Message operations: list (auto-paginated), get, send, flag updates, delete.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, AsyncIterator
+from typing import TYPE_CHECKING, Any, Iterator
 from uuid import UUID
 
 from inkbox.mail.types import Message, MessageDetail
@@ -21,13 +21,13 @@ class MessagesResource:
     def __init__(self, http: HttpTransport) -> None:
         self._http = http
 
-    async def list(
+    def list(
         self,
         mailbox_id: UUID | str,
         *,
         page_size: int = _DEFAULT_PAGE_SIZE,
-    ) -> AsyncIterator[Message]:
-        """Async iterator over all messages in a mailbox, newest first.
+    ) -> Iterator[Message]:
+        """Iterator over all messages in a mailbox, newest first.
 
         Pagination is handled automatically — just iterate.
 
@@ -37,20 +37,20 @@ class MessagesResource:
 
         Example::
 
-            async for msg in client.messages.list(mailbox_id):
+            for msg in client.messages.list(mailbox_id):
                 print(msg.subject, msg.from_address)
         """
         return self._paginate(mailbox_id, page_size=page_size)
 
-    async def _paginate(
+    def _paginate(
         self,
         mailbox_id: UUID | str,
         *,
         page_size: int,
-    ) -> AsyncIterator[Message]:
+    ) -> Iterator[Message]:
         cursor: str | None = None
         while True:
-            page = await self._http.get(
+            page = self._http.get(
                 f"/mailboxes/{mailbox_id}/messages",
                 params={"limit": page_size, "cursor": cursor},
             )
@@ -60,7 +60,7 @@ class MessagesResource:
                 break
             cursor = page["next_cursor"]
 
-    async def get(self, mailbox_id: UUID | str, message_id: UUID | str) -> MessageDetail:
+    def get(self, mailbox_id: UUID | str, message_id: UUID | str) -> MessageDetail:
         """Get a message with full body content.
 
         Args:
@@ -70,10 +70,10 @@ class MessagesResource:
         Returns:
             Full message including ``body_text`` and ``body_html``.
         """
-        data = await self._http.get(f"/mailboxes/{mailbox_id}/messages/{message_id}")
+        data = self._http.get(f"/mailboxes/{mailbox_id}/messages/{message_id}")
         return MessageDetail._from_dict(data)
 
-    async def send(
+    def send(
         self,
         mailbox_id: UUID | str,
         *,
@@ -122,10 +122,10 @@ class MessagesResource:
         if attachments is not None:
             body["attachments"] = attachments
 
-        data = await self._http.post(f"/mailboxes/{mailbox_id}/messages", json=body)
+        data = self._http.post(f"/mailboxes/{mailbox_id}/messages", json=body)
         return Message._from_dict(data)
 
-    async def update_flags(
+    def update_flags(
         self,
         mailbox_id: UUID | str,
         message_id: UUID | str,
@@ -142,27 +142,27 @@ class MessagesResource:
             body["is_read"] = is_read
         if is_starred is not None:
             body["is_starred"] = is_starred
-        data = await self._http.patch(
+        data = self._http.patch(
             f"/mailboxes/{mailbox_id}/messages/{message_id}", json=body
         )
         return Message._from_dict(data)
 
-    async def mark_read(self, mailbox_id: UUID | str, message_id: UUID | str) -> Message:
+    def mark_read(self, mailbox_id: UUID | str, message_id: UUID | str) -> Message:
         """Mark a message as read."""
-        return await self.update_flags(mailbox_id, message_id, is_read=True)
+        return self.update_flags(mailbox_id, message_id, is_read=True)
 
-    async def mark_unread(self, mailbox_id: UUID | str, message_id: UUID | str) -> Message:
+    def mark_unread(self, mailbox_id: UUID | str, message_id: UUID | str) -> Message:
         """Mark a message as unread."""
-        return await self.update_flags(mailbox_id, message_id, is_read=False)
+        return self.update_flags(mailbox_id, message_id, is_read=False)
 
-    async def star(self, mailbox_id: UUID | str, message_id: UUID | str) -> Message:
+    def star(self, mailbox_id: UUID | str, message_id: UUID | str) -> Message:
         """Star a message."""
-        return await self.update_flags(mailbox_id, message_id, is_starred=True)
+        return self.update_flags(mailbox_id, message_id, is_starred=True)
 
-    async def unstar(self, mailbox_id: UUID | str, message_id: UUID | str) -> Message:
+    def unstar(self, mailbox_id: UUID | str, message_id: UUID | str) -> Message:
         """Unstar a message."""
-        return await self.update_flags(mailbox_id, message_id, is_starred=False)
+        return self.update_flags(mailbox_id, message_id, is_starred=False)
 
-    async def delete(self, mailbox_id: UUID | str, message_id: UUID | str) -> None:
+    def delete(self, mailbox_id: UUID | str, message_id: UUID | str) -> None:
         """Delete a message."""
-        await self._http.delete(f"/mailboxes/{mailbox_id}/messages/{message_id}")
+        self._http.delete(f"/mailboxes/{mailbox_id}/messages/{message_id}")

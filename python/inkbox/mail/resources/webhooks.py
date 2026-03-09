@@ -19,7 +19,7 @@ class WebhooksResource:
     def __init__(self, http: HttpTransport) -> None:
         self._http = http
 
-    async def create(
+    def create(
         self,
         mailbox_id: UUID | str,
         *,
@@ -38,17 +38,17 @@ class WebhooksResource:
             The created webhook. ``secret`` is the HMAC-SHA256 signing key —
             save it immediately, as it will not be returned again.
         """
-        data = await self._http.post(
+        data = self._http.post(
             f"/mailboxes/{mailbox_id}/webhooks",
             json={"url": url, "event_types": event_types},
         )
         return WebhookCreateResult._from_dict(data)
 
-    async def list(self, mailbox_id: UUID | str) -> list[Webhook]:
+    def list(self, mailbox_id: UUID | str) -> list[Webhook]:
         """List all active webhooks for a mailbox."""
-        data = await self._http.get(f"/mailboxes/{mailbox_id}/webhooks")
+        data = self._http.get(f"/mailboxes/{mailbox_id}/webhooks")
         return [Webhook._from_dict(w) for w in data]
 
-    async def delete(self, mailbox_id: UUID | str, webhook_id: UUID | str) -> None:
+    def delete(self, mailbox_id: UUID | str, webhook_id: UUID | str) -> None:
         """Delete a webhook subscription."""
-        await self._http.delete(f"/mailboxes/{mailbox_id}/webhooks/{webhook_id}")
+        self._http.delete(f"/mailboxes/{mailbox_id}/webhooks/{webhook_id}")

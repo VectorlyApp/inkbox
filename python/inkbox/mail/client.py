@@ -16,7 +16,7 @@ _DEFAULT_BASE_URL = "https://api.inkbox.ai/api/v1/mail"
 
 
 class InkboxMail:
-    """Async client for the Inkbox Mail API.
+    """Client for the Inkbox Mail API.
 
     Args:
         api_key: Your Inkbox API key (``X-Service-Token``).
@@ -25,32 +25,28 @@ class InkboxMail:
 
     Example::
 
-        import asyncio
         from inkbox.mail import InkboxMail
 
-        async def main():
-            client = InkboxMail(api_key="sk-...")
+        client = InkboxMail(api_key="sk-...")
 
-            mailbox = await client.mailboxes.create(display_name="Agent 01")
+        mailbox = client.mailboxes.create(display_name="Agent 01")
 
-            await client.messages.send(
-                mailbox.id,
-                to=["user@example.com"],
-                subject="Hello from Inkbox",
-                body_text="Hi there!",
-            )
+        client.messages.send(
+            mailbox.id,
+            to=["user@example.com"],
+            subject="Hello from Inkbox",
+            body_text="Hi there!",
+        )
 
-            async for msg in client.messages.list(mailbox.id):
-                print(msg.subject, msg.from_address)
+        for msg in client.messages.list(mailbox.id):
+            print(msg.subject, msg.from_address)
 
-            await client.aclose()
+        client.close()
 
-        asyncio.run(main())
+    The client can also be used as a context manager::
 
-    The client can also be used as an async context manager::
-
-        async with InkboxMail(api_key="sk-...") as client:
-            mailboxes = await client.mailboxes.list()
+        with InkboxMail(api_key="sk-...") as client:
+            mailboxes = client.mailboxes.list()
     """
 
     def __init__(
@@ -66,12 +62,12 @@ class InkboxMail:
         self.threads = ThreadsResource(self._http)
         self.webhooks = WebhooksResource(self._http)
 
-    async def aclose(self) -> None:
+    def close(self) -> None:
         """Close the underlying HTTP connection pool."""
-        await self._http.aclose()
+        self._http.close()
 
-    async def __aenter__(self) -> InkboxMail:
+    def __enter__(self) -> InkboxMail:
         return self
 
-    async def __aexit__(self, *_: object) -> None:
-        await self.aclose()
+    def __exit__(self, *_: object) -> None:
+        self.close()

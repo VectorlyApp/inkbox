@@ -1,7 +1,7 @@
 """
 inkbox/mail/_http.py
 
-Async HTTP transport (internal).
+Sync HTTP transport (internal).
 """
 
 from __future__ import annotations
@@ -17,7 +17,7 @@ _DEFAULT_TIMEOUT = 30.0
 
 class HttpTransport:
     def __init__(self, api_key: str, base_url: str, timeout: float = _DEFAULT_TIMEOUT) -> None:
-        self._client = httpx.AsyncClient(
+        self._client = httpx.Client(
             base_url=base_url,
             headers={
                 "X-Service-Token": api_key,
@@ -26,34 +26,34 @@ class HttpTransport:
             timeout=timeout,
         )
 
-    async def get(self, path: str, *, params: dict[str, Any] | None = None) -> Any:
+    def get(self, path: str, *, params: dict[str, Any] | None = None) -> Any:
         cleaned = {k: v for k, v in (params or {}).items() if v is not None}
-        resp = await self._client.get(path, params=cleaned)
+        resp = self._client.get(path, params=cleaned)
         _raise_for_status(resp)
         return resp.json()
 
-    async def post(self, path: str, *, json: dict[str, Any] | None = None) -> Any:
-        resp = await self._client.post(path, json=json)
+    def post(self, path: str, *, json: dict[str, Any] | None = None) -> Any:
+        resp = self._client.post(path, json=json)
         _raise_for_status(resp)
         return resp.json()
 
-    async def patch(self, path: str, *, json: dict[str, Any]) -> Any:
-        resp = await self._client.patch(path, json=json)
+    def patch(self, path: str, *, json: dict[str, Any]) -> Any:
+        resp = self._client.patch(path, json=json)
         _raise_for_status(resp)
         return resp.json()
 
-    async def delete(self, path: str) -> None:
-        resp = await self._client.delete(path)
+    def delete(self, path: str) -> None:
+        resp = self._client.delete(path)
         _raise_for_status(resp)
 
-    async def aclose(self) -> None:
-        await self._client.aclose()
+    def close(self) -> None:
+        self._client.close()
 
-    async def __aenter__(self) -> HttpTransport:
+    def __enter__(self) -> HttpTransport:
         return self
 
-    async def __aexit__(self, *_: object) -> None:
-        await self.aclose()
+    def __exit__(self, *_: object) -> None:
+        self.close()
 
 
 def _raise_for_status(resp: httpx.Response) -> None:

@@ -6,7 +6,7 @@ Thread operations: list (auto-paginated), get with messages, delete.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, AsyncIterator
+from typing import TYPE_CHECKING, Iterator
 from uuid import UUID
 
 from inkbox.mail.types import Thread, ThreadDetail
@@ -21,13 +21,13 @@ class ThreadsResource:
     def __init__(self, http: HttpTransport) -> None:
         self._http = http
 
-    async def list(
+    def list(
         self,
         mailbox_id: UUID | str,
         *,
         page_size: int = _DEFAULT_PAGE_SIZE,
-    ) -> AsyncIterator[Thread]:
-        """Async iterator over all threads in a mailbox, most recent activity first.
+    ) -> Iterator[Thread]:
+        """Iterator over all threads in a mailbox, most recent activity first.
 
         Pagination is handled automatically — just iterate.
 
@@ -37,20 +37,20 @@ class ThreadsResource:
 
         Example::
 
-            async for thread in client.threads.list(mailbox_id):
+            for thread in client.threads.list(mailbox_id):
                 print(thread.subject, thread.message_count)
         """
         return self._paginate(mailbox_id, page_size=page_size)
 
-    async def _paginate(
+    def _paginate(
         self,
         mailbox_id: UUID | str,
         *,
         page_size: int,
-    ) -> AsyncIterator[Thread]:
+    ) -> Iterator[Thread]:
         cursor: str | None = None
         while True:
-            page = await self._http.get(
+            page = self._http.get(
                 f"/mailboxes/{mailbox_id}/threads",
                 params={"limit": page_size, "cursor": cursor},
             )
@@ -60,7 +60,7 @@ class ThreadsResource:
                 break
             cursor = page["next_cursor"]
 
-    async def get(self, mailbox_id: UUID | str, thread_id: UUID | str) -> ThreadDetail:
+    def get(self, mailbox_id: UUID | str, thread_id: UUID | str) -> ThreadDetail:
         """Get a thread with all its messages inlined.
 
         Args:
@@ -70,9 +70,9 @@ class ThreadsResource:
         Returns:
             Thread detail with all messages (oldest-first).
         """
-        data = await self._http.get(f"/mailboxes/{mailbox_id}/threads/{thread_id}")
+        data = self._http.get(f"/mailboxes/{mailbox_id}/threads/{thread_id}")
         return ThreadDetail._from_dict(data)
 
-    async def delete(self, mailbox_id: UUID | str, thread_id: UUID | str) -> None:
+    def delete(self, mailbox_id: UUID | str, thread_id: UUID | str) -> None:
         """Delete a thread."""
-        await self._http.delete(f"/mailboxes/{mailbox_id}/threads/{thread_id}")
+        self._http.delete(f"/mailboxes/{mailbox_id}/threads/{thread_id}")
