@@ -1,5 +1,5 @@
 """
-inkbox_mail/exceptions.py
+inkbox/mail/exceptions.py
 
 Exception types raised by the SDK.
 """

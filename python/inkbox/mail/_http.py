@@ -1,5 +1,5 @@
 """
-inkbox_mail/_http.py
+inkbox/mail/_http.py
 
 Async HTTP transport (internal).
 """
@@ -10,7 +10,7 @@ from typing import Any
 
 import httpx
 
-from inkbox_mail.exceptions import InkboxAPIError
+from inkbox.mail.exceptions import InkboxAPIError
 
 _DEFAULT_TIMEOUT = 30.0
 

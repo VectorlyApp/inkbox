@@ -1,5 +1,5 @@
 """
-inkbox_mail/resources/threads.py
+inkbox/mail/resources/threads.py
 
 Thread operations: list (auto-paginated), get with messages, delete.
 """
@@ -9,10 +9,10 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, AsyncIterator
 from uuid import UUID
 
-from inkbox_mail.types import Thread, ThreadDetail
+from inkbox.mail.types import Thread, ThreadDetail
 
 if TYPE_CHECKING:
-    from inkbox_mail._http import HttpTransport
+    from inkbox.mail._http import HttpTransport
 
 _DEFAULT_PAGE_SIZE = 50
 

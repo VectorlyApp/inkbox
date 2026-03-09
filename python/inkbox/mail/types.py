@@ -1,5 +1,5 @@
 """
-inkbox_mail/types.py
+inkbox/mail/types.py
 
 Dataclasses mirroring the Inkbox Mail API response models.
 """

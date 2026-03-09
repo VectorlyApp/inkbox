@@ -1,5 +1,5 @@
 """
-inkbox_mail/resources/webhooks.py
+inkbox/mail/resources/webhooks.py
 
 Webhook CRUD.
 """
@@ -9,10 +9,10 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 from uuid import UUID
 
-from inkbox_mail.types import Webhook, WebhookCreateResult
+from inkbox.mail.types import Webhook, WebhookCreateResult
 
 if TYPE_CHECKING:
-    from inkbox_mail._http import HttpTransport
+    from inkbox.mail._http import HttpTransport
 
 
 class WebhooksResource:

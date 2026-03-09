@@ -1,16 +1,16 @@
 """
-inkbox_mail/client.py
+inkbox/mail/client.py
 
 Top-level InkboxMail client.
 """
 
 from __future__ import annotations
 
-from inkbox_mail._http import HttpTransport
-from inkbox_mail.resources.mailboxes import MailboxesResource
-from inkbox_mail.resources.messages import MessagesResource
-from inkbox_mail.resources.threads import ThreadsResource
-from inkbox_mail.resources.webhooks import WebhooksResource
+from inkbox.mail._http import HttpTransport
+from inkbox.mail.resources.mailboxes import MailboxesResource
+from inkbox.mail.resources.messages import MessagesResource
+from inkbox.mail.resources.threads import ThreadsResource
+from inkbox.mail.resources.webhooks import WebhooksResource
 
 _DEFAULT_BASE_URL = "https://api.inkbox.ai/api/v1/mail"
 
@@ -26,7 +26,7 @@ class InkboxMail:
     Example::
 
         import asyncio
-        from inkbox_mail import InkboxMail
+        from inkbox.mail import InkboxMail
 
         async def main():
             client = InkboxMail(api_key="sk-...")

@@ -3,9 +3,9 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "inkbox-mail"
+name = "inkbox"
 version = "0.1.0"
-description = "Python SDK for the Inkbox Mail API"
+description = "Python SDK for the Inkbox API"
 readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "MIT" }
@@ -19,4 +19,4 @@ Repository = "https://github.com/vectorlyapp/inkbox/tree/main/inkbox/python"
 "Bug Tracker" = "https://github.com/vectorlyapp/inkbox/issues"
 
 [tool.hatch.build.targets.wheel]
-packages = ["inkbox_mail"]
+packages = ["inkbox"]

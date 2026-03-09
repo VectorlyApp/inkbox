@@ -1,5 +1,5 @@
 """
-inkbox_mail/resources/messages.py
+inkbox/mail/resources/messages.py
 
 Message operations: list (auto-paginated), get, send, flag updates, delete.
 """
@@ -9,10 +9,10 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, AsyncIterator
 from uuid import UUID
 
-from inkbox_mail.types import Message, MessageDetail
+from inkbox.mail.types import Message, MessageDetail
 
 if TYPE_CHECKING:
-    from inkbox_mail._http import HttpTransport
+    from inkbox.mail._http import HttpTransport
 
 _DEFAULT_PAGE_SIZE = 50
 

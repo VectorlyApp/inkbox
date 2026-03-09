@@ -1,10 +1,10 @@
 """
-inkbox-mail — Python SDK for the Inkbox Mail API.
+inkbox.mail — Python SDK for the Inkbox Mail API.
 """
 
-from inkbox_mail.client import InkboxMail
-from inkbox_mail.exceptions import InkboxAPIError, InkboxError
-from inkbox_mail.types import (
+from inkbox.mail.client import InkboxMail
+from inkbox.mail.exceptions import InkboxAPIError, InkboxError
+from inkbox.mail.types import (
     Mailbox,
     Message,
     MessageDetail,

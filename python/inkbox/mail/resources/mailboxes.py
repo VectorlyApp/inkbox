@@ -1,5 +1,5 @@
 """
-inkbox_mail/resources/mailboxes.py
+inkbox/mail/resources/mailboxes.py
 
 Mailbox CRUD and full-text search.
 """
@@ -9,10 +9,10 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 from uuid import UUID
 
-from inkbox_mail.types import Mailbox, Message
+from inkbox.mail.types import Mailbox, Message
 
 if TYPE_CHECKING:
-    from inkbox_mail._http import HttpTransport
+    from inkbox.mail._http import HttpTransport
 
 _BASE = "/mailboxes"
 
