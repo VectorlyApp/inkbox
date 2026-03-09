@@ -19,7 +19,7 @@ async def main():
     async with InkboxMail(api_key="sk-...") as client:
 
         # Create a mailbox
-        mailbox = await client.mailboxes.create(address_local_part="agent-01")
+        mailbox = await client.mailboxes.create(display_name="Agent 01")
 
         # Send an email
         await client.messages.send(
@@ -46,12 +46,13 @@ async def main():
         # Search
         results = await client.mailboxes.search(mailbox.id, q="invoice")
 
-        # Webhooks
+        # Webhooks (secret is one-time — save it immediately)
         hook = await client.webhooks.create(
             mailbox.id,
             url="https://yourapp.com/hooks/mail",
             event_types=["message.received"],
         )
+        print(hook.secret)  # save this
 
 asyncio.run(main())
 ```
@@ -64,7 +65,7 @@ import { InkboxMail } from "@inkbox/mail";
 const client = new InkboxMail({ apiKey: "sk-..." });
 
 // Create a mailbox
-const mailbox = await client.mailboxes.create({ addressLocalPart: "agent-01" });
+const mailbox = await client.mailboxes.create({ displayName: "Agent 01" });
 
 // Send an email
 await client.messages.send(mailbox.id, {
@@ -81,11 +82,12 @@ for await (const msg of client.messages.list(mailbox.id)) {
 // Search
 const results = await client.mailboxes.search(mailbox.id, { q: "invoice" });
 
-// Webhooks
+// Webhooks (secret is one-time — save it immediately)
 const hook = await client.webhooks.create(mailbox.id, {
   url: "https://yourapp.com/hooks/mail",
   eventTypes: ["message.received"],
 });
+console.log(hook.secret); // save this
 ```
 
 ---
