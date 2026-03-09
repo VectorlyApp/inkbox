@@ -9,6 +9,8 @@ __pycache__/
 
 # TypeScript build artifacts
 typescript/dist/
+typescript/node_modules/
+typescript/package-lock.json
 
 # Misc
 .DS_Store
