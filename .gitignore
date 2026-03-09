@@ -1,0 +1,14 @@
+.env
+
+# Python build artifacts
+dist/
+build/
+*.egg-info/
+__pycache__/
+*.pyc
+
+# TypeScript build artifacts
+typescript/dist/
+
+# Misc
+.DS_Store
