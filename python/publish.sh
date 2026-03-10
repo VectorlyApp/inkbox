@@ -16,14 +16,16 @@ fi
 echo "==> Cleaning previous builds"
 rm -rf dist/ build/ *.egg-info
 
-echo "==> Installing build tools"
-python -m pip install --quiet build twine
-
 echo "==> Building"
-python -m build
+uv build
 
 echo "==> Uploading to $REPO"
-twine upload --repository "$REPO" dist/*
+if [[ "$REPO" == "testpypi" ]]; then
+  REPO_URL="https://test.pypi.org/legacy/"
+else
+  REPO_URL="https://upload.pypi.org/legacy/"
+fi
+uv run --with twine twine upload --repository-url "$REPO_URL" dist/*
 
 echo ""
 if [[ "$REPO" == "testpypi" ]]; then
