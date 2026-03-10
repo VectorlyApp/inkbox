@@ -35,7 +35,7 @@ jobs:
           key: ${{ runner.os }}-uv-python-${{ hashFiles('python/pyproject.toml') }}
 
       - name: Install dependencies
-        run: uv sync --dev
+        run: uv sync --extra dev
 
       - name: Lint
         run: uv run ruff check .
@@ -58,8 +58,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "18"
-          cache: "npm"
-          cache-dependency-path: typescript/package-lock.json
 
       - name: Install dependencies
         run: npm install --ignore-scripts
