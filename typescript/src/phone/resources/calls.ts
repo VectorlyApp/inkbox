@@ -50,24 +50,26 @@ export class CallsResource {
    *
    * @param options.fromNumber - E.164 number to call from. Must belong to your org and be active.
    * @param options.toNumber - E.164 number to call.
-   * @param options.streamUrl - WebSocket URL for audio bridging.
-   * @param options.callMode - Pipeline ownership: `"client_llm_only"`, `"client_llm_tts"`, or `"client_llm_tts_stt"`.
+   * @param options.streamUrl - WebSocket URL for audio bridging. Falls back to the phone number's `defaultStreamUrl`. Returns 400 if neither is set.
+   * @param options.pipelineMode - Pipeline ownership: `"client_llm_only"`, `"client_llm_tts"`, or `"client_llm_tts_stt"`. Falls back to the phone number's `defaultPipelineMode`.
    * @param options.webhookUrl - Custom webhook URL for call lifecycle events.
    */
   async place(options: {
     fromNumber: string;
     toNumber: string;
-    streamUrl: string;
-    callMode?: string;
+    streamUrl?: string;
+    pipelineMode?: string;
     webhookUrl?: string;
   }): Promise<PhoneCall> {
     const body: Record<string, unknown> = {
       from_number: options.fromNumber,
       to_number: options.toNumber,
-      stream_url: options.streamUrl,
     };
-    if (options.callMode !== undefined) {
-      body["call_mode"] = options.callMode;
+    if (options.streamUrl !== undefined) {
+      body["stream_url"] = options.streamUrl;
+    }
+    if (options.pipelineMode !== undefined) {
+      body["pipeline_mode"] = options.pipelineMode;
     }
     if (options.webhookUrl !== undefined) {
       body["webhook_url"] = options.webhookUrl;

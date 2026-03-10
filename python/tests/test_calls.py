@@ -84,19 +84,19 @@ class TestCallsPlace:
         )
         assert call.status == "ringing"
 
-    def test_place_with_call_mode_and_webhook(self, client, transport):
+    def test_place_with_pipeline_mode_and_webhook(self, client, transport):
         transport.post.return_value = PHONE_CALL_DICT
 
         client.calls.place(
             from_number="+18335794607",
             to_number="+15167251294",
             stream_url="wss://agent.example.com/ws",
-            call_mode="client_llm_tts_stt",
+            pipeline_mode="client_llm_tts_stt",
             webhook_url="https://example.com/hook",
         )
 
         _, kwargs = transport.post.call_args
-        assert kwargs["json"]["call_mode"] == "client_llm_tts_stt"
+        assert kwargs["json"]["pipeline_mode"] == "client_llm_tts_stt"
         assert kwargs["json"]["webhook_url"] == "https://example.com/hook"
 
     def test_optional_fields_omitted_when_none(self, client, transport):
@@ -105,9 +105,9 @@ class TestCallsPlace:
         client.calls.place(
             from_number="+18335794607",
             to_number="+15167251294",
-            stream_url="wss://agent.example.com/ws",
         )
 
         _, kwargs = transport.post.call_args
-        assert "call_mode" not in kwargs["json"]
+        assert "stream_url" not in kwargs["json"]
+        assert "pipeline_mode" not in kwargs["json"]
         assert "webhook_url" not in kwargs["json"]

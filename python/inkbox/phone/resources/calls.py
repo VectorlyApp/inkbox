@@ -58,8 +58,8 @@ class CallsResource:
         *,
         from_number: str,
         to_number: str,
-        stream_url: str,
-        call_mode: str | None = None,
+        stream_url: str | None = None,
+        pipeline_mode: str | None = None,
         webhook_url: str | None = None,
     ) -> PhoneCall:
         """Place an outbound call.
@@ -67,18 +67,21 @@ class CallsResource:
         Args:
             from_number: E.164 number to call from. Must belong to your org and be active.
             to_number: E.164 number to call.
-            stream_url: WebSocket URL for audio bridging.
-            call_mode: Pipeline ownership: ``"client_llm_only"``, ``"client_llm_tts"``,
-                or ``"client_llm_tts_stt"``.
+            stream_url: WebSocket URL for audio bridging. Falls back to the phone
+                number's ``default_stream_url``. Returns 400 if neither is set.
+            pipeline_mode: Pipeline ownership: ``"client_llm_only"``, ``"client_llm_tts"``,
+                or ``"client_llm_tts_stt"``. Falls back to the phone number's
+                ``default_pipeline_mode``.
             webhook_url: Custom webhook URL for call lifecycle events.
         """
         body: dict[str, Any] = {
             "from_number": from_number,
             "to_number": to_number,
-            "stream_url": stream_url,
         }
-        if call_mode is not None:
-            body["call_mode"] = call_mode
+        if stream_url is not None:
+            body["stream_url"] = stream_url
+        if pipeline_mode is not None:
+            body["pipeline_mode"] = pipeline_mode
         if webhook_url is not None:
             body["webhook_url"] = webhook_url
         data = self._http.post("/place-call", json=body)
