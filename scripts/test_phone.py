@@ -9,6 +9,7 @@ import sys
 from pathlib import Path
 
 from dotenv import load_dotenv
+from inkbox.phone import InkboxPhone
 
 load_dotenv(Path(__file__).resolve().parent.parent / ".env")
 
@@ -16,8 +17,6 @@ API_KEY = os.environ.get("INKBOX_API_KEY")
 if not API_KEY:
     print("ERROR: INKBOX_API_KEY not set in .env or environment")
     sys.exit(1)
-
-from inkbox.phone import InkboxPhone
 
 def main():
     with InkboxPhone(api_key=API_KEY) as client:
