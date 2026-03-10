@@ -143,7 +143,7 @@ class TestMessagesUpdateFlags:
         res, http = _resource()
         http.patch.return_value = {**MESSAGE_DICT, "is_starred": True}
 
-        msg = res.star(MBOX, MSG)
+        res.star(MBOX, MSG)
 
         _, kwargs = http.patch.call_args
         assert kwargs["json"] == {"is_starred": True}

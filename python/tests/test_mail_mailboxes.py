@@ -3,7 +3,7 @@
 from unittest.mock import MagicMock
 from uuid import UUID
 
-from sample_data_mail import MAILBOX_DICT, CURSOR_PAGE_SEARCH, MESSAGE_DICT
+from sample_data_mail import MAILBOX_DICT, CURSOR_PAGE_SEARCH
 from inkbox.mail.resources.mailboxes import MailboxesResource
 
 
