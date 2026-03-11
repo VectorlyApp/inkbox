@@ -28,12 +28,11 @@ def main():
             print(f"  {n.number}  type={n.type}  status={n.status}  action={n.incoming_call_action}")
 
         if not numbers:
-            print("\nNo numbers found. Provisioning a toll-free number...")
-            number = client.numbers.provision(type="toll_free")
-            print(f"  Provisioned: {number.number} (id={number.id})")
-        else:
-            number = numbers[0]
-            print(f"\nUsing first number: {number.number} (id={number.id})")
+            print("ERROR: No phone numbers found. Attach a number to your account first.")
+            sys.exit(1)
+
+        number = numbers[0]
+        print(f"\nUsing first number: {number.number} (id={number.id})")
 
         print("\n=== Get phone number ===")
         fetched = client.numbers.get(number.id)

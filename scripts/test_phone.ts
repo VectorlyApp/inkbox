@@ -40,15 +40,13 @@ async function main() {
     console.log(`  ${n.number}  type=${n.type}  status=${n.status}  action=${n.incomingCallAction}`);
   }
 
-  let number;
   if (numbers.length === 0) {
-    console.log("\nNo numbers found. Provisioning a toll-free number...");
-    number = await client.numbers.provision({ type: "toll_free" });
-    console.log(`  Provisioned: ${number.number} (id=${number.id})`);
-  } else {
-    number = numbers[0];
-    console.log(`\nUsing first number: ${number.number} (id=${number.id})`);
+    console.error("ERROR: No phone numbers found. Attach a number to your account first.");
+    process.exit(1);
   }
+
+  const number = numbers[0];
+  console.log(`\nUsing first number: ${number.number} (id=${number.id})`);
 
   console.log("\n=== Get phone number ===");
   const fetched = await client.numbers.get(number.id);
