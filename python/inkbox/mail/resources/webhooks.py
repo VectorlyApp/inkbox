@@ -21,7 +21,7 @@ class WebhooksResource:
 
     def create(
         self,
-        mailbox_id: UUID | str,
+        email_address: str,
         *,
         url: str,
         event_types: list[str],
@@ -29,7 +29,7 @@ class WebhooksResource:
         """Register a webhook subscription for a mailbox.
 
         Args:
-            mailbox_id: UUID of the mailbox to subscribe to.
+            email_address: Full email address of the mailbox to subscribe to.
             url: HTTPS endpoint that will receive webhook POST requests.
             event_types: Events to subscribe to.
                 Valid values: ``"message.received"``, ``"message.sent"``.
@@ -39,16 +39,16 @@ class WebhooksResource:
             save it immediately, as it will not be returned again.
         """
         data = self._http.post(
-            f"/mailboxes/{mailbox_id}/webhooks",
+            f"/mailboxes/{email_address}/webhooks",
             json={"url": url, "event_types": event_types},
         )
         return WebhookCreateResult._from_dict(data)
 
-    def list(self, mailbox_id: UUID | str) -> list[Webhook]:
+    def list(self, email_address: str) -> list[Webhook]:
         """List all active webhooks for a mailbox."""
-        data = self._http.get(f"/mailboxes/{mailbox_id}/webhooks")
+        data = self._http.get(f"/mailboxes/{email_address}/webhooks")
         return [Webhook._from_dict(w) for w in data]
 
-    def delete(self, mailbox_id: UUID | str, webhook_id: UUID | str) -> None:
+    def delete(self, email_address: str, webhook_id: UUID | str) -> None:
         """Delete a webhook subscription."""
-        self._http.delete(f"/mailboxes/{mailbox_id}/webhooks/{webhook_id}")
+        self._http.delete(f"/mailboxes/{email_address}/webhooks/{webhook_id}")

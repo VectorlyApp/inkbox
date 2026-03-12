@@ -11,9 +11,7 @@ export interface PhoneNumber {
   status: string;
   /** "auto_accept" | "auto_reject" | "webhook" */
   incomingCallAction: string;
-  defaultStreamUrl: string | null;
-  /** "client_llm_only" | "client_llm_tts" | "client_llm_tts_stt" */
-  defaultPipelineMode: string;
+  clientWebsocketUrl: string | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -26,13 +24,28 @@ export interface PhoneCall {
   direction: string;
   /** "initiated" | "ringing" | "answered" | "completed" | "failed" | "canceled" */
   status: string;
-  /** "client_llm_only" | "client_llm_tts" | "client_llm_tts_stt" */
-  pipelineMode: string;
-  streamUrl: string | null;
+  clientWebsocketUrl: string | null;
+  useInkboxTts: boolean | null;
+  useInkboxStt: boolean | null;
+  /** "local" | "remote" | "max_duration" | "voicemail" | "rejected" */
+  hangupReason: string | null;
   startedAt: Date | null;
   endedAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface RateLimitInfo {
+  callsUsed: number;
+  callsRemaining: number;
+  callsLimit: number;
+  minutesUsed: number;
+  minutesRemaining: number;
+  minutesLimit: number;
+}
+
+export interface PhoneCallWithRateLimit extends PhoneCall {
+  rateLimit: RateLimitInfo;
 }
 
 export interface PhoneTranscript {
@@ -70,8 +83,7 @@ export interface RawPhoneNumber {
   type: string;
   status: string;
   incoming_call_action: string;
-  default_stream_url: string | null;
-  default_pipeline_mode: string;
+  client_websocket_url: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -82,12 +94,27 @@ export interface RawPhoneCall {
   remote_phone_number: string;
   direction: string;
   status: string;
-  pipeline_mode: string;
-  stream_url: string | null;
+  client_websocket_url: string | null;
+  use_inkbox_tts: boolean | null;
+  use_inkbox_stt: boolean | null;
+  hangup_reason: string | null;
   started_at: string | null;
   ended_at: string | null;
   created_at: string;
   updated_at: string;
+}
+
+export interface RawRateLimitInfo {
+  calls_used: number;
+  calls_remaining: number;
+  calls_limit: number;
+  minutes_used: number;
+  minutes_remaining: number;
+  minutes_limit: number;
+}
+
+export interface RawPhoneCallWithRateLimit extends RawPhoneCall {
+  rate_limit: RawRateLimitInfo;
 }
 
 export interface RawPhoneTranscript {
@@ -123,8 +150,7 @@ export function parsePhoneNumber(r: RawPhoneNumber): PhoneNumber {
     type: r.type,
     status: r.status,
     incomingCallAction: r.incoming_call_action,
-    defaultStreamUrl: r.default_stream_url,
-    defaultPipelineMode: r.default_pipeline_mode ?? "client_llm_only",
+    clientWebsocketUrl: r.client_websocket_url,
     createdAt: new Date(r.created_at),
     updatedAt: new Date(r.updated_at),
   };
@@ -137,12 +163,34 @@ export function parsePhoneCall(r: RawPhoneCall): PhoneCall {
     remotePhoneNumber: r.remote_phone_number,
     direction: r.direction,
     status: r.status,
-    pipelineMode: r.pipeline_mode ?? "client_llm_only",
-    streamUrl: r.stream_url,
+    clientWebsocketUrl: r.client_websocket_url,
+    useInkboxTts: r.use_inkbox_tts,
+    useInkboxStt: r.use_inkbox_stt,
+    hangupReason: r.hangup_reason,
     startedAt: r.started_at ? new Date(r.started_at) : null,
     endedAt: r.ended_at ? new Date(r.ended_at) : null,
     createdAt: new Date(r.created_at),
     updatedAt: new Date(r.updated_at),
+  };
+}
+
+export function parseRateLimitInfo(r: RawRateLimitInfo): RateLimitInfo {
+  return {
+    callsUsed: r.calls_used,
+    callsRemaining: r.calls_remaining,
+    callsLimit: r.calls_limit,
+    minutesUsed: r.minutes_used,
+    minutesRemaining: r.minutes_remaining,
+    minutesLimit: r.minutes_limit,
+  };
+}
+
+export function parsePhoneCallWithRateLimit(
+  r: RawPhoneCallWithRateLimit,
+): PhoneCallWithRateLimit {
+  return {
+    ...parsePhoneCall(r),
+    rateLimit: parseRateLimitInfo(r.rate_limit),
   };
 }
 

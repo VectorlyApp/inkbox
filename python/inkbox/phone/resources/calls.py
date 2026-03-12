@@ -9,7 +9,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 from uuid import UUID
 
-from inkbox.phone.types import PhoneCall
+from inkbox.phone.types import PhoneCall, PhoneCallWithRateLimit
 
 if TYPE_CHECKING:
     from inkbox.phone._http import HttpTransport
@@ -58,31 +58,28 @@ class CallsResource:
         *,
         from_number: str,
         to_number: str,
-        stream_url: str | None = None,
-        pipeline_mode: str | None = None,
+        client_websocket_url: str | None = None,
         webhook_url: str | None = None,
-    ) -> PhoneCall:
+    ) -> PhoneCallWithRateLimit:
         """Place an outbound call.
 
         Args:
             from_number: E.164 number to call from. Must belong to your org and be active.
             to_number: E.164 number to call.
-            stream_url: WebSocket URL for audio bridging. Falls back to the phone
-                number's ``default_stream_url``. Returns 400 if neither is set.
-            pipeline_mode: Pipeline ownership: ``"client_llm_only"``, ``"client_llm_tts"``,
-                or ``"client_llm_tts_stt"``. Falls back to the phone number's
-                ``default_pipeline_mode``.
+            client_websocket_url: WebSocket URL (wss://) for audio bridging. Falls back
+                to the phone number's ``client_websocket_url``.
             webhook_url: Custom webhook URL for call lifecycle events.
+
+        Returns:
+            The created call record with current rate limit info.
         """
         body: dict[str, Any] = {
             "from_number": from_number,
             "to_number": to_number,
         }
-        if stream_url is not None:
-            body["stream_url"] = stream_url
-        if pipeline_mode is not None:
-            body["pipeline_mode"] = pipeline_mode
+        if client_websocket_url is not None:
+            body["client_websocket_url"] = client_websocket_url
         if webhook_url is not None:
             body["webhook_url"] = webhook_url
         data = self._http.post("/place-call", json=body)
-        return PhoneCall._from_dict(data)
+        return PhoneCallWithRateLimit._from_dict(data)

@@ -23,7 +23,7 @@ class MessagesResource:
 
     def list(
         self,
-        mailbox_id: UUID | str,
+        email_address: str,
         *,
         page_size: int = _DEFAULT_PAGE_SIZE,
     ) -> Iterator[Message]:
@@ -32,26 +32,26 @@ class MessagesResource:
         Pagination is handled automatically — just iterate.
 
         Args:
-            mailbox_id: UUID of the mailbox.
+            email_address: Full email address of the mailbox.
             page_size: Number of messages fetched per API call (1–100).
 
         Example::
 
-            for msg in client.messages.list(mailbox_id):
+            for msg in client.messages.list(email_address):
                 print(msg.subject, msg.from_address)
         """
-        return self._paginate(mailbox_id, page_size=page_size)
+        return self._paginate(email_address, page_size=page_size)
 
     def _paginate(
         self,
-        mailbox_id: UUID | str,
+        email_address: str,
         *,
         page_size: int,
     ) -> Iterator[Message]:
         cursor: str | None = None
         while True:
             page = self._http.get(
-                f"/mailboxes/{mailbox_id}/messages",
+                f"/mailboxes/{email_address}/messages",
                 params={"limit": page_size, "cursor": cursor},
             )
             for item in page["items"]:
@@ -60,22 +60,22 @@ class MessagesResource:
                 break
             cursor = page["next_cursor"]
 
-    def get(self, mailbox_id: UUID | str, message_id: UUID | str) -> MessageDetail:
+    def get(self, email_address: str, message_id: UUID | str) -> MessageDetail:
         """Get a message with full body content.
 
         Args:
-            mailbox_id: UUID of the owning mailbox.
+            email_address: Full email address of the owning mailbox.
             message_id: UUID of the message.
 
         Returns:
             Full message including ``body_text`` and ``body_html``.
         """
-        data = self._http.get(f"/mailboxes/{mailbox_id}/messages/{message_id}")
+        data = self._http.get(f"/mailboxes/{email_address}/messages/{message_id}")
         return MessageDetail._from_dict(data)
 
     def send(
         self,
-        mailbox_id: UUID | str,
+        email_address: str,
         *,
         to: list[str],
         subject: str,
@@ -89,7 +89,7 @@ class MessagesResource:
         """Send an email from a mailbox.
 
         Args:
-            mailbox_id: UUID of the sending mailbox.
+            email_address: Full email address of the sending mailbox.
             to: Primary recipient addresses (at least one required).
             subject: Email subject line.
             body_text: Plain-text body.
@@ -122,12 +122,12 @@ class MessagesResource:
         if attachments is not None:
             body["attachments"] = attachments
 
-        data = self._http.post(f"/mailboxes/{mailbox_id}/messages", json=body)
+        data = self._http.post(f"/mailboxes/{email_address}/messages", json=body)
         return Message._from_dict(data)
 
     def update_flags(
         self,
-        mailbox_id: UUID | str,
+        email_address: str,
         message_id: UUID | str,
         *,
         is_read: bool | None = None,
@@ -143,26 +143,26 @@ class MessagesResource:
         if is_starred is not None:
             body["is_starred"] = is_starred
         data = self._http.patch(
-            f"/mailboxes/{mailbox_id}/messages/{message_id}", json=body
+            f"/mailboxes/{email_address}/messages/{message_id}", json=body
         )
         return Message._from_dict(data)
 
-    def mark_read(self, mailbox_id: UUID | str, message_id: UUID | str) -> Message:
+    def mark_read(self, email_address: str, message_id: UUID | str) -> Message:
         """Mark a message as read."""
-        return self.update_flags(mailbox_id, message_id, is_read=True)
+        return self.update_flags(email_address, message_id, is_read=True)
 
-    def mark_unread(self, mailbox_id: UUID | str, message_id: UUID | str) -> Message:
+    def mark_unread(self, email_address: str, message_id: UUID | str) -> Message:
         """Mark a message as unread."""
-        return self.update_flags(mailbox_id, message_id, is_read=False)
+        return self.update_flags(email_address, message_id, is_read=False)
 
-    def star(self, mailbox_id: UUID | str, message_id: UUID | str) -> Message:
+    def star(self, email_address: str, message_id: UUID | str) -> Message:
         """Star a message."""
-        return self.update_flags(mailbox_id, message_id, is_starred=True)
+        return self.update_flags(email_address, message_id, is_starred=True)
 
-    def unstar(self, mailbox_id: UUID | str, message_id: UUID | str) -> Message:
+    def unstar(self, email_address: str, message_id: UUID | str) -> Message:
         """Unstar a message."""
-        return self.update_flags(mailbox_id, message_id, is_starred=False)
+        return self.update_flags(email_address, message_id, is_starred=False)
 
-    def delete(self, mailbox_id: UUID | str, message_id: UUID | str) -> None:
+    def delete(self, email_address: str, message_id: UUID | str) -> None:
         """Delete a message."""
-        self._http.delete(f"/mailboxes/{mailbox_id}/messages/{message_id}")
+        self._http.delete(f"/mailboxes/{email_address}/messages/{message_id}")

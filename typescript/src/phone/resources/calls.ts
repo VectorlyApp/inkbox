@@ -7,8 +7,11 @@
 import { HttpTransport } from "../../_http.js";
 import {
   PhoneCall,
+  PhoneCallWithRateLimit,
   RawPhoneCall,
+  RawPhoneCallWithRateLimit,
   parsePhoneCall,
+  parsePhoneCallWithRateLimit,
 } from "../types.js";
 
 export class CallsResource {
@@ -50,31 +53,27 @@ export class CallsResource {
    *
    * @param options.fromNumber - E.164 number to call from. Must belong to your org and be active.
    * @param options.toNumber - E.164 number to call.
-   * @param options.streamUrl - WebSocket URL for audio bridging. Falls back to the phone number's `defaultStreamUrl`. Returns 400 if neither is set.
-   * @param options.pipelineMode - Pipeline ownership: `"client_llm_only"`, `"client_llm_tts"`, or `"client_llm_tts_stt"`. Falls back to the phone number's `defaultPipelineMode`.
+   * @param options.clientWebsocketUrl - WebSocket URL (wss://) for audio bridging. Falls back to the phone number's `clientWebsocketUrl`.
    * @param options.webhookUrl - Custom webhook URL for call lifecycle events.
+   * @returns The created call record with current rate limit info.
    */
   async place(options: {
     fromNumber: string;
     toNumber: string;
-    streamUrl?: string;
-    pipelineMode?: string;
+    clientWebsocketUrl?: string;
     webhookUrl?: string;
-  }): Promise<PhoneCall> {
+  }): Promise<PhoneCallWithRateLimit> {
     const body: Record<string, unknown> = {
       from_number: options.fromNumber,
       to_number: options.toNumber,
     };
-    if (options.streamUrl !== undefined) {
-      body["stream_url"] = options.streamUrl;
-    }
-    if (options.pipelineMode !== undefined) {
-      body["pipeline_mode"] = options.pipelineMode;
+    if (options.clientWebsocketUrl !== undefined) {
+      body["client_websocket_url"] = options.clientWebsocketUrl;
     }
     if (options.webhookUrl !== undefined) {
       body["webhook_url"] = options.webhookUrl;
     }
-    const data = await this.http.post<RawPhoneCall>("/place-call", body);
-    return parsePhoneCall(data);
+    const data = await this.http.post<RawPhoneCallWithRateLimit>("/place-call", body);
+    return parsePhoneCallWithRateLimit(data);
   }
 }

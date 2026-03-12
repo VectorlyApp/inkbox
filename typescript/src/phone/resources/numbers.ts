@@ -38,26 +38,21 @@ export class PhoneNumbersResource {
    *
    * @param phoneNumberId - UUID of the phone number.
    * @param options.incomingCallAction - `"auto_accept"`, `"auto_reject"`, or `"webhook"`.
-   * @param options.defaultStreamUrl - WebSocket URL for audio bridging on `auto_accept`.
-   * @param options.defaultPipelineMode - `"client_llm_only"`, `"client_llm_tts"`, or `"client_llm_tts_stt"`.
+   * @param options.clientWebsocketUrl - WebSocket URL (wss://) for audio bridging on `auto_accept`.
    */
   async update(
     phoneNumberId: string,
     options: {
       incomingCallAction?: string;
-      defaultStreamUrl?: string;
-      defaultPipelineMode?: string;
+      clientWebsocketUrl?: string;
     },
   ): Promise<PhoneNumber> {
     const body: Record<string, unknown> = {};
     if (options.incomingCallAction !== undefined) {
       body["incoming_call_action"] = options.incomingCallAction;
     }
-    if (options.defaultStreamUrl !== undefined) {
-      body["default_stream_url"] = options.defaultStreamUrl;
-    }
-    if (options.defaultPipelineMode !== undefined) {
-      body["default_pipeline_mode"] = options.defaultPipelineMode;
+    if (options.clientWebsocketUrl !== undefined) {
+      body["client_websocket_url"] = options.clientWebsocketUrl;
     }
     const data = await this.http.patch<RawPhoneNumber>(
       `${BASE}/${phoneNumberId}`,
@@ -67,34 +62,36 @@ export class PhoneNumbersResource {
   }
 
   /**
-   * Provision a new phone number via Telnyx.
+   * Provision a new phone number via Telnyx and assign it to an agent identity.
    *
+   * @param options.agentHandle - Handle of the agent identity to assign this number to
+   *   (e.g. `"sales-agent"` or `"@sales-agent"`).
    * @param options.type - `"toll_free"` or `"local"`. Defaults to `"toll_free"`.
    * @param options.state - US state abbreviation (e.g. `"NY"`). Only valid for `local` numbers.
    */
-  async provision(
-    options?: { type?: string; state?: string },
-  ): Promise<PhoneNumber> {
+  async provision(options: {
+    agentHandle: string;
+    type?: string;
+    state?: string;
+  }): Promise<PhoneNumber> {
     const body: Record<string, unknown> = {
-      type: options?.type ?? "toll_free",
+      agent_handle: options.agentHandle,
+      type: options.type ?? "toll_free",
     };
-    if (options?.state !== undefined) {
+    if (options.state !== undefined) {
       body["state"] = options.state;
     }
-    const data = await this.http.post<RawPhoneNumber>(
-      `${BASE}/provision`,
-      body,
-    );
+    const data = await this.http.post<RawPhoneNumber>(BASE, body);
     return parsePhoneNumber(data);
   }
 
   /**
-   * Release (delete) a phone number.
+   * Release (delete) a phone number by ID.
    *
-   * @param number - E.164 formatted phone number to release.
+   * @param phoneNumberId - UUID of the phone number to release.
    */
-  async release(number: string): Promise<void> {
-    await this.http.post(`${BASE}/release`, { number });
+  async release(phoneNumberId: string): Promise<void> {
+    await this.http.delete(`${BASE}/${phoneNumberId}`);
   }
 
   /**
