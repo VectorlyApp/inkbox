@@ -1,40 +1,33 @@
 /**
- * Create an agent identity and assign communication channels to it.
+ * Create an agent identity and provision communication channels for it.
  *
  * Usage:
- *   INKBOX_API_KEY=ApiKey_... MAILBOX_ID=<uuid> PHONE_NUMBER_ID=<uuid> npx ts-node register-agent-identity.ts
+ *   INKBOX_API_KEY=ApiKey_... npx ts-node register-agent-identity.ts
  */
 
-import { InkboxIdentities } from "../../typescript/src/identities/index.js";
+import { Inkbox } from "../../typescript/src/inkbox.js";
 
-const client = new InkboxIdentities({ apiKey: process.env.INKBOX_API_KEY! });
+const inkbox = new Inkbox({ apiKey: process.env.INKBOX_API_KEY! });
 
-// Register agent identity
-const identity = await client.identities.create({ agentHandle: "sales-agent" });
-console.log(`Registered agent: ${identity.agentHandle}  (id=${identity.id})`);
+// Register agent identity — returns an Agent object
+const agent = await inkbox.identities.create({ agentHandle: "sales-agent" });
+console.log(`Registered agent: ${agent.agentHandle}  (id=${agent.id})`);
 
-// Assign channels
-if (process.env.MAILBOX_ID) {
-  const withMailbox = await client.identities.assignMailbox("sales-agent", {
-    mailboxId: process.env.MAILBOX_ID,
-  });
-  console.log(`Assigned mailbox: ${withMailbox.mailbox?.emailAddress}`);
-}
+// Provision and link a mailbox
+const mailbox = await agent.assignMailbox({ displayName: "Sales Agent" });
+console.log(`Assigned mailbox: ${mailbox.emailAddress}`);
 
-if (process.env.PHONE_NUMBER_ID) {
-  const withPhone = await client.identities.assignPhoneNumber("sales-agent", {
-    phoneNumberId: process.env.PHONE_NUMBER_ID,
-  });
-  console.log(`Assigned phone: ${withPhone.phoneNumber?.number}`);
-}
+// Provision and link a phone number
+const phone = await agent.assignPhoneNumber({ type: "toll_free" });
+console.log(`Assigned phone: ${phone.number}`);
 
 // List all identities
-const all = await client.identities.list();
+const all = await inkbox.identities.list();
 console.log(`\nAll identities (${all.length}):`);
 for (const id of all) {
   console.log(`  ${id.agentHandle}  status=${id.status}`);
 }
 
 // Unregister agent
-await client.identities.delete("sales-agent");
+await agent.delete();
 console.log("\nUnregistered agent sales-agent.");

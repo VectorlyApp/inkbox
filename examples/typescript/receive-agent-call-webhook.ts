@@ -5,24 +5,24 @@
  *   INKBOX_API_KEY=ApiKey_... PHONE_NUMBER_ID=<id> npx ts-node receive-agent-call-webhook.ts
  */
 
-import { InkboxPhone } from "../../typescript/src/phone/index.js";
+import { Inkbox } from "../../typescript/src/inkbox.js";
 
-const client = new InkboxPhone({ apiKey: process.env.INKBOX_API_KEY! });
+const inkbox = new Inkbox({ apiKey: process.env.INKBOX_API_KEY! });
 const phoneNumberId = process.env.PHONE_NUMBER_ID!;
 
 // Register webhook for agent phone number
-const hook = await client.webhooks.create(phoneNumberId, {
+const hook = await inkbox.phoneWebhooks.create(phoneNumberId, {
   url: "https://example.com/webhook",
   eventTypes: ["incoming_call"],
 });
 console.log(`Registered agent phone webhook ${hook.id}  secret=${hook.secret}`);
 
 // Update agent phone webhook
-const updated = await client.webhooks.update(phoneNumberId, hook.id, {
+const updated = await inkbox.phoneWebhooks.update(phoneNumberId, hook.id, {
   url: "https://example.com/webhook-v2",
 });
 console.log(`Updated URL: ${updated.url}`);
 
 // Remove agent phone webhook
-await client.webhooks.delete(phoneNumberId, hook.id);
+await inkbox.phoneWebhooks.delete(phoneNumberId, hook.id);
 console.log("Agent phone webhook removed.");
