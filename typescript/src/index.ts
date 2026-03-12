@@ -4,8 +4,7 @@ export type {
   Mailbox,
   Message,
   MessageDetail,
+  SigningKey,
   Thread,
   ThreadDetail,
-  Webhook,
-  WebhookCreateResult,
 } from "./types.js";

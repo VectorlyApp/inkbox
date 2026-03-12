@@ -58,8 +58,7 @@ class CallsResource:
         *,
         from_number: str,
         to_number: str,
-        stream_url: str | None = None,
-        pipeline_mode: str | None = None,
+        client_websocket_url: str | None = None,
         webhook_url: str | None = None,
     ) -> PhoneCallWithRateLimit:
         """Place an outbound call.
@@ -67,8 +66,8 @@ class CallsResource:
         Args:
             from_number: E.164 number to call from. Must belong to your org and be active.
             to_number: E.164 number to call.
-            stream_url: WebSocket URL (wss://) for audio bridging.
-            pipeline_mode: Pipeline mode override for this call.
+            client_websocket_url: WebSocket URL (wss://) for audio bridging. Falls back
+                to the phone number's ``client_websocket_url`` if not provided.
             webhook_url: Custom webhook URL for call lifecycle events.
 
         Returns:
@@ -78,10 +77,8 @@ class CallsResource:
             "from_number": from_number,
             "to_number": to_number,
         }
-        if stream_url is not None:
-            body["stream_url"] = stream_url
-        if pipeline_mode is not None:
-            body["pipeline_mode"] = pipeline_mode
+        if client_websocket_url is not None:
+            body["client_websocket_url"] = client_websocket_url
         if webhook_url is not None:
             body["webhook_url"] = webhook_url
         data = self._http.post("/place-call", json=body)

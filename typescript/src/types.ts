@@ -6,6 +6,7 @@ export interface Mailbox {
   id: string;
   emailAddress: string;
   displayName: string | null;
+  webhookUrl: string | null;
   /** "active" | "paused" | "deleted" */
   status: string;
   createdAt: Date;
@@ -61,19 +62,10 @@ export interface ThreadDetail extends Thread {
   messages: Message[];
 }
 
-export interface Webhook {
-  id: string;
-  mailboxId: string;
-  url: string;
-  eventTypes: string[];
-  /** "active" | "paused" | "deleted" */
-  status: string;
+export interface SigningKey {
+  /** Plaintext signing key — returned once on creation/rotation. Store securely. */
+  signingKey: string;
   createdAt: Date;
-}
-
-export interface WebhookCreateResult extends Webhook {
-  /** One-time HMAC-SHA256 signing secret. Save immediately — not returned again. */
-  secret: string;
 }
 
 // ---- internal raw API shapes (snake_case from JSON) ----
@@ -82,9 +74,15 @@ export interface RawMailbox {
   id: string;
   email_address: string;
   display_name: string | null;
+  webhook_url: string | null;
   status: string;
   created_at: string;
   updated_at: string;
+}
+
+export interface RawSigningKey {
+  signing_key: string;
+  created_at: string;
 }
 
 export interface RawMessage {
@@ -125,20 +123,6 @@ export interface RawThread {
   messages?: RawMessage[];
 }
 
-export interface RawWebhook {
-  id: string;
-  mailbox_id: string;
-  url: string;
-  event_types: string[];
-  status: string;
-  created_at: string;
-}
-
-export interface RawWebhookCreateResult extends RawWebhook {
-  /** One-time HMAC-SHA256 signing secret. Save immediately — not returned again. */
-  secret: string;
-}
-
 export interface RawCursorPage<T> {
   items: T[];
   next_cursor: string | null;
@@ -152,9 +136,17 @@ export function parseMailbox(r: RawMailbox): Mailbox {
     id: r.id,
     emailAddress: r.email_address,
     displayName: r.display_name,
+    webhookUrl: r.webhook_url,
     status: r.status,
     createdAt: new Date(r.created_at),
     updatedAt: new Date(r.updated_at),
+  };
+}
+
+export function parseSigningKey(r: RawSigningKey): SigningKey {
+  return {
+    signingKey: r.signing_key,
+    createdAt: new Date(r.created_at),
   };
 }
 
@@ -211,17 +203,3 @@ export function parseThreadDetail(r: RawThread): ThreadDetail {
   };
 }
 
-export function parseWebhook(r: RawWebhook): Webhook {
-  return {
-    id: r.id,
-    mailboxId: r.mailbox_id,
-    url: r.url,
-    eventTypes: r.event_types,
-    status: r.status,
-    createdAt: new Date(r.created_at),
-  };
-}
-
-export function parseWebhookCreateResult(r: RawWebhookCreateResult): WebhookCreateResult {
-  return { ...parseWebhook(r), secret: r.secret };
-}

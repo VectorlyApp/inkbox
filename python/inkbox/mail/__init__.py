@@ -8,10 +8,9 @@ from inkbox.mail.types import (
     Mailbox,
     Message,
     MessageDetail,
+    SigningKey,
     Thread,
     ThreadDetail,
-    Webhook,
-    WebhookCreateResult,
 )
 
 __all__ = [
@@ -21,8 +20,7 @@ __all__ = [
     "Mailbox",
     "Message",
     "MessageDetail",
+    "SigningKey",
     "Thread",
     "ThreadDetail",
-    "Webhook",
-    "WebhookCreateResult",
 ]

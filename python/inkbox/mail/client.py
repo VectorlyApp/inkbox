@@ -9,8 +9,8 @@ from __future__ import annotations
 from inkbox.mail._http import HttpTransport
 from inkbox.mail.resources.mailboxes import MailboxesResource
 from inkbox.mail.resources.messages import MessagesResource
+from inkbox.mail.resources.signing_keys import SigningKeysResource
 from inkbox.mail.resources.threads import ThreadsResource
-from inkbox.mail.resources.webhooks import WebhooksResource
 
 _DEFAULT_BASE_URL = "https://api.inkbox.ai/api/v1/mail"
 
@@ -29,16 +29,16 @@ class InkboxMail:
 
         client = InkboxMail(api_key="ApiKey_...")
 
-        mailbox = client.mailboxes.create(display_name="Agent 01")
+        mailbox = client.mailboxes.create(agent_handle="sales-agent")
 
         client.messages.send(
-            mailbox.id,
+            mailbox.email_address,
             to=["user@example.com"],
             subject="Hello from Inkbox",
             body_text="Hi there!",
         )
 
-        for msg in client.messages.list(mailbox.id):
+        for msg in client.messages.list(mailbox.email_address):
             print(msg.subject, msg.from_address)
 
         client.close()
@@ -57,14 +57,18 @@ class InkboxMail:
         timeout: float = 30.0,
     ) -> None:
         self._http = HttpTransport(api_key=api_key, base_url=base_url, timeout=timeout)
+        # Signing keys live at the API root (one level up from /mail)
+        _api_root = base_url.rstrip("/").removesuffix("/mail")
+        self._api_http = HttpTransport(api_key=api_key, base_url=_api_root, timeout=timeout)
         self.mailboxes = MailboxesResource(self._http)
         self.messages = MessagesResource(self._http)
         self.threads = ThreadsResource(self._http)
-        self.webhooks = WebhooksResource(self._http)
+        self.signing_keys = SigningKeysResource(self._api_http)
 
     def close(self) -> None:
-        """Close the underlying HTTP connection pool."""
+        """Close the underlying HTTP connection pools."""
         self._http.close()
+        self._api_http.close()
 
     def __enter__(self) -> InkboxMail:
         return self

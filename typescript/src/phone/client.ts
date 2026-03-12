@@ -8,7 +8,6 @@ import { HttpTransport } from "../_http.js";
 import { PhoneNumbersResource } from "./resources/numbers.js";
 import { CallsResource } from "./resources/calls.js";
 import { TranscriptsResource } from "./resources/transcripts.js";
-import { PhoneWebhooksResource } from "./resources/webhooks.js";
 
 const DEFAULT_BASE_URL = "https://api.inkbox.ai/api/v1/phone";
 
@@ -30,12 +29,12 @@ export interface InkboxPhoneOptions {
  *
  * const client = new InkboxPhone({ apiKey: "ApiKey_..." });
  *
- * const number = await client.numbers.provision();
+ * const number = await client.numbers.provision({ agentHandle: "sales-agent" });
  *
  * const call = await client.calls.place({
  *   fromNumber: number.number,
  *   toNumber: "+15167251294",
- *   streamUrl: "wss://your-agent.example.com/ws",
+ *   clientWebsocketUrl: "wss://your-agent.example.com/ws",
  * });
  *
  * console.log(call.status);
@@ -45,7 +44,6 @@ export class InkboxPhone {
   readonly numbers: PhoneNumbersResource;
   readonly calls: CallsResource;
   readonly transcripts: TranscriptsResource;
-  readonly webhooks: PhoneWebhooksResource;
 
   private readonly http: HttpTransport;
 
@@ -58,6 +56,5 @@ export class InkboxPhone {
     this.numbers = new PhoneNumbersResource(this.http);
     this.calls = new CallsResource(this.http);
     this.transcripts = new TranscriptsResource(this.http);
-    this.webhooks = new PhoneWebhooksResource(this.http);
   }
 }

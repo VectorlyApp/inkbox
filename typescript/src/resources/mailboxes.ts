@@ -58,14 +58,22 @@ export class MailboxesResource {
    * Update mutable mailbox fields.
    *
    * Only provided fields are applied; omitted fields are left unchanged.
+   * Pass `webhookUrl: null` to unsubscribe from webhooks.
    *
    * @param emailAddress - Full email address of the mailbox to update.
    * @param options.displayName - New human-readable sender name.
+   * @param options.webhookUrl - HTTPS URL to receive webhook events, or `null` to unsubscribe.
    */
-  async update(emailAddress: string, options: { displayName?: string }): Promise<Mailbox> {
+  async update(
+    emailAddress: string,
+    options: { displayName?: string; webhookUrl?: string | null },
+  ): Promise<Mailbox> {
     const body: Record<string, unknown> = {};
     if (options.displayName !== undefined) {
       body["display_name"] = options.displayName;
+    }
+    if ("webhookUrl" in options) {
+      body["webhook_url"] = options.webhookUrl;
     }
     const data = await this.http.patch<RawMailbox>(`${BASE}/${emailAddress}`, body);
     return parseMailbox(data);

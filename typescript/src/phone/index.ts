@@ -5,6 +5,4 @@ export type {
   PhoneCallWithRateLimit,
   RateLimitInfo,
   PhoneTranscript,
-  PhoneWebhook,
-  PhoneWebhookCreateResult,
 } from "./types.js";

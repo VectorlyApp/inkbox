@@ -10,7 +10,6 @@ from inkbox.phone._http import HttpTransport
 from inkbox.phone.resources.numbers import PhoneNumbersResource
 from inkbox.phone.resources.calls import CallsResource
 from inkbox.phone.resources.transcripts import TranscriptsResource
-from inkbox.phone.resources.webhooks import PhoneWebhooksResource
 
 _DEFAULT_BASE_URL = "https://api.inkbox.ai/api/v1/phone"
 
@@ -28,11 +27,11 @@ class InkboxPhone:
         from inkbox.phone import InkboxPhone
 
         with InkboxPhone(api_key="ApiKey_...") as client:
-            number = client.numbers.provision(type="toll_free")
+            number = client.numbers.provision(agent_handle="sales-agent")
             call = client.calls.place(
                 from_number=number.number,
                 to_number="+15167251294",
-                stream_url="wss://your-agent.example.com/ws",
+                client_websocket_url="wss://your-agent.example.com/ws",
             )
             print(call.status)
     """
@@ -48,7 +47,6 @@ class InkboxPhone:
         self.numbers = PhoneNumbersResource(self._http)
         self.calls = CallsResource(self._http)
         self.transcripts = TranscriptsResource(self._http)
-        self.webhooks = PhoneWebhooksResource(self._http)
 
     def close(self) -> None:
         """Close the underlying HTTP connection pool."""

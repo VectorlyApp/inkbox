@@ -12,6 +12,7 @@ export interface PhoneNumber {
   /** "auto_accept" | "auto_reject" | "webhook" */
   incomingCallAction: string;
   clientWebsocketUrl: string | null;
+  incomingCallWebhookUrl: string | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -59,22 +60,6 @@ export interface PhoneTranscript {
   createdAt: Date;
 }
 
-export interface PhoneWebhook {
-  id: string;
-  sourceId: string;
-  sourceType: string;
-  url: string;
-  eventTypes: string[];
-  /** "active" | "paused" | "deleted" */
-  status: string;
-  createdAt: Date;
-}
-
-export interface PhoneWebhookCreateResult extends PhoneWebhook {
-  /** One-time HMAC-SHA256 signing secret. Save immediately — not returned again. */
-  secret: string;
-}
-
 // ---- internal raw API shapes (snake_case from JSON) ----
 
 export interface RawPhoneNumber {
@@ -84,6 +69,7 @@ export interface RawPhoneNumber {
   status: string;
   incoming_call_action: string;
   client_websocket_url: string | null;
+  incoming_call_webhook_url: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -127,20 +113,6 @@ export interface RawPhoneTranscript {
   created_at: string;
 }
 
-export interface RawPhoneWebhook {
-  id: string;
-  source_id: string;
-  source_type: string;
-  url: string;
-  event_types: string[];
-  status: string;
-  created_at: string;
-}
-
-export interface RawPhoneWebhookCreateResult extends RawPhoneWebhook {
-  secret: string;
-}
-
 // ---- parsers ----
 
 export function parsePhoneNumber(r: RawPhoneNumber): PhoneNumber {
@@ -151,6 +123,7 @@ export function parsePhoneNumber(r: RawPhoneNumber): PhoneNumber {
     status: r.status,
     incomingCallAction: r.incoming_call_action,
     clientWebsocketUrl: r.client_websocket_url,
+    incomingCallWebhookUrl: r.incoming_call_webhook_url,
     createdAt: new Date(r.created_at),
     updatedAt: new Date(r.updated_at),
   };
@@ -206,20 +179,3 @@ export function parsePhoneTranscript(r: RawPhoneTranscript): PhoneTranscript {
   };
 }
 
-export function parsePhoneWebhook(r: RawPhoneWebhook): PhoneWebhook {
-  return {
-    id: r.id,
-    sourceId: r.source_id,
-    sourceType: r.source_type,
-    url: r.url,
-    eventTypes: r.event_types,
-    status: r.status,
-    createdAt: new Date(r.created_at),
-  };
-}
-
-export function parsePhoneWebhookCreateResult(
-  r: RawPhoneWebhookCreateResult,
-): PhoneWebhookCreateResult {
-  return { ...parsePhoneWebhook(r), secret: r.secret };
-}

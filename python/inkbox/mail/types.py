@@ -23,6 +23,7 @@ class Mailbox:
     id: UUID
     email_address: str
     display_name: str | None
+    webhook_url: str | None
     status: str
     created_at: datetime
     updated_at: datetime
@@ -33,6 +34,7 @@ class Mailbox:
             id=UUID(d["id"]),
             email_address=d["email_address"],
             display_name=d.get("display_name"),
+            webhook_url=d.get("webhook_url"),
             status=d["status"],
             created_at=datetime.fromisoformat(d["created_at"]),
             updated_at=datetime.fromisoformat(d["updated_at"]),
@@ -154,35 +156,18 @@ class ThreadDetail(Thread):
 
 
 @dataclass
-class Webhook:
-    """A webhook subscription for a mailbox."""
+class SigningKey:
+    """Org-level webhook signing key.
 
-    id: UUID
-    mailbox_id: UUID
-    url: str
-    event_types: list[str]
-    status: str
+    Returned once on creation/rotation — store ``signing_key`` securely.
+    """
+
+    signing_key: str
     created_at: datetime
 
     @classmethod
-    def _from_dict(cls, d: dict[str, Any]) -> Webhook:
+    def _from_dict(cls, d: dict[str, Any]) -> SigningKey:
         return cls(
-            id=UUID(d["id"]),
-            mailbox_id=UUID(d["mailbox_id"]),
-            url=d["url"],
-            event_types=d["event_types"],
-            status=d["status"],
+            signing_key=d["signing_key"],
             created_at=datetime.fromisoformat(d["created_at"]),
         )
-
-
-@dataclass
-class WebhookCreateResult(Webhook):
-    """Returned only on webhook creation. Includes the one-time HMAC signing secret."""
-
-    secret: str = ""
-
-    @classmethod
-    def _from_dict(cls, d: dict[str, Any]) -> WebhookCreateResult:  # type: ignore[override]
-        base = Webhook._from_dict(d)
-        return cls(**base.__dict__, secret=d["secret"])

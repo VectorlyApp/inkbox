@@ -26,6 +26,7 @@ class MessagesResource:
         email_address: str,
         *,
         page_size: int = _DEFAULT_PAGE_SIZE,
+        direction: str | None = None,
     ) -> Iterator[Message]:
         """Iterator over all messages in a mailbox, newest first.
 
@@ -34,25 +35,30 @@ class MessagesResource:
         Args:
             email_address: Full email address of the mailbox.
             page_size: Number of messages fetched per API call (1–100).
+            direction: Filter by direction: ``"inbound"`` or ``"outbound"``.
 
         Example::
 
             for msg in client.messages.list(email_address):
                 print(msg.subject, msg.from_address)
         """
-        return self._paginate(email_address, page_size=page_size)
+        return self._paginate(email_address, page_size=page_size, direction=direction)
 
     def _paginate(
         self,
         email_address: str,
         *,
         page_size: int,
+        direction: str | None = None,
     ) -> Iterator[Message]:
         cursor: str | None = None
         while True:
+            params: dict[str, Any] = {"limit": page_size, "cursor": cursor}
+            if direction is not None:
+                params["direction"] = direction
             page = self._http.get(
                 f"/mailboxes/{email_address}/messages",
-                params={"limit": page_size, "cursor": cursor},
+                params=params,
             )
             for item in page["items"]:
                 yield Message._from_dict(item)
@@ -166,3 +172,29 @@ class MessagesResource:
     def delete(self, email_address: str, message_id: UUID | str) -> None:
         """Delete a message."""
         self._http.delete(f"/mailboxes/{email_address}/messages/{message_id}")
+
+    def get_attachment(
+        self,
+        email_address: str,
+        message_id: UUID | str,
+        filename: str,
+        *,
+        redirect: bool = False,
+    ) -> dict[str, Any]:
+        """Get a presigned URL for a message attachment.
+
+        Args:
+            email_address: Full email address of the owning mailbox.
+            message_id: UUID of the message.
+            filename: Attachment filename.
+            redirect: If ``True``, follows the 302 redirect and returns the final
+                URL as ``{"url": str}``. If ``False`` (default), returns
+                ``{"url": str, "filename": str, "expires_in": int}``.
+
+        Returns:
+            Dict with ``url``, ``filename``, and ``expires_in`` (seconds).
+        """
+        return self._http.get(
+            f"/mailboxes/{email_address}/messages/{message_id}/attachments/{filename}",
+            params={"redirect": "true" if redirect else "false"},
+        )

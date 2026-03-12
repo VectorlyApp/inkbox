@@ -6,10 +6,10 @@ from inkbox.phone.client import InkboxPhone
 from inkbox.phone.exceptions import InkboxAPIError, InkboxError
 from inkbox.phone.types import (
     PhoneCall,
+    PhoneCallWithRateLimit,
     PhoneNumber,
     PhoneTranscript,
-    PhoneWebhook,
-    PhoneWebhookCreateResult,
+    RateLimitInfo,
 )
 
 __all__ = [
@@ -17,8 +17,8 @@ __all__ = [
     "InkboxError",
     "InkboxAPIError",
     "PhoneCall",
+    "PhoneCallWithRateLimit",
     "PhoneNumber",
     "PhoneTranscript",
-    "PhoneWebhook",
-    "PhoneWebhookCreateResult",
+    "RateLimitInfo",
 ]

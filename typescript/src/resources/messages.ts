@@ -33,15 +33,17 @@ export class MessagesResource {
    */
   async *list(
     emailAddress: string,
-    options?: { pageSize?: number },
+    options?: { pageSize?: number; direction?: "inbound" | "outbound" },
   ): AsyncGenerator<Message> {
     const limit = options?.pageSize ?? DEFAULT_PAGE_SIZE;
     let cursor: string | undefined;
 
     while (true) {
+      const params: Record<string, unknown> = { limit, cursor };
+      if (options?.direction !== undefined) params["direction"] = options.direction;
       const page = await this.http.get<RawCursorPage<RawMessage>>(
         `/mailboxes/${emailAddress}/messages`,
-        { limit, cursor },
+        params,
       );
       for (const item of page.items) {
         yield parseMessage(item);
@@ -169,5 +171,26 @@ export class MessagesResource {
   /** Delete a message. */
   async delete(emailAddress: string, messageId: string): Promise<void> {
     await this.http.delete(`/mailboxes/${emailAddress}/messages/${messageId}`);
+  }
+
+  /**
+   * Get a presigned URL for a message attachment.
+   *
+   * @param emailAddress - Full email address of the owning mailbox.
+   * @param messageId - UUID of the message.
+   * @param filename - Attachment filename.
+   * @param options.redirect - If `true`, follows the redirect. If `false` (default),
+   *   returns `{ url, filename, expiresIn }`.
+   */
+  async getAttachment(
+    emailAddress: string,
+    messageId: string,
+    filename: string,
+    options?: { redirect?: boolean },
+  ): Promise<{ url: string; filename: string; expiresIn: number }> {
+    return this.http.get(
+      `/mailboxes/${emailAddress}/messages/${messageId}/attachments/${filename}`,
+      { redirect: options?.redirect ? "true" : "false" },
+    );
   }
 }
