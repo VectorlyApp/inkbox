@@ -37,8 +37,8 @@ class PhoneNumbersResource:
         phone_number_id: UUID | str,
         *,
         incoming_call_action: str | None = _UNSET,  # type: ignore[assignment]
-        client_websocket_url: str | None = _UNSET,  # type: ignore[assignment]
-        incoming_call_webhook_url: str | None = _UNSET,  # type: ignore[assignment]
+        default_stream_url: str | None = _UNSET,  # type: ignore[assignment]
+        default_pipeline_mode: str | None = _UNSET,  # type: ignore[assignment]
     ) -> PhoneNumber:
         """Update phone number settings.
 
@@ -48,69 +48,47 @@ class PhoneNumbersResource:
         Args:
             phone_number_id: UUID of the phone number.
             incoming_call_action: ``"auto_accept"``, ``"auto_reject"``, or ``"webhook"``.
-            client_websocket_url: WebSocket URL (wss://) for audio bridging.
-                Required when ``incoming_call_action="auto_accept"``.
-            incoming_call_webhook_url: HTTPS URL to call on incoming calls.
-                Required when ``incoming_call_action="webhook"``.
+            default_stream_url: WebSocket URL (wss://) for audio bridging.
+            default_pipeline_mode: Default pipeline mode for incoming calls.
         """
         body: dict[str, Any] = {}
         if incoming_call_action is not _UNSET:
             body["incoming_call_action"] = incoming_call_action
-        if client_websocket_url is not _UNSET:
-            body["client_websocket_url"] = client_websocket_url
-        if incoming_call_webhook_url is not _UNSET:
-            body["incoming_call_webhook_url"] = incoming_call_webhook_url
+        if default_stream_url is not _UNSET:
+            body["default_stream_url"] = default_stream_url
+        if default_pipeline_mode is not _UNSET:
+            body["default_pipeline_mode"] = default_pipeline_mode
         data = self._http.patch(f"{_BASE}/{phone_number_id}", json=body)
         return PhoneNumber._from_dict(data)
 
     def provision(
         self,
         *,
-        agent_handle: str,
         type: str = "toll_free",
         state: str | None = None,
-        incoming_call_action: str = "auto_reject",
-        client_websocket_url: str | None = None,
-        incoming_call_webhook_url: str | None = None,
     ) -> PhoneNumber:
-        """Provision a new phone number via Telnyx and assign it to an agent identity.
+        """Provision a new phone number.
 
         Args:
-            agent_handle: Handle of the agent identity to assign this number to
-                (e.g. ``"sales-agent"`` or ``"@sales-agent"``).
             type: ``"toll_free"`` or ``"local"``. Defaults to ``"toll_free"``.
             state: US state abbreviation (e.g. ``"NY"``). Only valid for ``local`` numbers.
-            incoming_call_action: ``"auto_accept"``, ``"auto_reject"``, or ``"webhook"``.
-                Defaults to ``"auto_reject"``.
-            client_websocket_url: WebSocket URL (wss://) for audio bridging.
-                Required when ``incoming_call_action="auto_accept"``.
-            incoming_call_webhook_url: HTTPS URL to call on incoming calls.
-                Required when ``incoming_call_action="webhook"``.
 
         Returns:
             The provisioned phone number.
         """
-        body: dict[str, Any] = {
-            "agent_handle": agent_handle,
-            "type": type,
-            "incoming_call_action": incoming_call_action,
-        }
+        body: dict[str, Any] = {"type": type}
         if state is not None:
             body["state"] = state
-        if client_websocket_url is not None:
-            body["client_websocket_url"] = client_websocket_url
-        if incoming_call_webhook_url is not None:
-            body["incoming_call_webhook_url"] = incoming_call_webhook_url
-        data = self._http.post(_BASE, json=body)
+        data = self._http.post(f"{_BASE}/provision", json=body)
         return PhoneNumber._from_dict(data)
 
-    def release(self, phone_number_id: UUID | str) -> None:
+    def release(self, *, number: str) -> None:
         """Release a phone number.
 
         Args:
-            phone_number_id: UUID of the phone number to release.
+            number: E.164 phone number to release.
         """
-        self._http.delete(f"{_BASE}/{phone_number_id}")
+        self._http.post(f"{_BASE}/release", json={"number": number})
 
     def search_transcripts(
         self,

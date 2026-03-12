@@ -10,6 +10,7 @@ from inkbox.phone._http import HttpTransport
 from inkbox.phone.resources.numbers import PhoneNumbersResource
 from inkbox.phone.resources.calls import CallsResource
 from inkbox.phone.resources.transcripts import TranscriptsResource
+from inkbox.phone.resources.webhooks import PhoneWebhooksResource
 from inkbox.signing_keys import SigningKeysResource
 
 _DEFAULT_BASE_URL = "https://api.inkbox.ai/api/v1/phone"
@@ -51,6 +52,7 @@ class InkboxPhone:
         self.numbers = PhoneNumbersResource(self._http)
         self.calls = CallsResource(self._http)
         self.transcripts = TranscriptsResource(self._http)
+        self.webhooks = PhoneWebhooksResource(self._http)
         self.signing_keys = SigningKeysResource(self._api_http)
 
     def close(self) -> None:
