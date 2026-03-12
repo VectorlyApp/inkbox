@@ -65,6 +65,30 @@ class TestMailboxesCreate:
         assert mailbox.display_name is None
 
 
+class TestMailboxesUpdate:
+    def test_update_display_name(self):
+        res, http = _resource()
+        http.patch.return_value = {**MAILBOX_DICT, "display_name": "New Name"}
+        uid = "aaaa1111-0000-0000-0000-000000000001"
+
+        mailbox = res.update(uid, display_name="New Name")
+
+        http.patch.assert_called_once_with(
+            f"/mailboxes/{uid}", json={"display_name": "New Name"}
+        )
+        assert mailbox.display_name == "New Name"
+
+    def test_update_omits_none_fields(self):
+        res, http = _resource()
+        http.patch.return_value = MAILBOX_DICT
+        uid = "aaaa1111-0000-0000-0000-000000000001"
+
+        res.update(uid)
+
+        _, kwargs = http.patch.call_args
+        assert kwargs["json"] == {}
+
+
 class TestMailboxesDelete:
     def test_deletes_mailbox(self):
         res, http = _resource()
