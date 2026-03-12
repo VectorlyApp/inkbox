@@ -60,6 +60,20 @@ export interface PhoneTranscript {
   createdAt: Date;
 }
 
+export interface PhoneWebhook {
+  id: string;
+  sourceId: string;
+  sourceType: string;
+  url: string;
+  eventTypes: string[];
+  status: string;
+  createdAt: Date;
+}
+
+export interface PhoneWebhookCreateResult extends PhoneWebhook {
+  secret: string;
+}
+
 // ---- internal raw API shapes (snake_case from JSON) ----
 
 export interface RawPhoneNumber {
@@ -111,6 +125,20 @@ export interface RawPhoneTranscript {
   party: string;
   text: string;
   created_at: string;
+}
+
+export interface RawPhoneWebhook {
+  id: string;
+  source_id: string;
+  source_type: string;
+  url: string;
+  event_types: string[];
+  status: string;
+  created_at: string;
+}
+
+export interface RawPhoneWebhookCreateResult extends RawPhoneWebhook {
+  secret: string;
 }
 
 // ---- parsers ----
@@ -176,6 +204,25 @@ export function parsePhoneTranscript(r: RawPhoneTranscript): PhoneTranscript {
     party: r.party,
     text: r.text,
     createdAt: new Date(r.created_at),
+  };
+}
+
+export function parsePhoneWebhook(r: RawPhoneWebhook): PhoneWebhook {
+  return {
+    id: r.id,
+    sourceId: r.source_id,
+    sourceType: r.source_type,
+    url: r.url,
+    eventTypes: r.event_types,
+    status: r.status,
+    createdAt: new Date(r.created_at),
+  };
+}
+
+export function parsePhoneWebhookCreateResult(r: RawPhoneWebhookCreateResult): PhoneWebhookCreateResult {
+  return {
+    ...parsePhoneWebhook(r),
+    secret: r.secret,
   };
 }
 

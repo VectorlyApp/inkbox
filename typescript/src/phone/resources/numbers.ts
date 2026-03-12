@@ -89,8 +89,10 @@ export class PhoneNumbersResource {
     const body: Record<string, unknown> = {
       agent_handle: options.agentHandle,
       type: options.type ?? "toll_free",
-      incoming_call_action: options.incomingCallAction ?? "auto_reject",
     };
+    if (options.incomingCallAction !== undefined) {
+      body["incoming_call_action"] = options.incomingCallAction;
+    }
     if (options.state !== undefined) {
       body["state"] = options.state;
     }
