@@ -212,6 +212,27 @@ await inkbox.phoneWebhooks.update(number.id, hook.id, { url: "https://yourapp.co
 await inkbox.phoneWebhooks.delete(number.id, hook.id);
 ```
 
+### Verifying webhook signatures
+
+Use `verifyWebhook` to confirm that an incoming request was sent by Inkbox.
+
+```typescript
+import { verifyWebhook } from "@inkbox/sdk";
+
+// Express — use express.raw() to get the raw body Buffer
+app.post("/hooks/mail", express.raw({ type: "*/*" }), (req, res) => {
+  const valid = verifyWebhook({
+    payload: req.body,
+    signature: req.headers["x-inkbox-signature"] as string,
+    requestId: req.headers["x-inkbox-request-id"] as string,
+    timestamp: req.headers["x-inkbox-timestamp"] as string,
+    secret: "whsec_...",
+  });
+  if (!valid) return res.status(403).end();
+  // handle event ...
+});
+```
+
 ---
 
 ## Examples

@@ -6,6 +6,8 @@ Org-level webhook signing key management — shared across all Inkbox clients.
 
 from __future__ import annotations
 
+import hashlib
+import hmac
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Any
@@ -27,6 +29,35 @@ class SigningKey:
             signing_key=d["signing_key"],
             created_at=datetime.fromisoformat(d["created_at"]),
         )
+
+
+def verify_webhook(
+    *,
+    payload: bytes,
+    signature: str,
+    request_id: str,
+    timestamp: str,
+    secret: str,
+) -> bool:
+    """Verify that an incoming webhook request was sent by Inkbox.
+
+    Args:
+        payload:    Raw request body bytes (do not parse/re-serialize).
+        signature:  Value of the ``X-Inkbox-Signature`` header.
+        request_id: Value of the ``X-Inkbox-Request-ID`` header.
+        timestamp:  Value of the ``X-Inkbox-Timestamp`` header.
+        secret:     Your signing key, with or without a ``whsec_`` prefix.
+
+    Returns:
+        True if the signature is valid, False otherwise.
+    """
+    if not signature.startswith("sha256="):
+        return False
+    key = secret.removeprefix("whsec_")
+    message = f"{request_id}.{timestamp}.".encode() + payload
+    expected = hmac.new(key.encode(), message, hashlib.sha256).hexdigest()
+    received = signature.removeprefix("sha256=")
+    return hmac.compare_digest(expected, received)
 
 
 class SigningKeysResource:

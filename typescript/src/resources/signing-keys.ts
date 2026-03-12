@@ -4,6 +4,7 @@
  * Shared across all Inkbox clients (mail, phone, etc.).
  */
 
+import { createHmac, timingSafeEqual } from "crypto";
 import { HttpTransport } from "../_http.js";
 
 const PATH = "/signing-keys";
@@ -24,6 +25,38 @@ function parseSigningKey(r: RawSigningKey): SigningKey {
     signingKey: r.signing_key,
     createdAt: new Date(r.created_at),
   };
+}
+
+/**
+ * Verify that an incoming webhook request was sent by Inkbox.
+ *
+ * @param payload    - Raw request body as a Buffer or string.
+ * @param signature  - Value of the `X-Inkbox-Signature` header.
+ * @param requestId  - Value of the `X-Inkbox-Request-ID` header.
+ * @param timestamp  - Value of the `X-Inkbox-Timestamp` header.
+ * @param secret     - Your signing key, with or without a `whsec_` prefix.
+ * @returns True if the signature is valid.
+ */
+export function verifyWebhook({
+  payload,
+  signature,
+  requestId,
+  timestamp,
+  secret,
+}: {
+  payload: Buffer | string;
+  signature: string;
+  requestId: string;
+  timestamp: string;
+  secret: string;
+}): boolean {
+  if (!signature.startsWith("sha256=")) return false;
+  const key = secret.startsWith("whsec_") ? secret.slice("whsec_".length) : secret;
+  const body = typeof payload === "string" ? Buffer.from(payload) : payload;
+  const message = Buffer.concat([Buffer.from(`${requestId}.${timestamp}.`), body]);
+  const expected = createHmac("sha256", key).update(message).digest("hex");
+  const received = signature.slice("sha256=".length);
+  return timingSafeEqual(Buffer.from(expected), Buffer.from(received));
 }
 
 export class SigningKeysResource {

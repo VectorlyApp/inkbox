@@ -214,6 +214,42 @@ inkbox.phone_webhooks.update(number.id, hook.id, url="https://yourapp.com/hooks/
 inkbox.phone_webhooks.delete(number.id, hook.id)
 ```
 
+### Verifying webhook signatures
+
+Use `verify_webhook` to confirm that an incoming request was sent by Inkbox.
+
+```python
+from inkbox import verify_webhook
+
+# FastAPI
+@app.post("/hooks/mail")
+async def mail_hook(request: Request):
+    raw_body = await request.body()
+    if not verify_webhook(
+        payload=raw_body,
+        signature=request.headers["X-Inkbox-Signature"],
+        request_id=request.headers["X-Inkbox-Request-ID"],
+        timestamp=request.headers["X-Inkbox-Timestamp"],
+        secret="whsec_...",
+    ):
+        raise HTTPException(status_code=403)
+    ...
+
+# Flask
+@app.post("/hooks/mail")
+def mail_hook():
+    raw_body = request.get_data()
+    if not verify_webhook(
+        payload=raw_body,
+        signature=request.headers["X-Inkbox-Signature"],
+        request_id=request.headers["X-Inkbox-Request-ID"],
+        timestamp=request.headers["X-Inkbox-Timestamp"],
+        secret="whsec_...",
+    ):
+        abort(403)
+    ...
+```
+
 ---
 
 ## Examples

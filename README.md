@@ -248,6 +248,40 @@ await inkbox.numbers.release({ number: number.number });
 
 ---
 
+## Verifying Webhook Signatures
+
+Use `verify_webhook` / `verifyWebhook` to confirm that an incoming request was sent by Inkbox. The function checks the HMAC-SHA256 signature over `{request_id}.{timestamp}.{body}`.
+
+### Python
+
+```python
+from inkbox import verify_webhook
+
+is_valid = verify_webhook(
+    payload=raw_body,                                        # bytes
+    signature=request.headers["X-Inkbox-Signature"],
+    request_id=request.headers["X-Inkbox-Request-ID"],
+    timestamp=request.headers["X-Inkbox-Timestamp"],
+    secret="whsec_...",                                      # from POST /signing-keys
+)
+```
+
+### TypeScript
+
+```ts
+import { verifyWebhook } from "@inkbox/sdk";
+
+const valid = verifyWebhook({
+  payload: req.body,                                         // Buffer or string
+  signature: req.headers["x-inkbox-signature"] as string,
+  requestId: req.headers["x-inkbox-request-id"] as string,
+  timestamp: req.headers["x-inkbox-timestamp"] as string,
+  secret: "whsec_...",                                       // from POST /signing-keys
+});
+```
+
+---
+
 ## License
 
 MIT

@@ -38,8 +38,8 @@ from inkbox.identities.types import (
     IdentityPhoneNumber,
 )
 
-# Signing key
-from inkbox.signing_keys import SigningKey
+# Signing key + webhook verification
+from inkbox.signing_keys import SigningKey, verify_webhook
 
 __all__ = [
     # Entry points
@@ -69,6 +69,7 @@ __all__ = [
     "AgentIdentityDetail",
     "IdentityMailbox",
     "IdentityPhoneNumber",
-    # Signing key
+    # Signing key + webhook verification
     "SigningKey",
+    "verify_webhook",
 ]
