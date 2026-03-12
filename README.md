@@ -16,29 +16,24 @@ Agent identities are the central concept — a named agent (e.g. `"sales-agent"`
 ### Python
 
 ```python
-from inkbox.identities import InkboxIdentities
+from inkbox import Inkbox
 
-with InkboxIdentities(api_key="ApiKey_...") as client:
+with Inkbox(api_key="ApiKey_...") as inkbox:
+    # Create an identity — returns an Agent object
+    agent = inkbox.identities.create(agent_handle="sales-agent")
 
-    # Create an identity
-    identity = client.identities.create(agent_handle="sales-agent")
+    # Provision and link channels in one call each
+    agent.assign_mailbox(display_name="Sales Agent")
+    agent.assign_phone_number(type="toll_free")
 
-    # Assign channels (mailbox / phone number must already exist)
-    detail = client.identities.assign_mailbox(
-        "sales-agent", mailbox_id="<mailbox-uuid>"
-    )
-    detail = client.identities.assign_phone_number(
-        "sales-agent", phone_number_id="<phone-number-uuid>"
-    )
-
-    print(detail.mailbox.email_address)
-    print(detail.phone_number.number)
+    print(agent.mailbox.email_address)
+    print(agent.phone_number.number)
 
     # List, get, update, delete
-    identities = client.identities.list()
-    detail = client.identities.get("sales-agent")
-    client.identities.update("sales-agent", status="paused")
-    client.identities.delete("sales-agent")
+    identities = inkbox.identities.list()
+    agent = inkbox.identities.get("sales-agent")
+    inkbox.identities.update("sales-agent", status="paused")
+    agent.delete()
 ```
 
 ### TypeScript
@@ -71,15 +66,14 @@ await client.identities.delete("sales-agent");
 ### Python
 
 ```python
-from inkbox.mail import InkboxMail
+from inkbox import Inkbox
 
-with InkboxMail(api_key="ApiKey_...") as client:
-
+with Inkbox(api_key="ApiKey_...") as inkbox:
     # Create a mailbox
-    mailbox = client.mailboxes.create(agent_handle="sales-agent", display_name="Sales Agent")
+    mailbox = inkbox.mailboxes.create(display_name="Sales Agent")
 
     # Send an email
-    client.messages.send(
+    inkbox.messages.send(
         mailbox.email_address,
         to=["user@example.com"],
         subject="Hello from Inkbox",
@@ -87,12 +81,12 @@ with InkboxMail(api_key="ApiKey_...") as client:
     )
 
     # Iterate over all messages (pagination handled automatically)
-    for msg in client.messages.list(mailbox.email_address):
+    for msg in inkbox.messages.list(mailbox.email_address):
         print(msg.subject, msg.from_address)
 
     # Reply to a message
-    detail = client.messages.get(mailbox.email_address, msg.id)
-    client.messages.send(
+    detail = inkbox.messages.get(mailbox.email_address, msg.id)
+    inkbox.messages.send(
         mailbox.email_address,
         to=detail.to_addresses,
         subject=f"Re: {detail.subject}",
@@ -101,13 +95,13 @@ with InkboxMail(api_key="ApiKey_...") as client:
     )
 
     # Update mailbox display name
-    client.mailboxes.update(mailbox.email_address, display_name="Support Agent")
+    inkbox.mailboxes.update(mailbox.email_address, display_name="Support Agent")
 
     # Search
-    results = client.mailboxes.search(mailbox.email_address, q="invoice")
+    results = inkbox.mailboxes.search(mailbox.email_address, q="invoice")
 
     # Webhooks (secret is one-time — save it immediately)
-    hook = client.webhooks.create(
+    hook = inkbox.mail_webhooks.create(
         mailbox.email_address,
         url="https://yourapp.com/hooks/mail",
         event_types=["message.received"],
@@ -161,22 +155,21 @@ console.log(hook.secret); // save this
 ### Python
 
 ```python
-from inkbox.phone import InkboxPhone
+from inkbox import Inkbox
 
-with InkboxPhone(api_key="ApiKey_...") as client:
-
+with Inkbox(api_key="ApiKey_...") as inkbox:
     # Provision a phone number
-    number = client.numbers.provision(type="toll_free")
+    number = inkbox.numbers.provision(type="toll_free")
 
     # Update settings
-    client.numbers.update(
+    inkbox.numbers.update(
         number.id,
         incoming_call_action="auto_accept",
         default_stream_url="wss://your-agent.example.com/ws",
     )
 
     # Place an outbound call
-    call = client.calls.place(
+    call = inkbox.calls.place(
         from_number=number.number,
         to_number="+15167251294",
         stream_url="wss://your-agent.example.com/ws",
@@ -185,14 +178,14 @@ with InkboxPhone(api_key="ApiKey_...") as client:
     print(call.rate_limit.calls_remaining)
 
     # List calls and transcripts
-    calls = client.calls.list(number.id)
-    transcripts = client.transcripts.list(number.id, calls[0].id)
+    calls = inkbox.calls.list(number.id)
+    transcripts = inkbox.transcripts.list(number.id, calls[0].id)
 
     # Search transcripts
-    results = client.numbers.search_transcripts(number.id, q="appointment")
+    results = inkbox.numbers.search_transcripts(number.id, q="appointment")
 
     # Webhooks
-    hook = client.webhooks.create(
+    hook = inkbox.phone_webhooks.create(
         number.id,
         url="https://yourapp.com/hooks/phone",
         event_types=["call.completed"],
@@ -200,7 +193,7 @@ with InkboxPhone(api_key="ApiKey_...") as client:
     print(hook.secret)  # save this
 
     # Release a number
-    client.numbers.release(number=number.number)
+    inkbox.numbers.release(number=number.number)
 ```
 
 ### TypeScript
