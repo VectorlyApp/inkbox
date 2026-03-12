@@ -2,7 +2,7 @@
 List recent calls and their transcripts for a phone number.
 
 Usage:
-    INKBOX_API_KEY=ApiKey_... PHONE_NUMBER_ID=<id> python list_calls.py
+    INKBOX_API_KEY=ApiKey_... PHONE_NUMBER_ID=<id> python read_agent_calls.py
 """
 
 import os

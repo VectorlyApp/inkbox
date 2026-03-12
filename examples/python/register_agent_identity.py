@@ -2,16 +2,16 @@
 Create an agent identity and assign communication channels to it.
 
 Usage:
-    INKBOX_API_KEY=ApiKey_... MAILBOX_ID=<uuid> PHONE_NUMBER_ID=<uuid> python manage_identities.py
+    INKBOX_API_KEY=ApiKey_... MAILBOX_ID=<uuid> PHONE_NUMBER_ID=<uuid> python register_agent_identity.py
 """
 
 import os
 from inkbox.identities import InkboxIdentities
 
 with InkboxIdentities(api_key=os.environ["INKBOX_API_KEY"]) as client:
-    # Create
+    # Register agent identity
     identity = client.identities.create(agent_handle="sales-agent")
-    print(f"Created identity: {identity.agent_handle}  (id={identity.id})")
+    print(f"Registered agent: {identity.agent_handle}  (id={identity.id})")
 
     # Assign channels
     if mailbox_id := os.environ.get("MAILBOX_ID"):
@@ -28,6 +28,6 @@ with InkboxIdentities(api_key=os.environ["INKBOX_API_KEY"]) as client:
     for ident in all_identities:
         print(f"  {ident.agent_handle}  status={ident.status}")
 
-    # Clean up
+    # Unregister agent
     client.identities.delete("sales-agent")
-    print("\nDeleted sales-agent.")
+    print("\nUnregistered agent sales-agent.")

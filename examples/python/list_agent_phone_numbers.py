@@ -2,7 +2,7 @@
 List all phone numbers attached to your Inkbox account.
 
 Usage:
-    INKBOX_API_KEY=ApiKey_... python list_phone_numbers.py
+    INKBOX_API_KEY=ApiKey_... python list_agent_phone_numbers.py
 """
 
 import os

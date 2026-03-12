@@ -2,7 +2,7 @@
 Create, update, search, and delete a mailbox.
 
 Usage:
-    INKBOX_API_KEY=ApiKey_... AGENT_HANDLE=sales-agent python manage_mailboxes.py
+    INKBOX_API_KEY=ApiKey_... AGENT_HANDLE=sales-agent python create_agent_mailbox.py
 """
 
 import os
@@ -11,13 +11,13 @@ from inkbox.mail import InkboxMail
 client = InkboxMail(api_key=os.environ["INKBOX_API_KEY"])
 agent_handle = os.environ.get("AGENT_HANDLE", "sales-agent")
 
-# Create
+# Create agent mailbox
 mailbox = client.mailboxes.create(agent_handle=agent_handle, display_name="Sales Agent")
-print(f"Created mailbox: {mailbox.email_address}  display_name={mailbox.display_name!r}")
+print(f"Agent mailbox created: {mailbox.email_address}  display_name={mailbox.display_name!r}")
 
 # List all mailboxes
 all_mailboxes = client.mailboxes.list()
-print(f"\nAll mailboxes ({len(all_mailboxes)}):")
+print(f"\nAll agent mailboxes ({len(all_mailboxes)}):")
 for m in all_mailboxes:
     print(f"  {m.email_address}  status={m.status}")
 
@@ -29,6 +29,6 @@ print(f"\nUpdated display_name: {updated.display_name}")
 results = client.mailboxes.search(mailbox.email_address, q="hello")
 print(f'\nSearch results for "hello": {len(results)} messages')
 
-# Delete
+# Delete agent mailbox
 client.mailboxes.delete(mailbox.email_address)
-print("Deleted.")
+print("Agent mailbox deleted.")

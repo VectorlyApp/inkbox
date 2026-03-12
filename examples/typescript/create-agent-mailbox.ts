@@ -2,7 +2,7 @@
  * Create, update, search, and delete a mailbox.
  *
  * Usage:
- *   INKBOX_API_KEY=ApiKey_... AGENT_HANDLE=sales-agent npx ts-node manage-mailboxes.ts
+ *   INKBOX_API_KEY=ApiKey_... AGENT_HANDLE=sales-agent npx ts-node create-agent-mailbox.ts
  */
 
 import { InkboxMail } from "../../typescript/src/client.js";
@@ -10,16 +10,16 @@ import { InkboxMail } from "../../typescript/src/client.js";
 const client = new InkboxMail({ apiKey: process.env.INKBOX_API_KEY! });
 const agentHandle = process.env.AGENT_HANDLE ?? "sales-agent";
 
-// Create
+// Create agent mailbox
 const mailbox = await client.mailboxes.create({
   agentHandle,
   displayName: "Sales Agent",
 });
-console.log(`Created mailbox: ${mailbox.emailAddress}  displayName="${mailbox.displayName}"`);
+console.log(`Agent mailbox created: ${mailbox.emailAddress}  displayName="${mailbox.displayName}"`);
 
 // List all mailboxes
 const all = await client.mailboxes.list();
-console.log(`\nAll mailboxes (${all.length}):`);
+console.log(`\nAll agent mailboxes (${all.length}):`);
 for (const m of all) {
   console.log(`  ${m.emailAddress}  status=${m.status}`);
 }
@@ -34,6 +34,6 @@ console.log(`\nUpdated displayName: ${updated.displayName}`);
 const results = await client.mailboxes.search(mailbox.emailAddress, { q: "hello" });
 console.log(`\nSearch results for "hello": ${results.length} messages`);
 
-// Delete
+// Delete agent mailbox
 await client.mailboxes.delete(mailbox.emailAddress);
-console.log("Deleted.");
+console.log("Agent mailbox deleted.");

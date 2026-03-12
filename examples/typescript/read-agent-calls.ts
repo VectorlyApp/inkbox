@@ -2,7 +2,7 @@
  * List recent calls and their transcripts for a phone number.
  *
  * Usage:
- *   INKBOX_API_KEY=ApiKey_... PHONE_NUMBER_ID=<id> npx ts-node list-calls.ts
+ *   INKBOX_API_KEY=ApiKey_... PHONE_NUMBER_ID=<id> npx ts-node read-agent-calls.ts
  */
 
 import { InkboxPhone } from "../../typescript/src/phone/index.js";

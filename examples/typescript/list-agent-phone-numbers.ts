@@ -2,7 +2,7 @@
  * List all phone numbers attached to your Inkbox account.
  *
  * Usage:
- *   INKBOX_API_KEY=ApiKey_... npx ts-node list-phone-numbers.ts
+ *   INKBOX_API_KEY=ApiKey_... npx ts-node list-agent-phone-numbers.ts
  */
 
 import { InkboxPhone } from "../../typescript/src/phone/index.js";

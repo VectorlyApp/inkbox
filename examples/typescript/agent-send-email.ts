@@ -2,7 +2,7 @@
  * Send an email (and reply) from an Inkbox mailbox.
  *
  * Usage:
- *   INKBOX_API_KEY=ApiKey_... MAILBOX_ADDRESS=agent@inkboxmail.com npx ts-node send-email.ts
+ *   INKBOX_API_KEY=ApiKey_... MAILBOX_ADDRESS=agent@inkboxmail.com npx ts-node agent-send-email.ts
  */
 
 import { InkboxMail } from "../../typescript/src/client.js";
@@ -10,20 +10,20 @@ import { InkboxMail } from "../../typescript/src/client.js";
 const client = new InkboxMail({ apiKey: process.env.INKBOX_API_KEY! });
 const mailboxAddress = process.env.MAILBOX_ADDRESS!;
 
-// Send a new email
+// Agent sends outbound email
 const sent = await client.messages.send(mailboxAddress, {
   to: ["recipient@example.com"],
-  subject: "Hello from Inkbox",
-  bodyText: "Hi there! This message was sent via the Inkbox SDK.",
-  bodyHtml: "<p>Hi there! This message was sent via the <strong>Inkbox SDK</strong>.</p>",
+  subject: "Hello from your AI sales agent",
+  bodyText: "Hi there! I'm your AI sales agent reaching out via Inkbox.",
+  bodyHtml: "<p>Hi there! I'm your AI sales agent reaching out via <strong>Inkbox</strong>.</p>",
 });
 console.log(`Sent message ${sent.id}  subject="${sent.subject}"`);
 
-// Reply to that message (threads it automatically)
+// Agent sends threaded reply
 const reply = await client.messages.send(mailboxAddress, {
   to: ["recipient@example.com"],
   subject: `Re: ${sent.subject}`,
-  bodyText: "Following up on my previous message.",
+  bodyText: "Following up as your AI sales agent.",
   inReplyToMessageId: sent.id,
 });
 console.log(`Sent reply ${reply.id}`);

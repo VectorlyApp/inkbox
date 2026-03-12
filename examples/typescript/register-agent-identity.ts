@@ -2,16 +2,16 @@
  * Create an agent identity and assign communication channels to it.
  *
  * Usage:
- *   INKBOX_API_KEY=ApiKey_... MAILBOX_ID=<uuid> PHONE_NUMBER_ID=<uuid> npx ts-node manage-identities.ts
+ *   INKBOX_API_KEY=ApiKey_... MAILBOX_ID=<uuid> PHONE_NUMBER_ID=<uuid> npx ts-node register-agent-identity.ts
  */
 
 import { InkboxIdentities } from "../../typescript/src/identities/index.js";
 
 const client = new InkboxIdentities({ apiKey: process.env.INKBOX_API_KEY! });
 
-// Create
+// Register agent identity
 const identity = await client.identities.create({ agentHandle: "sales-agent" });
-console.log(`Created identity: ${identity.agentHandle}  (id=${identity.id})`);
+console.log(`Registered agent: ${identity.agentHandle}  (id=${identity.id})`);
 
 // Assign channels
 if (process.env.MAILBOX_ID) {
@@ -35,6 +35,6 @@ for (const id of all) {
   console.log(`  ${id.agentHandle}  status=${id.status}`);
 }
 
-// Clean up
+// Unregister agent
 await client.identities.delete("sales-agent");
-console.log("\nDeleted sales-agent.");
+console.log("\nUnregistered agent sales-agent.");
