@@ -6,13 +6,13 @@ Usage:
 """
 
 import os
-from inkbox.phone import InkboxPhone
+from inkbox import Inkbox
 
-client = InkboxPhone(api_key=os.environ["INKBOX_API_KEY"])
+inkbox = Inkbox(api_key=os.environ["INKBOX_API_KEY"])
 phone_number_id = os.environ["PHONE_NUMBER_ID"]
 
 # Register webhook for agent phone number
-hook = client.webhooks.create(
+hook = inkbox.phone_webhooks.create(
     phone_number_id,
     url="https://example.com/webhook",
     event_types=["incoming_call"],
@@ -20,7 +20,7 @@ hook = client.webhooks.create(
 print(f"Registered agent phone webhook {hook.id}  secret={hook.secret}")
 
 # Update agent phone webhook
-updated = client.webhooks.update(
+updated = inkbox.phone_webhooks.update(
     phone_number_id,
     hook.id,
     url="https://example.com/webhook-v2",
@@ -28,5 +28,5 @@ updated = client.webhooks.update(
 print(f"Updated URL: {updated.url}")
 
 # Remove agent phone webhook
-client.webhooks.delete(phone_number_id, hook.id)
+inkbox.phone_webhooks.delete(phone_number_id, hook.id)
 print("Agent phone webhook removed.")

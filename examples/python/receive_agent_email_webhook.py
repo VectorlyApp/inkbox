@@ -6,13 +6,13 @@ Usage:
 """
 
 import os
-from inkbox.mail import InkboxMail
+from inkbox import Inkbox
 
-client = InkboxMail(api_key=os.environ["INKBOX_API_KEY"])
+inkbox = Inkbox(api_key=os.environ["INKBOX_API_KEY"])
 mailbox_address = os.environ["MAILBOX_ADDRESS"]
 
 # Register webhook for agent mailbox
-hook = client.webhooks.create(
+hook = inkbox.mail_webhooks.create(
     mailbox_address,
     url="https://example.com/webhook",
     event_types=["message.received", "message.sent"],
@@ -20,11 +20,11 @@ hook = client.webhooks.create(
 print(f"Registered agent mailbox webhook {hook.id}  secret={hook.secret}")
 
 # List
-all_hooks = client.webhooks.list(mailbox_address)
+all_hooks = inkbox.mail_webhooks.list(mailbox_address)
 print(f"Active agent mailbox webhooks: {len(all_hooks)}")
 for w in all_hooks:
     print(f"  {w.id}  url={w.url}  events={', '.join(w.event_types)}")
 
 # Remove agent mailbox webhook
-client.webhooks.delete(mailbox_address, hook.id)
+inkbox.mail_webhooks.delete(mailbox_address, hook.id)
 print("Agent mailbox webhook removed.")

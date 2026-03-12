@@ -6,16 +6,16 @@ Usage:
 """
 
 import os
-from inkbox.phone import InkboxPhone
+from inkbox import Inkbox
 
-client = InkboxPhone(api_key=os.environ["INKBOX_API_KEY"])
+inkbox = Inkbox(api_key=os.environ["INKBOX_API_KEY"])
 phone_number_id = os.environ["PHONE_NUMBER_ID"]
 
-calls = client.calls.list(phone_number_id, limit=10)
+calls = inkbox.calls.list(phone_number_id, limit=10)
 
 for call in calls:
     print(f"\n{call.id}  {call.direction}  {call.remote_phone_number}  status={call.status}")
 
-    transcripts = client.transcripts.list(phone_number_id, call.id)
+    transcripts = inkbox.transcripts.list(phone_number_id, call.id)
     for t in transcripts:
         print(f"  [{t.party}] {t.text}")

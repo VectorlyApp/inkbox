@@ -6,13 +6,13 @@ Usage:
 """
 
 import os
-from inkbox.mail import InkboxMail
+from inkbox import Inkbox
 
-client = InkboxMail(api_key=os.environ["INKBOX_API_KEY"])
+inkbox = Inkbox(api_key=os.environ["INKBOX_API_KEY"])
 mailbox_address = os.environ["MAILBOX_ADDRESS"]
 
 # Agent sends outbound email
-sent = client.messages.send(
+sent = inkbox.messages.send(
     mailbox_address,
     to=["recipient@example.com"],
     subject="Hello from your AI sales agent",
@@ -22,7 +22,7 @@ sent = client.messages.send(
 print(f"Sent message {sent.id}  subject={sent.subject!r}")
 
 # Agent sends threaded reply
-reply = client.messages.send(
+reply = inkbox.messages.send(
     mailbox_address,
     to=["recipient@example.com"],
     subject=f"Re: {sent.subject}",

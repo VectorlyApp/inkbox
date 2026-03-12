@@ -1,20 +1,20 @@
-"""Tests for InkboxIdentities client."""
+"""Tests for Inkbox unified client — identities namespace."""
 
-from inkbox.identities.client import InkboxIdentities
+from inkbox import Inkbox
+from inkbox.client import _IdentitiesNamespace
 from inkbox.identities.resources.identities import IdentitiesResource
 
 
-class TestInkboxIdentitiesClient:
-    def test_creates_resource_instances(self):
-        client = InkboxIdentities(api_key="sk-test")
+class TestInkboxIdentitiesResources:
+    def test_creates_identities_namespace(self):
+        client = Inkbox(api_key="sk-test")
 
-        assert isinstance(client.identities, IdentitiesResource)
+        assert isinstance(client.identities, _IdentitiesNamespace)
+        assert isinstance(client._ids_resource, IdentitiesResource)
 
-    def test_context_manager(self):
-        with InkboxIdentities(api_key="sk-test") as client:
-            assert isinstance(client, InkboxIdentities)
+        client.close()
 
-    def test_custom_base_url(self):
-        client = InkboxIdentities(api_key="sk-test", base_url="http://localhost:8000")
-        assert client._http._client.base_url == "http://localhost:8000"
+    def test_ids_http_base_url(self):
+        client = Inkbox(api_key="sk-test", base_url="http://localhost:8000")
+        assert str(client._ids_http._client.base_url) == "http://localhost:8000/api/v1/identities/"
         client.close()

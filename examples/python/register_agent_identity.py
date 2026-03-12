@@ -2,32 +2,30 @@
 Create an agent identity and assign communication channels to it.
 
 Usage:
-    INKBOX_API_KEY=ApiKey_... MAILBOX_ID=<uuid> PHONE_NUMBER_ID=<uuid> python register_agent_identity.py
+    INKBOX_API_KEY=ApiKey_... python register_agent_identity.py
 """
 
 import os
-from inkbox.identities import InkboxIdentities
+from inkbox import Inkbox
 
-with InkboxIdentities(api_key=os.environ["INKBOX_API_KEY"]) as client:
-    # Register agent identity
-    identity = client.identities.create(agent_handle="sales-agent")
-    print(f"Registered agent: {identity.agent_handle}  (id={identity.id})")
+with Inkbox(api_key=os.environ["INKBOX_API_KEY"]) as inkbox:
+    # Create agent identity — returns an Agent object
+    agent = inkbox.identities.create(agent_handle="sales-agent")
+    print(f"Registered agent: {agent.agent_handle}  (id={agent.id})")
 
-    # Assign channels
-    if mailbox_id := os.environ.get("MAILBOX_ID"):
-        with_mailbox = client.identities.assign_mailbox("sales-agent", mailbox_id=mailbox_id)
-        print(f"Assigned mailbox: {with_mailbox.mailbox.email_address}")
+    # Provision and assign channels in one call each
+    mailbox = agent.assign_mailbox(display_name="Sales Agent")
+    print(f"Assigned mailbox: {mailbox.email_address}")
 
-    if phone_number_id := os.environ.get("PHONE_NUMBER_ID"):
-        with_phone = client.identities.assign_phone_number("sales-agent", phone_number_id=phone_number_id)
-        print(f"Assigned phone: {with_phone.phone_number.number}")
+    phone = agent.assign_phone_number(type="toll_free")
+    print(f"Assigned phone: {phone.number}")
 
     # List all identities
-    all_identities = client.identities.list()
+    all_identities = inkbox.identities.list()
     print(f"\nAll identities ({len(all_identities)}):")
     for ident in all_identities:
         print(f"  {ident.agent_handle}  status={ident.status}")
 
-    # Unregister agent
-    client.identities.delete("sales-agent")
+    # Unregister agent (unlinks channels without deleting them)
+    agent.delete()
     print("\nUnregistered agent sales-agent.")

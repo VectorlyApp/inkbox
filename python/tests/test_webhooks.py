@@ -13,7 +13,7 @@ class TestWebhooksCreate:
     def test_creates_webhook_with_secret(self, client, transport):
         transport.post.return_value = PHONE_WEBHOOK_CREATE_DICT
 
-        hook = client.webhooks.create(
+        hook = client.phone_webhooks.create(
             NUM_ID,
             url="https://example.com/webhooks/phone",
             event_types=["incoming_call"],
@@ -36,7 +36,7 @@ class TestWebhooksList:
     def test_returns_webhooks(self, client, transport):
         transport.get.return_value = [PHONE_WEBHOOK_DICT]
 
-        webhooks = client.webhooks.list(NUM_ID)
+        webhooks = client.phone_webhooks.list(NUM_ID)
 
         transport.get.assert_called_once_with(f"/numbers/{NUM_ID}/webhooks")
         assert len(webhooks) == 1
@@ -46,7 +46,7 @@ class TestWebhooksList:
     def test_empty_list(self, client, transport):
         transport.get.return_value = []
 
-        webhooks = client.webhooks.list(NUM_ID)
+        webhooks = client.phone_webhooks.list(NUM_ID)
 
         assert webhooks == []
 
@@ -56,7 +56,7 @@ class TestWebhooksUpdate:
         updated = {**PHONE_WEBHOOK_DICT, "url": "https://new.example.com/hook"}
         transport.patch.return_value = updated
 
-        result = client.webhooks.update(
+        result = client.phone_webhooks.update(
             NUM_ID, WH_ID, url="https://new.example.com/hook"
         )
 
@@ -70,7 +70,7 @@ class TestWebhooksUpdate:
         updated = {**PHONE_WEBHOOK_DICT, "event_types": ["incoming_call", "message.received"]}
         transport.patch.return_value = updated
 
-        result = client.webhooks.update(
+        result = client.phone_webhooks.update(
             NUM_ID, WH_ID, event_types=["incoming_call", "message.received"]
         )
 
@@ -81,7 +81,7 @@ class TestWebhooksUpdate:
     def test_omitted_fields_not_sent(self, client, transport):
         transport.patch.return_value = PHONE_WEBHOOK_DICT
 
-        client.webhooks.update(NUM_ID, WH_ID, url="https://example.com/hook")
+        client.phone_webhooks.update(NUM_ID, WH_ID, url="https://example.com/hook")
 
         _, kwargs = transport.patch.call_args
         assert "event_types" not in kwargs["json"]
@@ -89,7 +89,7 @@ class TestWebhooksUpdate:
 
 class TestWebhooksDelete:
     def test_deletes_webhook(self, client, transport):
-        client.webhooks.delete(NUM_ID, WH_ID)
+        client.phone_webhooks.delete(NUM_ID, WH_ID)
 
         transport.delete.assert_called_once_with(
             f"/numbers/{NUM_ID}/webhooks/{WH_ID}"

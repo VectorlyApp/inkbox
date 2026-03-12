@@ -6,11 +6,11 @@ Usage:
 """
 
 import os
-from inkbox.phone import InkboxPhone
+from inkbox import Inkbox
 
-client = InkboxPhone(api_key=os.environ["INKBOX_API_KEY"])
+inkbox = Inkbox(api_key=os.environ["INKBOX_API_KEY"])
 
-numbers = client.numbers.list()
+numbers = inkbox.numbers.list()
 
 for n in numbers:
     print(f"{n.number}  type={n.type}  status={n.status}")

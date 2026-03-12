@@ -1,27 +1,30 @@
-"""Tests for InkboxMail client."""
+"""Tests for Inkbox unified client — mail resources."""
 
-from inkbox.mail import InkboxMail
+from inkbox import Inkbox
 from inkbox.mail.resources.mailboxes import MailboxesResource
 from inkbox.mail.resources.messages import MessagesResource
 from inkbox.mail.resources.threads import ThreadsResource
+from inkbox.mail.resources.webhooks import WebhooksResource
 from inkbox.signing_keys import SigningKeysResource
 
 
-class TestInkboxMailClient:
-    def test_creates_resource_instances(self):
-        client = InkboxMail(api_key="sk-test")
+class TestInkboxMailResources:
+    def test_creates_mail_resource_instances(self):
+        client = Inkbox(api_key="sk-test")
 
         assert isinstance(client.mailboxes, MailboxesResource)
         assert isinstance(client.messages, MessagesResource)
         assert isinstance(client.threads, ThreadsResource)
+        assert isinstance(client.mail_webhooks, WebhooksResource)
         assert isinstance(client.signing_keys, SigningKeysResource)
+
         client.close()
 
     def test_context_manager(self):
-        with InkboxMail(api_key="sk-test") as client:
-            assert isinstance(client, InkboxMail)
+        with Inkbox(api_key="sk-test") as client:
+            assert isinstance(client, Inkbox)
 
-    def test_custom_base_url(self):
-        client = InkboxMail(api_key="sk-test", base_url="http://localhost:8000")
-        assert client._http._client.base_url == "http://localhost:8000"
+    def test_mail_http_base_url(self):
+        client = Inkbox(api_key="sk-test", base_url="http://localhost:8000")
+        assert str(client._mail_http._client.base_url) == "http://localhost:8000/api/v1/mail/"
         client.close()

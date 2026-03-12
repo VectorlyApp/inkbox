@@ -1,8 +1,7 @@
 """
-inkbox.mail — Python SDK for the Inkbox Mail API.
+inkbox.mail — mail types and exceptions.
 """
 
-from inkbox.mail.client import InkboxMail
 from inkbox.mail.exceptions import InkboxAPIError, InkboxError
 from inkbox.mail.types import (
     Mailbox,
@@ -10,11 +9,12 @@ from inkbox.mail.types import (
     MessageDetail,
     Thread,
     ThreadDetail,
+    Webhook,
+    WebhookCreateResult,
 )
 from inkbox.signing_keys import SigningKey
 
 __all__ = [
-    "InkboxMail",
     "InkboxError",
     "InkboxAPIError",
     "Mailbox",
@@ -23,4 +23,6 @@ __all__ = [
     "SigningKey",
     "Thread",
     "ThreadDetail",
+    "Webhook",
+    "WebhookCreateResult",
 ]

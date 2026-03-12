@@ -1,26 +1,26 @@
-"""Tests for InkboxPhone client."""
+"""Tests for Inkbox unified client — phone resources."""
 
-from inkbox.phone import InkboxPhone
+from inkbox import Inkbox
 from inkbox.phone.resources.numbers import PhoneNumbersResource
 from inkbox.phone.resources.calls import CallsResource
 from inkbox.phone.resources.transcripts import TranscriptsResource
+from inkbox.phone.resources.webhooks import PhoneWebhooksResource
 from inkbox.signing_keys import SigningKeysResource
 
 
-class TestInkboxPhoneClient:
-    def test_creates_resource_instances(self):
-        client = InkboxPhone(api_key="sk-test")
+class TestInkboxPhoneResources:
+    def test_creates_phone_resource_instances(self):
+        client = Inkbox(api_key="sk-test")
 
         assert isinstance(client.numbers, PhoneNumbersResource)
         assert isinstance(client.calls, CallsResource)
         assert isinstance(client.transcripts, TranscriptsResource)
+        assert isinstance(client.phone_webhooks, PhoneWebhooksResource)
         assert isinstance(client.signing_keys, SigningKeysResource)
 
-    def test_context_manager(self):
-        with InkboxPhone(api_key="sk-test") as client:
-            assert isinstance(client, InkboxPhone)
+        client.close()
 
-    def test_custom_base_url(self):
-        client = InkboxPhone(api_key="sk-test", base_url="http://localhost:8000")
-        assert client._http._client.base_url == "http://localhost:8000"
+    def test_phone_http_base_url(self):
+        client = Inkbox(api_key="sk-test", base_url="http://localhost:8000")
+        assert str(client._phone_http._client.base_url) == "http://localhost:8000/api/v1/phone/"
         client.close()
