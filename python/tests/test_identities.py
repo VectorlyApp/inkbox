@@ -1,7 +1,6 @@
 """Tests for IdentitiesResource."""
 
 from unittest.mock import MagicMock
-from uuid import UUID
 
 from sample_data_identities import IDENTITY_DICT, IDENTITY_DETAIL_DICT
 from inkbox.identities.resources.identities import IdentitiesResource
