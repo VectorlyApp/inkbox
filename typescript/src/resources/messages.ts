@@ -39,7 +39,7 @@ export class MessagesResource {
     let cursor: string | undefined;
 
     while (true) {
-      const params: Record<string, unknown> = { limit, cursor };
+      const params: Record<string, string | number | undefined> = { limit, cursor };
       if (options?.direction !== undefined) params["direction"] = options.direction;
       const page = await this.http.get<RawCursorPage<RawMessage>>(
         `/mailboxes/${emailAddress}/messages`,
