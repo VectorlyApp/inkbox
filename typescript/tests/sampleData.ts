@@ -192,3 +192,10 @@ export const RAW_IDENTITY_DETAIL = {
   mailbox: RAW_IDENTITY_MAILBOX,
   phone_number: RAW_IDENTITY_PHONE,
 };
+
+// ---- Signing Keys ----
+
+export const RAW_SIGNING_KEY = {
+  signing_key: "sk-test-hmac-secret-abc123",
+  created_at: "2026-03-09T00:00:00Z",
+};

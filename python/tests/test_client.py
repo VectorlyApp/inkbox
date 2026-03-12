@@ -4,7 +4,7 @@ from inkbox.phone import InkboxPhone
 from inkbox.phone.resources.numbers import PhoneNumbersResource
 from inkbox.phone.resources.calls import CallsResource
 from inkbox.phone.resources.transcripts import TranscriptsResource
-from inkbox.phone.resources.webhooks import PhoneWebhooksResource
+from inkbox.signing_keys import SigningKeysResource
 
 
 class TestInkboxPhoneClient:
@@ -14,7 +14,7 @@ class TestInkboxPhoneClient:
         assert isinstance(client.numbers, PhoneNumbersResource)
         assert isinstance(client.calls, CallsResource)
         assert isinstance(client.transcripts, TranscriptsResource)
-        assert isinstance(client.webhooks, PhoneWebhooksResource)
+        assert isinstance(client.signing_keys, SigningKeysResource)
 
     def test_context_manager(self):
         with InkboxPhone(api_key="sk-test") as client:

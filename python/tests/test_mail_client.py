@@ -4,7 +4,7 @@ from inkbox.mail import InkboxMail
 from inkbox.mail.resources.mailboxes import MailboxesResource
 from inkbox.mail.resources.messages import MessagesResource
 from inkbox.mail.resources.threads import ThreadsResource
-from inkbox.mail.resources.webhooks import WebhooksResource
+from inkbox.signing_keys import SigningKeysResource
 
 
 class TestInkboxMailClient:
@@ -14,7 +14,7 @@ class TestInkboxMailClient:
         assert isinstance(client.mailboxes, MailboxesResource)
         assert isinstance(client.messages, MessagesResource)
         assert isinstance(client.threads, ThreadsResource)
-        assert isinstance(client.webhooks, WebhooksResource)
+        assert isinstance(client.signing_keys, SigningKeysResource)
         client.close()
 
     def test_context_manager(self):
