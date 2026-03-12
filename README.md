@@ -75,11 +75,8 @@ from inkbox.mail import InkboxMail
 
 with InkboxMail(api_key="ApiKey_...") as client:
 
-    # Create a mailbox (agent identity must already exist)
-    mailbox = client.mailboxes.create(
-        agent_handle="sales-agent",
-        display_name="Sales Agent",
-    )
+    # Create a mailbox
+    mailbox = client.mailboxes.create(agent_handle="sales-agent", display_name="Sales Agent")
 
     # Send an email
     client.messages.send(
@@ -168,24 +165,21 @@ from inkbox.phone import InkboxPhone
 
 with InkboxPhone(api_key="ApiKey_...") as client:
 
-    # Provision a phone number (agent identity must already exist)
-    number = client.numbers.provision(
-        agent_handle="sales-agent",
-        type="toll_free",
-    )
+    # Provision a phone number
+    number = client.numbers.provision(type="toll_free")
 
     # Update settings
     client.numbers.update(
         number.id,
         incoming_call_action="auto_accept",
-        client_websocket_url="wss://your-agent.example.com/ws",
+        default_stream_url="wss://your-agent.example.com/ws",
     )
 
     # Place an outbound call
     call = client.calls.place(
         from_number=number.number,
         to_number="+15167251294",
-        client_websocket_url="wss://your-agent.example.com/ws",
+        stream_url="wss://your-agent.example.com/ws",
     )
     print(call.status)
     print(call.rate_limit.calls_remaining)
@@ -206,7 +200,7 @@ with InkboxPhone(api_key="ApiKey_...") as client:
     print(hook.secret)  # save this
 
     # Release a number
-    client.numbers.release(number.id)
+    client.numbers.release(number=number.number)
 ```
 
 ### TypeScript
@@ -216,7 +210,7 @@ import { InkboxPhone } from "@inkbox/sdk/phone";
 
 const client = new InkboxPhone({ apiKey: "ApiKey_..." });
 
-// Provision a phone number (agent identity must already exist)
+// Provision a phone number
 const number = await client.numbers.provision({
   agentHandle: "sales-agent",
   type: "toll_free",
