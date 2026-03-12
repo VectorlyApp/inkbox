@@ -33,5 +33,6 @@ def client(transport: FakeHttpTransport) -> InkboxPhone:
     c.numbers._http = transport
     c.calls._http = transport
     c.transcripts._http = transport
+    c.webhooks._http = transport
     c.signing_keys._http = transport
     return c
