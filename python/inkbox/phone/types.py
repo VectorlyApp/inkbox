@@ -25,7 +25,8 @@ class PhoneNumber:
     type: str
     status: str
     incoming_call_action: str
-    client_websocket_url: str | None
+    default_stream_url: str | None
+    default_pipeline_mode: str
     created_at: datetime
     updated_at: datetime
 
@@ -37,7 +38,8 @@ class PhoneNumber:
             type=d["type"],
             status=d["status"],
             incoming_call_action=d["incoming_call_action"],
-            client_websocket_url=d.get("client_websocket_url"),
+            default_stream_url=d.get("default_stream_url"),
+            default_pipeline_mode=d.get("default_pipeline_mode", "client_llm_only"),
             created_at=datetime.fromisoformat(d["created_at"]),
             updated_at=datetime.fromisoformat(d["updated_at"]),
         )
@@ -52,10 +54,8 @@ class PhoneCall:
     remote_phone_number: str
     direction: str
     status: str
-    client_websocket_url: str | None
-    use_inkbox_tts: bool | None
-    use_inkbox_stt: bool | None
-    hangup_reason: str | None
+    pipeline_mode: str | None
+    stream_url: str | None
     started_at: datetime | None
     ended_at: datetime | None
     created_at: datetime
@@ -69,10 +69,8 @@ class PhoneCall:
             remote_phone_number=d["remote_phone_number"],
             direction=d["direction"],
             status=d["status"],
-            client_websocket_url=d.get("client_websocket_url"),
-            use_inkbox_tts=d.get("use_inkbox_tts"),
-            use_inkbox_stt=d.get("use_inkbox_stt"),
-            hangup_reason=d.get("hangup_reason"),
+            pipeline_mode=d.get("pipeline_mode"),
+            stream_url=d.get("stream_url"),
             started_at=_dt(d.get("started_at")),
             ended_at=_dt(d.get("ended_at")),
             created_at=datetime.fromisoformat(d["created_at"]),
@@ -117,7 +115,7 @@ class PhoneCallWithRateLimit(PhoneCall):
         base = PhoneCall._from_dict(d)
         return cls(
             **base.__dict__,
-            rate_limit=RateLimitInfo._from_dict(d["rate_limit"]),
+            rate_limit=RateLimitInfo._from_dict(d["rate_limit"]) if d.get("rate_limit") else None,
         )
 
 

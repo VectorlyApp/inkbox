@@ -36,7 +36,8 @@ class PhoneNumbersResource:
         phone_number_id: UUID | str,
         *,
         incoming_call_action: str | None = None,
-        client_websocket_url: str | None = None,
+        default_stream_url: str | None = None,
+        default_pipeline_mode: str | None = None,
     ) -> PhoneNumber:
         """Update phone number settings.
 
@@ -45,47 +46,47 @@ class PhoneNumbersResource:
         Args:
             phone_number_id: UUID of the phone number.
             incoming_call_action: ``"auto_accept"``, ``"auto_reject"``, or ``"webhook"``.
-            client_websocket_url: WebSocket URL (wss://) for audio bridging on ``auto_accept``.
+            default_stream_url: Default WebSocket URL (wss://) for audio bridging.
+            default_pipeline_mode: Default pipeline mode for calls on this number.
         """
         body: dict[str, Any] = {}
         if incoming_call_action is not None:
             body["incoming_call_action"] = incoming_call_action
-        if client_websocket_url is not None:
-            body["client_websocket_url"] = client_websocket_url
+        if default_stream_url is not None:
+            body["default_stream_url"] = default_stream_url
+        if default_pipeline_mode is not None:
+            body["default_pipeline_mode"] = default_pipeline_mode
         data = self._http.patch(f"{_BASE}/{phone_number_id}", json=body)
         return PhoneNumber._from_dict(data)
 
     def provision(
         self,
         *,
-        agent_handle: str,
         type: str = "toll_free",
         state: str | None = None,
     ) -> PhoneNumber:
-        """Provision a new phone number via Telnyx and assign it to an agent identity.
+        """Provision a new phone number.
 
         Args:
-            agent_handle: Handle of the agent identity to assign this number to
-                (e.g. ``"sales-agent"`` or ``"@sales-agent"``).
             type: ``"toll_free"`` or ``"local"``.
             state: US state abbreviation (e.g. ``"NY"``). Only valid for ``local`` numbers.
 
         Returns:
             The provisioned phone number.
         """
-        body: dict[str, Any] = {"agent_handle": agent_handle, "type": type}
+        body: dict[str, Any] = {"type": type}
         if state is not None:
             body["state"] = state
-        data = self._http.post(_BASE, json=body)
+        data = self._http.post(f"{_BASE}/provision", json=body)
         return PhoneNumber._from_dict(data)
 
-    def release(self, phone_number_id: UUID | str) -> None:
-        """Release (delete) a phone number by ID.
+    def release(self, *, number: str) -> None:
+        """Release a phone number.
 
         Args:
-            phone_number_id: UUID of the phone number to release.
+            number: E.164 phone number to release (e.g. ``"+18335794607"``).
         """
-        self._http.delete(f"{_BASE}/{phone_number_id}")
+        self._http.post(f"{_BASE}/release", json={"number": number})
 
     def search_transcripts(
         self,
