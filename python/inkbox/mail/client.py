@@ -27,7 +27,7 @@ class InkboxMail:
 
         from inkbox.mail import InkboxMail
 
-        client = InkboxMail(api_key="sk-...")
+        client = InkboxMail(api_key="ApiKey_...")
 
         mailbox = client.mailboxes.create(display_name="Agent 01")
 
@@ -45,7 +45,7 @@ class InkboxMail:
 
     The client can also be used as a context manager::
 
-        with InkboxMail(api_key="sk-...") as client:
+        with InkboxMail(api_key="ApiKey_...") as client:
             mailboxes = client.mailboxes.list()
     """
 

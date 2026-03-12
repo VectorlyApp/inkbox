@@ -28,7 +28,7 @@ export interface InkboxPhoneOptions {
  * ```ts
  * import { InkboxPhone } from "@inkbox/sdk/phone";
  *
- * const client = new InkboxPhone({ apiKey: "sk-..." });
+ * const client = new InkboxPhone({ apiKey: "ApiKey_..." });
  *
  * const number = await client.numbers.provision();
  *

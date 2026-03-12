@@ -2,7 +2,7 @@
  * Create, update, and delete a webhook on a phone number.
  *
  * Usage:
- *   INKBOX_API_KEY=sk-... PHONE_NUMBER_ID=<id> npx ts-node manage-webhooks.ts
+ *   INKBOX_API_KEY=ApiKey_... PHONE_NUMBER_ID=<id> npx ts-node manage-webhooks.ts
  */
 
 import { InkboxPhone } from "../../typescript/src/phone/index.js";

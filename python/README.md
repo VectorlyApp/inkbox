@@ -13,7 +13,7 @@ pip install inkbox
 ```python
 from inkbox.mail import InkboxMail
 
-client = InkboxMail(api_key="sk-...")
+client = InkboxMail(api_key="ApiKey_...")
 
 # Create a mailbox
 mailbox = client.mailboxes.create(display_name="Agent 01")

@@ -24,7 +24,7 @@ class InkboxIdentities:
 
         from inkbox.identities import InkboxIdentities
 
-        with InkboxIdentities(api_key="sk-...") as client:
+        with InkboxIdentities(api_key="ApiKey_...") as client:
             identity = client.identities.create(agent_handle="sales-agent")
             detail = client.identities.assign_mailbox(
                 "sales-agent",

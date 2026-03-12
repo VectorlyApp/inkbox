@@ -18,7 +18,7 @@ Agent identities are the central concept — a named agent (e.g. `"sales-agent"`
 ```python
 from inkbox.identities import InkboxIdentities
 
-with InkboxIdentities(api_key="sk-...") as client:
+with InkboxIdentities(api_key="ApiKey_...") as client:
 
     # Create an identity
     identity = client.identities.create(agent_handle="sales-agent")
@@ -46,7 +46,7 @@ with InkboxIdentities(api_key="sk-...") as client:
 ```ts
 import { InkboxIdentities } from "@inkbox/sdk/identities";
 
-const client = new InkboxIdentities({ apiKey: "sk-..." });
+const client = new InkboxIdentities({ apiKey: "ApiKey_..." });
 
 // Create an identity
 const identity = await client.identities.create({ agentHandle: "sales-agent" });
@@ -73,7 +73,7 @@ await client.identities.delete("sales-agent");
 ```python
 from inkbox.mail import InkboxMail
 
-with InkboxMail(api_key="sk-...") as client:
+with InkboxMail(api_key="ApiKey_...") as client:
 
     # Create a mailbox (agent identity must already exist)
     mailbox = client.mailboxes.create(
@@ -123,7 +123,7 @@ with InkboxMail(api_key="sk-...") as client:
 ```ts
 import { InkboxMail } from "@inkbox/sdk";
 
-const client = new InkboxMail({ apiKey: "sk-..." });
+const client = new InkboxMail({ apiKey: "ApiKey_..." });
 
 // Create a mailbox (agent identity must already exist)
 const mailbox = await client.mailboxes.create({
@@ -166,7 +166,7 @@ console.log(hook.secret); // save this
 ```python
 from inkbox.phone import InkboxPhone
 
-with InkboxPhone(api_key="sk-...") as client:
+with InkboxPhone(api_key="ApiKey_...") as client:
 
     # Provision a phone number (agent identity must already exist)
     number = client.numbers.provision(
@@ -214,7 +214,7 @@ with InkboxPhone(api_key="sk-...") as client:
 ```ts
 import { InkboxPhone } from "@inkbox/sdk/phone";
 
-const client = new InkboxPhone({ apiKey: "sk-..." });
+const client = new InkboxPhone({ apiKey: "ApiKey_..." });
 
 // Provision a phone number (agent identity must already exist)
 const number = await client.numbers.provision({

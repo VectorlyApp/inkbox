@@ -2,7 +2,7 @@
 Create, update, and delete a webhook on a phone number.
 
 Usage:
-    INKBOX_API_KEY=sk-... PHONE_NUMBER_ID=<id> python manage_webhooks.py
+    INKBOX_API_KEY=ApiKey_... PHONE_NUMBER_ID=<id> python manage_webhooks.py
 """
 
 import os

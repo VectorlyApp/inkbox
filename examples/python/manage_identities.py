@@ -2,7 +2,7 @@
 Create an agent identity and assign communication channels to it.
 
 Usage:
-    INKBOX_API_KEY=sk-... MAILBOX_ID=<uuid> PHONE_NUMBER_ID=<uuid> python manage_identities.py
+    INKBOX_API_KEY=ApiKey_... MAILBOX_ID=<uuid> PHONE_NUMBER_ID=<uuid> python manage_identities.py
 """
 
 import os

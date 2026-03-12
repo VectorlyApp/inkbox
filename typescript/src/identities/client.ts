@@ -25,7 +25,7 @@ export interface InkboxIdentitiesOptions {
  * ```ts
  * import { InkboxIdentities } from "@inkbox/sdk/identities";
  *
- * const client = new InkboxIdentities({ apiKey: "sk-..." });
+ * const client = new InkboxIdentities({ apiKey: "ApiKey_..." });
  *
  * const identity = await client.identities.create({ agentHandle: "sales-agent" });
  *

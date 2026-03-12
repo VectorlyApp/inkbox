@@ -28,7 +28,7 @@ export interface InkboxMailOptions {
  * ```ts
  * import { InkboxMail } from "@inkbox/mail";
  *
- * const client = new InkboxMail({ apiKey: "sk-..." });
+ * const client = new InkboxMail({ apiKey: "ApiKey_..." });
  *
  * const mailbox = await client.mailboxes.create({ displayName: "Agent 01" });
  *

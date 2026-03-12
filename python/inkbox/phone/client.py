@@ -27,7 +27,7 @@ class InkboxPhone:
 
         from inkbox.phone import InkboxPhone
 
-        with InkboxPhone(api_key="sk-...") as client:
+        with InkboxPhone(api_key="ApiKey_...") as client:
             number = client.numbers.provision(type="toll_free")
             call = client.calls.place(
                 from_number=number.number,
