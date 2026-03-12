@@ -23,11 +23,11 @@ with Inkbox(api_key="ApiKey_...") as inkbox:
     agent = inkbox.identities.create(agent_handle="sales-agent")
 
     # Provision and link channels in one call each
-    agent.assign_mailbox(display_name="Sales Agent")
-    agent.assign_phone_number(type="toll_free")
+    mailbox = agent.assign_mailbox(display_name="Sales Agent")
+    phone   = agent.assign_phone_number(type="toll_free")
 
-    print(agent.mailbox.email_address)
-    print(agent.phone_number.number)
+    print(mailbox.email_address)
+    print(phone.number)
 
     # List, get, update, delete
     identities = inkbox.identities.list()
@@ -39,24 +39,25 @@ with Inkbox(api_key="ApiKey_...") as inkbox:
 ### TypeScript
 
 ```ts
-import { InkboxIdentities } from "@inkbox/sdk/identities";
+import { Inkbox } from "@inkbox/sdk";
 
-const client = new InkboxIdentities({ apiKey: "ApiKey_..." });
+const inkbox = new Inkbox({ apiKey: "ApiKey_..." });
 
-// Create an identity
-const identity = await client.identities.create({ agentHandle: "sales-agent" });
+// Create an identity — returns an Agent object
+const agent = await inkbox.identities.create({ agentHandle: "sales-agent" });
 
-// Assign channels
-const detail = await client.identities.assignMailbox("sales-agent", {
-  mailboxId: "<mailbox-uuid>",
-});
-console.log(detail.mailbox?.emailAddress);
+// Provision and link channels in one call each
+const mailbox = await agent.assignMailbox({ displayName: "Sales Agent" });
+const phone   = await agent.assignPhoneNumber({ type: "toll_free" });
+
+console.log(mailbox.emailAddress);
+console.log(phone.number);
 
 // List, get, update, delete
-const identities = await client.identities.list();
-const d = await client.identities.get("sales-agent");
-await client.identities.update("sales-agent", { status: "paused" });
-await client.identities.delete("sales-agent");
+const identities = await inkbox.identities.list();
+const a = await inkbox.identities.get("sales-agent");
+await inkbox.identities.update("sales-agent", { status: "paused" });
+await a.delete();
 ```
 
 ---
@@ -112,36 +113,42 @@ with Inkbox(api_key="ApiKey_...") as inkbox:
 ### TypeScript
 
 ```ts
-import { InkboxMail } from "@inkbox/sdk";
+import { Inkbox } from "@inkbox/sdk";
 
-const client = new InkboxMail({ apiKey: "ApiKey_..." });
+const inkbox = new Inkbox({ apiKey: "ApiKey_..." });
 
-// Create a mailbox (agent identity must already exist)
-const mailbox = await client.mailboxes.create({
-  agentHandle: "sales-agent",
-  displayName: "Sales Agent",
-});
+// Create a mailbox
+const mailbox = await inkbox.mailboxes.create({ displayName: "Sales Agent" });
 
 // Send an email
-await client.messages.send(mailbox.emailAddress, {
+await inkbox.messages.send(mailbox.emailAddress, {
   to: ["user@example.com"],
   subject: "Hello from Inkbox",
   bodyText: "Hi there!",
 });
 
 // Iterate over all messages (pagination handled automatically)
-for await (const msg of client.messages.list(mailbox.emailAddress)) {
+for await (const msg of inkbox.messages.list(mailbox.emailAddress)) {
   console.log(msg.subject, msg.fromAddress);
 }
 
+// Reply to a message
+const detail = await inkbox.messages.get(mailbox.emailAddress, msg.id);
+await inkbox.messages.send(mailbox.emailAddress, {
+  to: detail.toAddresses,
+  subject: `Re: ${detail.subject}`,
+  bodyText: "Got it, thanks!",
+  inReplyToMessageId: detail.messageId,
+});
+
 // Update mailbox display name
-await client.mailboxes.update(mailbox.emailAddress, { displayName: "Support Agent" });
+await inkbox.mailboxes.update(mailbox.emailAddress, { displayName: "Support Agent" });
 
 // Search
-const results = await client.mailboxes.search(mailbox.emailAddress, { q: "invoice" });
+const results = await inkbox.mailboxes.search(mailbox.emailAddress, { q: "invoice" });
 
 // Webhooks (secret is one-time — save it immediately)
-const hook = await client.webhooks.create(mailbox.emailAddress, {
+const hook = await inkbox.mailWebhooks.create(mailbox.emailAddress, {
   url: "https://yourapp.com/hooks/mail",
   eventTypes: ["message.received"],
 });
@@ -199,47 +206,44 @@ with Inkbox(api_key="ApiKey_...") as inkbox:
 ### TypeScript
 
 ```ts
-import { InkboxPhone } from "@inkbox/sdk/phone";
+import { Inkbox } from "@inkbox/sdk";
 
-const client = new InkboxPhone({ apiKey: "ApiKey_..." });
+const inkbox = new Inkbox({ apiKey: "ApiKey_..." });
 
 // Provision a phone number
-const number = await client.numbers.provision({
-  agentHandle: "sales-agent",
-  type: "toll_free",
-});
+const number = await inkbox.numbers.provision({ type: "toll_free" });
 
 // Update settings
-await client.numbers.update(number.id, {
+await inkbox.numbers.update(number.id, {
   incomingCallAction: "auto_accept",
-  clientWebsocketUrl: "wss://your-agent.example.com/ws",
+  defaultStreamUrl: "wss://your-agent.example.com/ws",
 });
 
 // Place an outbound call
-const call = await client.calls.place({
+const call = await inkbox.calls.place({
   fromNumber: number.number,
   toNumber: "+15167251294",
-  clientWebsocketUrl: "wss://your-agent.example.com/ws",
+  streamUrl: "wss://your-agent.example.com/ws",
 });
 console.log(call.status);
 console.log(call.rateLimit.callsRemaining);
 
 // List calls and transcripts
-const calls = await client.calls.list(number.id);
-const transcripts = await client.transcripts.list(number.id, calls[0].id);
+const calls = await inkbox.calls.list(number.id);
+const transcripts = await inkbox.transcripts.list(number.id, calls[0].id);
 
 // Search transcripts
-const results = await client.numbers.searchTranscripts(number.id, { q: "appointment" });
+const results = await inkbox.numbers.searchTranscripts(number.id, { q: "appointment" });
 
 // Webhooks
-const hook = await client.webhooks.create(number.id, {
+const hook = await inkbox.phoneWebhooks.create(number.id, {
   url: "https://yourapp.com/hooks/phone",
   eventTypes: ["call.completed"],
 });
 console.log(hook.secret); // save this
 
 // Release a number
-await client.numbers.release(number.id);
+await inkbox.numbers.release({ number: number.number });
 ```
 
 ---

@@ -8,6 +8,7 @@ import { HttpTransport } from "../_http.js";
 import { PhoneNumbersResource } from "./resources/numbers.js";
 import { CallsResource } from "./resources/calls.js";
 import { TranscriptsResource } from "./resources/transcripts.js";
+import { PhoneWebhooksResource } from "./resources/webhooks.js";
 import { SigningKeysResource } from "../resources/signing-keys.js";
 
 const DEFAULT_BASE_URL = "https://api.inkbox.ai/api/v1/phone";
@@ -45,6 +46,7 @@ export class InkboxPhone {
   readonly numbers: PhoneNumbersResource;
   readonly calls: CallsResource;
   readonly transcripts: TranscriptsResource;
+  readonly webhooks: PhoneWebhooksResource;
   readonly signingKeys: SigningKeysResource;
 
   private readonly http: HttpTransport;
@@ -59,6 +61,7 @@ export class InkboxPhone {
     this.numbers = new PhoneNumbersResource(this.http);
     this.calls = new CallsResource(this.http);
     this.transcripts = new TranscriptsResource(this.http);
+    this.webhooks = new PhoneWebhooksResource(this.http);
     this.signingKeys = new SigningKeysResource(this.apiHttp);
   }
 }

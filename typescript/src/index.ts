@@ -1,3 +1,6 @@
+export { Inkbox } from "./inkbox.js";
+export { Agent } from "./agent.js";
+export type { InkboxOptions } from "./inkbox.js";
 export { InkboxMail } from "./client.js";
 export { InkboxAPIError } from "./_http.js";
 export type { SigningKey } from "./resources/signing-keys.js";

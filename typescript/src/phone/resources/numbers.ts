@@ -39,26 +39,26 @@ export class PhoneNumbersResource {
    *
    * @param phoneNumberId - UUID of the phone number.
    * @param options.incomingCallAction - `"auto_accept"`, `"auto_reject"`, or `"webhook"`.
-   * @param options.clientWebsocketUrl - WebSocket URL (wss://) for audio bridging on `auto_accept`.
-   * @param options.incomingCallWebhookUrl - HTTPS URL called on incoming calls when action is `webhook`.
+   * @param options.defaultStreamUrl - WebSocket URL (wss://) for audio bridging.
+   * @param options.defaultPipelineMode - Default pipeline mode for incoming calls.
    */
   async update(
     phoneNumberId: string,
     options: {
       incomingCallAction?: string;
-      clientWebsocketUrl?: string | null;
-      incomingCallWebhookUrl?: string | null;
+      defaultStreamUrl?: string | null;
+      defaultPipelineMode?: string | null;
     },
   ): Promise<PhoneNumber> {
     const body: Record<string, unknown> = {};
     if (options.incomingCallAction !== undefined) {
       body["incoming_call_action"] = options.incomingCallAction;
     }
-    if ("clientWebsocketUrl" in options) {
-      body["client_websocket_url"] = options.clientWebsocketUrl;
+    if ("defaultStreamUrl" in options) {
+      body["default_stream_url"] = options.defaultStreamUrl;
     }
-    if ("incomingCallWebhookUrl" in options) {
-      body["incoming_call_webhook_url"] = options.incomingCallWebhookUrl;
+    if ("defaultPipelineMode" in options) {
+      body["default_pipeline_mode"] = options.defaultPipelineMode;
     }
     const data = await this.http.patch<RawPhoneNumber>(
       `${BASE}/${phoneNumberId}`,
@@ -68,51 +68,32 @@ export class PhoneNumbersResource {
   }
 
   /**
-   * Provision a new phone number via Telnyx and assign it to an agent identity.
+   * Provision a new phone number.
    *
-   * @param options.agentHandle - Handle of the agent identity to assign this number to
-   *   (e.g. `"sales-agent"` or `"@sales-agent"`).
    * @param options.type - `"toll_free"` or `"local"`. Defaults to `"toll_free"`.
    * @param options.state - US state abbreviation (e.g. `"NY"`). Only valid for `local` numbers.
-   * @param options.incomingCallAction - `"auto_accept"`, `"auto_reject"`, or `"webhook"`. Defaults to `"auto_reject"`.
-   * @param options.clientWebsocketUrl - WebSocket URL (wss://) for audio bridging. Required when `incomingCallAction="auto_accept"`.
-   * @param options.incomingCallWebhookUrl - HTTPS URL called on incoming calls. Required when `incomingCallAction="webhook"`.
    */
   async provision(options: {
-    agentHandle: string;
     type?: string;
     state?: string;
-    incomingCallAction?: string;
-    clientWebsocketUrl?: string;
-    incomingCallWebhookUrl?: string;
-  }): Promise<PhoneNumber> {
+  } = {}): Promise<PhoneNumber> {
     const body: Record<string, unknown> = {
-      agent_handle: options.agentHandle,
       type: options.type ?? "toll_free",
     };
-    if (options.incomingCallAction !== undefined) {
-      body["incoming_call_action"] = options.incomingCallAction;
-    }
     if (options.state !== undefined) {
       body["state"] = options.state;
     }
-    if (options.clientWebsocketUrl !== undefined) {
-      body["client_websocket_url"] = options.clientWebsocketUrl;
-    }
-    if (options.incomingCallWebhookUrl !== undefined) {
-      body["incoming_call_webhook_url"] = options.incomingCallWebhookUrl;
-    }
-    const data = await this.http.post<RawPhoneNumber>(BASE, body);
+    const data = await this.http.post<RawPhoneNumber>(`${BASE}/provision`, body);
     return parsePhoneNumber(data);
   }
 
   /**
-   * Release (delete) a phone number by ID.
+   * Release a phone number.
    *
-   * @param phoneNumberId - UUID of the phone number to release.
+   * @param options.number - E.164 phone number to release.
    */
-  async release(phoneNumberId: string): Promise<void> {
-    await this.http.delete(`${BASE}/${phoneNumberId}`);
+  async release(options: { number: string }): Promise<void> {
+    await this.http.post(`${BASE}/release`, { number: options.number });
   }
 
   /**
