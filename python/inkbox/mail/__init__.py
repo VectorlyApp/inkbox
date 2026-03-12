@@ -8,10 +8,10 @@ from inkbox.mail.types import (
     Mailbox,
     Message,
     MessageDetail,
-    SigningKey,
     Thread,
     ThreadDetail,
 )
+from inkbox.signing_keys import SigningKey
 
 __all__ = [
     "InkboxMail",

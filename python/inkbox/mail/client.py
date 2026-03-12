@@ -9,8 +9,8 @@ from __future__ import annotations
 from inkbox.mail._http import HttpTransport
 from inkbox.mail.resources.mailboxes import MailboxesResource
 from inkbox.mail.resources.messages import MessagesResource
-from inkbox.mail.resources.signing_keys import SigningKeysResource
 from inkbox.mail.resources.threads import ThreadsResource
+from inkbox.signing_keys import SigningKeysResource
 
 _DEFAULT_BASE_URL = "https://api.inkbox.ai/api/v1/mail"
 

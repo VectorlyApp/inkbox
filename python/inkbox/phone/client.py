@@ -10,6 +10,7 @@ from inkbox.phone._http import HttpTransport
 from inkbox.phone.resources.numbers import PhoneNumbersResource
 from inkbox.phone.resources.calls import CallsResource
 from inkbox.phone.resources.transcripts import TranscriptsResource
+from inkbox.signing_keys import SigningKeysResource
 
 _DEFAULT_BASE_URL = "https://api.inkbox.ai/api/v1/phone"
 
@@ -44,13 +45,18 @@ class InkboxPhone:
         timeout: float = 30.0,
     ) -> None:
         self._http = HttpTransport(api_key=api_key, base_url=base_url, timeout=timeout)
+        # Signing keys live at the API root (one level up from /phone)
+        _api_root = base_url.rstrip("/").removesuffix("/phone")
+        self._api_http = HttpTransport(api_key=api_key, base_url=_api_root, timeout=timeout)
         self.numbers = PhoneNumbersResource(self._http)
         self.calls = CallsResource(self._http)
         self.transcripts = TranscriptsResource(self._http)
+        self.signing_keys = SigningKeysResource(self._api_http)
 
     def close(self) -> None:
-        """Close the underlying HTTP connection pool."""
+        """Close the underlying HTTP connection pools."""
         self._http.close()
+        self._api_http.close()
 
     def __enter__(self) -> InkboxPhone:
         return self

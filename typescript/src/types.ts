@@ -62,12 +62,6 @@ export interface ThreadDetail extends Thread {
   messages: Message[];
 }
 
-export interface SigningKey {
-  /** Plaintext signing key — returned once on creation/rotation. Store securely. */
-  signingKey: string;
-  createdAt: Date;
-}
-
 // ---- internal raw API shapes (snake_case from JSON) ----
 
 export interface RawMailbox {
@@ -78,11 +72,6 @@ export interface RawMailbox {
   status: string;
   created_at: string;
   updated_at: string;
-}
-
-export interface RawSigningKey {
-  signing_key: string;
-  created_at: string;
 }
 
 export interface RawMessage {
@@ -140,13 +129,6 @@ export function parseMailbox(r: RawMailbox): Mailbox {
     status: r.status,
     createdAt: new Date(r.created_at),
     updatedAt: new Date(r.updated_at),
-  };
-}
-
-export function parseSigningKey(r: RawSigningKey): SigningKey {
-  return {
-    signingKey: r.signing_key,
-    createdAt: new Date(r.created_at),
   };
 }
 

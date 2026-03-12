@@ -155,19 +155,3 @@ class ThreadDetail(Thread):
         )
 
 
-@dataclass
-class SigningKey:
-    """Org-level webhook signing key.
-
-    Returned once on creation/rotation — store ``signing_key`` securely.
-    """
-
-    signing_key: str
-    created_at: datetime
-
-    @classmethod
-    def _from_dict(cls, d: dict[str, Any]) -> SigningKey:
-        return cls(
-            signing_key=d["signing_key"],
-            created_at=datetime.fromisoformat(d["created_at"]),
-        )
