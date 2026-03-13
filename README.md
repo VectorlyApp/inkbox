@@ -81,7 +81,7 @@ with Inkbox(api_key="ApiKey_...") as inkbox:
     )
 
     # Iterate over all messages (pagination handled automatically)
-    for msg in identity.messages():
+    for msg in identity.iter_emails():
         print(msg.subject, msg.from_address)
 ```
 
@@ -102,7 +102,7 @@ await identity.sendEmail({
 });
 
 // Iterate over all messages (pagination handled automatically)
-for await (const msg of identity.messages()) {
+for await (const msg of identity.iterEmails()) {
   console.log(msg.subject, msg.fromAddress);
 }
 ```

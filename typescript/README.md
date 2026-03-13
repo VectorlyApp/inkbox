@@ -38,7 +38,7 @@ await identity.placeCall({
 });
 
 // Read inbox
-for await (const message of identity.messages()) {
+for await (const message of identity.iterEmails()) {
   console.log(message.subject);
 }
 
@@ -102,12 +102,12 @@ await identity.sendEmail({
 });
 
 // Iterate inbox (paginated automatically)
-for await (const msg of identity.messages()) {
+for await (const msg of identity.iterEmails()) {
   console.log(msg.subject, msg.fromAddress);
 }
 
 // Filter by direction
-for await (const msg of identity.messages({ direction: "inbound" })) {
+for await (const msg of identity.iterEmails({ direction: "inbound" })) {
   console.log(msg.subject);
 }
 ```

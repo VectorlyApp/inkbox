@@ -13,7 +13,7 @@ identity = inkbox.get_identity(os.environ["AGENT_HANDLE"])
 
 # List the 5 most recent messages
 print("=== Agent inbox ===")
-for i, msg in enumerate(identity.messages()):
+for i, msg in enumerate(identity.iter_emails()):
     print(f"{msg.id}  {msg.subject}  from={msg.from_address}  read={msg.is_read}")
     if i >= 4:
         break

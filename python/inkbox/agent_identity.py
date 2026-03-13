@@ -39,7 +39,7 @@ class AgentIdentity:
         identity.send_email(to=["user@example.com"], subject="Hi", body_text="Hello")
         identity.place_call(to_number="+15555550100", client_websocket_url="wss://my-app.com/ws")
 
-        for msg in identity.messages():
+        for msg in identity.iter_emails():
             print(msg.subject)
     """
 
@@ -202,13 +202,13 @@ class AgentIdentity:
             attachments=attachments,
         )
 
-    def messages(
+    def iter_emails(
         self,
         *,
         page_size: int = 50,
         direction: str | None = None,
     ) -> Iterator[Message]:
-        """Iterate over messages in this identity's inbox, newest first.
+        """Iterate over emails in this identity's inbox, newest first.
 
         Pagination is handled automatically.
 

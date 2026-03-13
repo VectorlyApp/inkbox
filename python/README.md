@@ -38,7 +38,7 @@ with Inkbox(api_key=os.environ["INKBOX_API_KEY"]) as inkbox:
     )
 
     # Read inbox
-    for message in identity.messages():
+    for message in identity.iter_emails():
         print(message.subject)
 
     # Search transcripts
@@ -103,11 +103,11 @@ identity.send_email(
 )
 
 # Iterate inbox (paginated automatically)
-for msg in identity.messages():
+for msg in identity.iter_emails():
     print(msg.subject, msg.from_address)
 
 # Filter by direction
-for msg in identity.messages(direction="inbound"):
+for msg in identity.iter_emails(direction="inbound"):
     print(msg.subject)
 ```
 

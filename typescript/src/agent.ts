@@ -167,14 +167,14 @@ export class AgentIdentity {
   }
 
   /**
-   * Iterate over messages in this identity's inbox, newest first.
+   * Iterate over emails in this identity's inbox, newest first.
    *
    * Pagination is handled automatically.
    *
    * @param options.pageSize - Messages fetched per API call (1–100). Defaults to 50.
    * @param options.direction - Filter by `"inbound"` or `"outbound"`.
    */
-  messages(options: { pageSize?: number; direction?: "inbound" | "outbound" } = {}): AsyncGenerator<Message> {
+  iterEmails(options: { pageSize?: number; direction?: "inbound" | "outbound" } = {}): AsyncGenerator<Message> {
     this._requireMailbox();
     return this._inkbox._messages.list(this._mailbox!.emailAddress, options);
   }

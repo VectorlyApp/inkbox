@@ -13,7 +13,7 @@ const identity = await inkbox.getIdentity(process.env.AGENT_HANDLE!);
 // List the 5 most recent messages
 console.log("=== Agent inbox ===");
 let count = 0;
-for await (const msg of identity.messages()) {
+for await (const msg of identity.iterEmails()) {
   console.log(`${msg.id}  ${msg.subject}  from=${msg.fromAddress}  read=${msg.isRead}`);
   if (++count >= 5) break;
 }
