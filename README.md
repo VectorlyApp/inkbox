@@ -1,6 +1,6 @@
 # Inkbox SDK
 
-Official SDKs for the [Inkbox API](https://inkbox.ai) — API-first communication infrastructure for AI agents (email, phone, identities).
+Official SDKs for the [Inkbox API](https://inkbox.ai) — API-first communication infrastructure for AI agents (identities, email, phone).
 
 | Package | Language | Install |
 |---|---|---|
