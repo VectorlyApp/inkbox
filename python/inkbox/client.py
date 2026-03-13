@@ -18,6 +18,7 @@ from inkbox.phone.resources.transcripts import TranscriptsResource
 from inkbox.phone.resources.webhooks import PhoneWebhooksResource
 from inkbox.identities._http import HttpTransport as IdsHttpTransport
 from inkbox.identities.resources.identities import IdentitiesResource
+from inkbox.agent_identity import AgentIdentity
 from inkbox.identities.types import AgentIdentitySummary
 from inkbox.signing_keys import SigningKey, SigningKeysResource
 
