@@ -179,6 +179,32 @@ export class AgentIdentity {
     return this._inkbox._messages.list(this._mailbox!.emailAddress, options);
   }
 
+  /**
+   * Iterate over unread emails in this identity's inbox, newest first.
+   *
+   * Fetches all messages and filters client-side. Pagination is handled automatically.
+   *
+   * @param options.pageSize - Messages fetched per API call (1–100). Defaults to 50.
+   * @param options.direction - Filter by `"inbound"` or `"outbound"`.
+   */
+  async *iterUnreadEmails(options: { pageSize?: number; direction?: "inbound" | "outbound" } = {}): AsyncGenerator<Message> {
+    for await (const msg of this.iterEmails(options)) {
+      if (!msg.isRead) yield msg;
+    }
+  }
+
+  /**
+   * Mark a list of messages as read.
+   *
+   * @param messageIds - IDs of the messages to mark as read.
+   */
+  async markEmailsRead(messageIds: string[]): Promise<void> {
+    this._requireMailbox();
+    for (const id of messageIds) {
+      await this._inkbox._messages.markRead(this._mailbox!.emailAddress, id);
+    }
+  }
+
   // ------------------------------------------------------------------
   // Phone helpers
   // ------------------------------------------------------------------

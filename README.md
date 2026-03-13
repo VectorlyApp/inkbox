@@ -83,6 +83,13 @@ with Inkbox(api_key="ApiKey_...") as inkbox:
     # Iterate over all messages (pagination handled automatically)
     for msg in identity.iter_emails():
         print(msg.subject, msg.from_address)
+
+    # Iterate only unread messages
+    for msg in identity.iter_unread_emails():
+        print(msg.subject)
+
+    # Mark messages as read
+    identity.mark_emails_read([msg.id for msg in identity.iter_unread_emails()])
 ```
 
 ### TypeScript
@@ -105,6 +112,16 @@ await identity.sendEmail({
 for await (const msg of identity.iterEmails()) {
   console.log(msg.subject, msg.fromAddress);
 }
+
+// Iterate only unread messages
+for await (const msg of identity.iterUnreadEmails()) {
+  console.log(msg.subject);
+}
+
+// Mark messages as read
+const unread: string[] = [];
+for await (const msg of identity.iterUnreadEmails()) unread.push(msg.id);
+await identity.markEmailsRead(unread);
 ```
 
 ---

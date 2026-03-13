@@ -109,6 +109,13 @@ for msg in identity.iter_emails():
 # Filter by direction
 for msg in identity.iter_emails(direction="inbound"):
     print(msg.subject)
+
+# Iterate only unread emails
+for msg in identity.iter_unread_emails():
+    print(msg.subject)
+
+# Mark messages as read
+identity.mark_emails_read([msg.id for msg in identity.iter_unread_emails()])
 ```
 
 ---

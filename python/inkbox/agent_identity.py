@@ -223,6 +223,36 @@ class AgentIdentity:
             direction=direction,
         )
 
+    def iter_unread_emails(
+        self,
+        *,
+        page_size: int = 50,
+        direction: str | None = None,
+    ) -> Iterator[Message]:
+        """Iterate over unread emails in this identity's inbox, newest first.
+
+        Fetches all messages and filters client-side. Pagination is handled
+        automatically.
+
+        Args:
+            page_size: Messages fetched per API call (1–100).
+            direction: Filter by ``"inbound"`` or ``"outbound"``.
+        """
+        return (msg for msg in self.iter_emails(page_size=page_size, direction=direction) if not msg.is_read)
+
+    def mark_emails_read(self, message_ids: list[str]) -> None:
+        """Mark a list of messages as read.
+
+        Args:
+            message_ids: IDs of the messages to mark as read.
+        """
+        self._require_mailbox()
+        for mid in message_ids:
+            self._inkbox._messages.mark_read(
+                self._mailbox.email_address,  # type: ignore[union-attr]
+                mid,
+            )
+
     # ------------------------------------------------------------------
     # Phone helpers
     # ------------------------------------------------------------------

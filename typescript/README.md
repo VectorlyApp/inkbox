@@ -110,6 +110,16 @@ for await (const msg of identity.iterEmails()) {
 for await (const msg of identity.iterEmails({ direction: "inbound" })) {
   console.log(msg.subject);
 }
+
+// Iterate only unread emails
+for await (const msg of identity.iterUnreadEmails()) {
+  console.log(msg.subject);
+}
+
+// Mark messages as read
+const unread: string[] = [];
+for await (const msg of identity.iterUnreadEmails()) unread.push(msg.id);
+await identity.markEmailsRead(unread);
 ```
 
 ---
