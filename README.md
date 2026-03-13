@@ -130,6 +130,12 @@ with Inkbox(api_key="ApiKey_...") as inkbox:
 
     # Search transcripts
     results = identity.search_transcripts(q="appointment")
+
+    # List calls
+    calls = identity.calls()
+
+    # Fetch transcript segments for a call
+    segments = identity.transcripts(calls[0].id)
 ```
 
 ### TypeScript
@@ -151,6 +157,12 @@ console.log(call.rateLimit.callsRemaining);
 
 // Search transcripts
 const results = await identity.searchTranscripts({ q: "appointment" });
+
+// List calls
+const calls = await identity.calls();
+
+// Fetch transcript segments for a call
+const segments = await identity.transcripts(calls[0].id);
 ```
 
 ---

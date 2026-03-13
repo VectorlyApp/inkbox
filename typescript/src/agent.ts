@@ -11,7 +11,7 @@
 
 import { InkboxAPIError } from "./_http.js";
 import type { Message } from "./mail/types.js";
-import type { PhoneCallWithRateLimit, PhoneTranscript } from "./phone/types.js";
+import type { PhoneCall, PhoneCallWithRateLimit, PhoneTranscript } from "./phone/types.js";
 import type {
   AgentIdentitySummary,
   _AgentIdentityData,
@@ -190,6 +190,27 @@ export class AgentIdentity {
   }): Promise<PhoneTranscript[]> {
     this._requirePhone();
     return this._inkbox._numbers.searchTranscripts(this._phoneNumber!.id, options);
+  }
+
+  /**
+   * List calls made to/from this identity's phone number.
+   *
+   * @param options.limit - Maximum number of results. Defaults to 50.
+   * @param options.offset - Pagination offset. Defaults to 0.
+   */
+  async calls(options: { limit?: number; offset?: number } = {}): Promise<PhoneCall[]> {
+    this._requirePhone();
+    return this._inkbox._calls.list(this._phoneNumber!.id, options);
+  }
+
+  /**
+   * Fetch transcript segments for a specific call.
+   *
+   * @param callId - ID of the call to fetch transcripts for.
+   */
+  async transcripts(callId: string): Promise<PhoneTranscript[]> {
+    this._requirePhone();
+    return this._inkbox._transcripts.list(this._phoneNumber!.id, callId);
   }
 
   // ------------------------------------------------------------------

@@ -126,6 +126,13 @@ print(call.status, call.rate_limit.calls_remaining)
 # Full-text search across transcripts
 results = identity.search_transcripts(q="appointment")
 results = identity.search_transcripts(q="refund", party="remote", limit=10)
+
+# List calls
+calls = identity.calls()
+calls = identity.calls(limit=10, offset=0)
+
+# Fetch transcript segments for a call
+segments = identity.transcripts(calls[0].id)
 ```
 
 ---

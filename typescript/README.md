@@ -127,6 +127,13 @@ console.log(call.status, call.rateLimit.callsRemaining);
 // Full-text search across transcripts
 const results = await identity.searchTranscripts({ q: "appointment" });
 const filtered = await identity.searchTranscripts({ q: "refund", party: "remote", limit: 10 });
+
+// List calls
+const calls = await identity.calls();
+const paged = await identity.calls({ limit: 10, offset: 0 });
+
+// Fetch transcript segments for a call
+const segments = await identity.transcripts(calls[0].id);
 ```
 
 ---

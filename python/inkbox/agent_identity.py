@@ -16,7 +16,7 @@ from typing import TYPE_CHECKING, Iterator
 from inkbox.identities.types import _AgentIdentityData, IdentityMailbox, IdentityPhoneNumber
 from inkbox.mail.exceptions import InkboxError
 from inkbox.mail.types import Message
-from inkbox.phone.types import PhoneCallWithRateLimit, PhoneTranscript
+from inkbox.phone.types import PhoneCall, PhoneCallWithRateLimit, PhoneTranscript
 
 if TYPE_CHECKING:
     from inkbox.client import Inkbox
@@ -239,6 +239,32 @@ class AgentIdentity:
             q=q,
             party=party,
             limit=limit,
+        )
+
+    def calls(self, *, limit: int = 50, offset: int = 0) -> list[PhoneCall]:
+        """List calls made to/from this identity's phone number.
+
+        Args:
+            limit: Maximum number of results (default 50).
+            offset: Pagination offset (default 0).
+        """
+        self._require_phone()
+        return self._inkbox._calls.list(
+            self._phone_number.id,  # type: ignore[union-attr]
+            limit=limit,
+            offset=offset,
+        )
+
+    def transcripts(self, call_id: str) -> list[PhoneTranscript]:
+        """Fetch transcript segments for a specific call.
+
+        Args:
+            call_id: ID of the call to fetch transcripts for.
+        """
+        self._require_phone()
+        return self._inkbox._transcripts.list(
+            self._phone_number.id,  # type: ignore[union-attr]
+            call_id,
         )
 
     # ------------------------------------------------------------------
