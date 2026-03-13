@@ -145,14 +145,11 @@ with Inkbox(api_key="ApiKey_...") as inkbox:
     print(call.status)
     print(call.rate_limit.calls_remaining)
 
-    # Search transcripts
-    results = identity.search_transcripts(q="appointment")
-
     # List calls
-    calls = identity.calls()
+    calls = identity.list_calls()
 
     # Fetch transcript segments for a call
-    segments = identity.transcripts(calls[0].id)
+    segments = identity.list_transcripts(calls[0].id)
 ```
 
 ### TypeScript
@@ -172,14 +169,11 @@ const call = await identity.placeCall({
 console.log(call.status);
 console.log(call.rateLimit.callsRemaining);
 
-// Search transcripts
-const results = await identity.searchTranscripts({ q: "appointment" });
-
 // List calls
-const calls = await identity.calls();
+const calls = await identity.listCalls();
 
 // Fetch transcript segments for a call
-const segments = await identity.transcripts(calls[0].id);
+const segments = await identity.listTranscripts(calls[0].id);
 ```
 
 ---

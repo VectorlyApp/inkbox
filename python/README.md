@@ -41,8 +41,8 @@ with Inkbox(api_key=os.environ["INKBOX_API_KEY"]) as inkbox:
     for message in identity.iter_emails():
         print(message.subject)
 
-    # Search transcripts
-    results = identity.search_transcripts(q="refund")
+    # List calls
+    calls = identity.list_calls()
 ```
 
 ## Authentication
@@ -135,16 +135,12 @@ call = identity.place_call(
 )
 print(call.status, call.rate_limit.calls_remaining)
 
-# Full-text search across transcripts
-results = identity.search_transcripts(q="appointment")
-results = identity.search_transcripts(q="refund", party="remote", limit=10)
-
 # List calls
-calls = identity.calls()
-calls = identity.calls(limit=10, offset=0)
+calls = identity.list_calls()
+calls = identity.list_calls(limit=10, offset=0)
 
 # Fetch transcript segments for a call
-segments = identity.transcripts(calls[0].id)
+segments = identity.list_transcripts(calls[0].id)
 ```
 
 ---

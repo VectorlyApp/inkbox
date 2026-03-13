@@ -242,38 +242,22 @@ export class AgentIdentity {
   }
 
   /**
-   * Full-text search across call transcripts for this identity's number.
-   *
-   * @param options.q - Search query string.
-   * @param options.party - Filter by speaker: `"local"` or `"remote"`.
-   * @param options.limit - Maximum number of results (1–200). Defaults to 50.
-   */
-  async searchTranscripts(options: {
-    q: string;
-    party?: string;
-    limit?: number;
-  }): Promise<PhoneTranscript[]> {
-    this._requirePhone();
-    return this._inkbox._numbers.searchTranscripts(this._phoneNumber!.id, options);
-  }
-
-  /**
    * List calls made to/from this identity's phone number.
    *
    * @param options.limit - Maximum number of results. Defaults to 50.
    * @param options.offset - Pagination offset. Defaults to 0.
    */
-  async calls(options: { limit?: number; offset?: number } = {}): Promise<PhoneCall[]> {
+  async listCalls(options: { limit?: number; offset?: number } = {}): Promise<PhoneCall[]> {
     this._requirePhone();
     return this._inkbox._calls.list(this._phoneNumber!.id, options);
   }
 
   /**
-   * Fetch transcript segments for a specific call.
+   * List transcript segments for a specific call.
    *
    * @param callId - ID of the call to fetch transcripts for.
    */
-  async transcripts(callId: string): Promise<PhoneTranscript[]> {
+  async listTranscripts(callId: string): Promise<PhoneTranscript[]> {
     this._requirePhone();
     return this._inkbox._transcripts.list(this._phoneNumber!.id, callId);
   }

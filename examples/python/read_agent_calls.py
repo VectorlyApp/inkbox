@@ -11,11 +11,11 @@ from inkbox import Inkbox
 inkbox = Inkbox(api_key=os.environ["INKBOX_API_KEY"])
 identity = inkbox.get_identity(os.environ["AGENT_HANDLE"])
 
-calls = identity.calls(limit=10)
+calls = identity.list_calls(limit=10)
 
 for call in calls:
     print(f"\n{call.id}  {call.direction}  {call.remote_phone_number}  status={call.status}")
 
-    transcripts = identity.transcripts(call.id)
+    transcripts = identity.list_transcripts(call.id)
     for t in transcripts:
         print(f"  [{t.party}] {t.text}")

@@ -292,29 +292,7 @@ class AgentIdentity:
             webhook_url=webhook_url,
         )
 
-    def search_transcripts(
-        self,
-        *,
-        q: str,
-        party: str | None = None,
-        limit: int = 50,
-    ) -> list[PhoneTranscript]:
-        """Full-text search across call transcripts for this identity's number.
-
-        Args:
-            q: Search query string.
-            party: Filter by speaker: ``"local"`` or ``"remote"``.
-            limit: Maximum number of results (1–200).
-        """
-        self._require_phone()
-        return self._inkbox._numbers.search_transcripts(
-            self._phone_number.id,  # type: ignore[union-attr]
-            q=q,
-            party=party,
-            limit=limit,
-        )
-
-    def calls(self, *, limit: int = 50, offset: int = 0) -> list[PhoneCall]:
+    def list_calls(self, *, limit: int = 50, offset: int = 0) -> list[PhoneCall]:
         """List calls made to/from this identity's phone number.
 
         Args:
@@ -328,8 +306,8 @@ class AgentIdentity:
             offset=offset,
         )
 
-    def transcripts(self, call_id: str) -> list[PhoneTranscript]:
-        """Fetch transcript segments for a specific call.
+    def list_transcripts(self, call_id: str) -> list[PhoneTranscript]:
+        """List transcript segments for a specific call.
 
         Args:
             call_id: ID of the call to fetch transcripts for.
