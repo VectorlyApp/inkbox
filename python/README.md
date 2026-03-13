@@ -193,9 +193,13 @@ Runnable example scripts are available in the [examples/python](https://github.c
 |---|---|
 | `register_agent_identity.py` | Create an identity, assign mailbox + phone number |
 | `agent_send_email.py` | Send an email and a threaded reply |
-| `read_agent_messages.py` | List messages |
-| `create_agent_phone_number.py` | Provision and update a number |
+| `read_agent_messages.py` | List messages and threads |
+| `create_agent_mailbox.py` | Create, update, search, and delete a mailbox |
+| `create_agent_phone_number.py` | Provision, update, and release a number |
+| `list_agent_phone_numbers.py` | List all phone numbers in the org |
 | `read_agent_calls.py` | List calls and print transcripts |
+| `receive_agent_email_webhook.py` | Register and delete a mailbox webhook |
+| `receive_agent_call_webhook.py` | Register, update, and delete a phone webhook |
 
 ## License
 

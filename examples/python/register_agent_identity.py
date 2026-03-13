@@ -9,8 +9,8 @@ import os
 from inkbox import Inkbox
 
 with Inkbox(api_key=os.environ["INKBOX_API_KEY"]) as inkbox:
-    # Create agent identity — returns an Agent object
-    agent = inkbox.identities.create(agent_handle="sales-agent")
+    # Create agent identity — returns an AgentIdentity object
+    agent = inkbox.create_identity("sales-agent")
     print(f"Registered agent: {agent.agent_handle}  (id={agent.id})")
 
     # Provision and assign channels in one call each
@@ -21,7 +21,7 @@ with Inkbox(api_key=os.environ["INKBOX_API_KEY"]) as inkbox:
     print(f"Assigned phone: {phone.number}")
 
     # List all identities
-    all_identities = inkbox.identities.list()
+    all_identities = inkbox.list_identities()
     print(f"\nAll identities ({len(all_identities)}):")
     for ident in all_identities:
         print(f"  {ident.agent_handle}  status={ident.status}")

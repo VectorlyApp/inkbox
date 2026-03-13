@@ -179,9 +179,13 @@ Runnable example scripts are available in the [examples/typescript](https://gith
 |---|---|
 | `register-agent-identity.ts` | Create an identity, assign mailbox + phone number |
 | `agent-send-email.ts` | Send an email and a threaded reply |
-| `read-agent-messages.ts` | List messages |
-| `create-agent-phone-number.ts` | Provision and update a number |
+| `read-agent-messages.ts` | List messages and threads |
+| `create-agent-mailbox.ts` | Create, update, search, and delete a mailbox |
+| `create-agent-phone-number.ts` | Provision, update, and release a number |
+| `list-agent-phone-numbers.ts` | List all phone numbers in the org |
 | `read-agent-calls.ts` | List calls and print transcripts |
+| `receive-agent-email-webhook.ts` | Register and delete a mailbox webhook |
+| `receive-agent-call-webhook.ts` | Register, update, and delete a phone webhook |
 
 ## License
 

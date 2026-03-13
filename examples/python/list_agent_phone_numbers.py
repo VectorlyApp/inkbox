@@ -10,7 +10,7 @@ from inkbox import Inkbox
 
 inkbox = Inkbox(api_key=os.environ["INKBOX_API_KEY"])
 
-numbers = inkbox.numbers.list()
+numbers = inkbox._numbers.list()
 
 for n in numbers:
     print(f"{n.number}  type={n.type}  status={n.status}")
