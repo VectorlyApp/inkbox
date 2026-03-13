@@ -11,7 +11,7 @@ Official SDKs for the [Inkbox API](https://www.inkbox.ai/docs) — API-first com
 
 ## Authentication
 
-All SDK calls require an API key. You can obtain one from the [Inkbox Console](https://console.inkbox.ai/).
+All SDK calls require an API key / service token. You can obtain one from the [Inkbox Console](https://console.inkbox.ai/).
 
 ---
 
