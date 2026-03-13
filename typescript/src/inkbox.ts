@@ -14,7 +14,7 @@ import { PhoneNumbersResource } from "./phone/resources/numbers.js";
 import { CallsResource } from "./phone/resources/calls.js";
 import { TranscriptsResource } from "./phone/resources/transcripts.js";
 import { IdentitiesResource } from "./identities/resources/identities.js";
-import { AgentIdentity } from "./agent.js";
+import { AgentIdentity } from "./agent_identity.js";
 import type { AgentIdentitySummary } from "./identities/types.js";
 
 const DEFAULT_BASE_URL = "https://api.inkbox.ai";
