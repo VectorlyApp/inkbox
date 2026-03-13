@@ -9,6 +9,12 @@ Official SDKs for the [Inkbox API](https://inkbox.ai) — API-first communicatio
 
 ---
 
+## Authentication
+
+All SDK calls require an API key. You can obtain one from the [Inkbox Console](https://console.inkbox.ai/).
+
+---
+
 ## Identities
 
 Agent identities are the central concept — a named identity (e.g. `"sales-agent"`) that owns a mailbox and/or phone number. Use `Inkbox` as the org-level entry point to create and retrieve identities.

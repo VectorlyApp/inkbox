@@ -10,6 +10,10 @@ pip install inkbox
 
 Requires Python ≥ 3.11.
 
+## Authentication
+
+You'll need an API key to use this SDK. Get one at [console.inkbox.ai](https://console.inkbox.ai/).
+
 ## Quick start
 
 ```python
