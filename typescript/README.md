@@ -18,32 +18,32 @@ import { Inkbox } from "@inkbox/sdk";
 const inkbox = new Inkbox({ apiKey: process.env.INKBOX_API_KEY! });
 
 // Create an agent identity
-const agent = await inkbox.identities.create({ agentHandle: "support-bot" });
+const identity = await inkbox.createIdentity("support-bot");
 
 // Provision and link channels in one call each
-const mailbox = await agent.assignMailbox({ displayName: "Support Bot" });
-const phone   = await agent.assignPhoneNumber({ type: "toll_free" });
+const mailbox = await identity.assignMailbox({ displayName: "Support Bot" });
+const phone   = await identity.assignPhoneNumber({ type: "toll_free" });
 
-// Send email directly from the agent
-await agent.sendEmail({
+// Send email directly from the identity
+await identity.sendEmail({
   to: ["customer@example.com"],
   subject: "Your order has shipped",
   bodyText: "Tracking number: 1Z999AA10123456784",
 });
 
 // Place an outbound call
-await agent.placeCall({
+await identity.placeCall({
   toNumber: "+18005559999",
   streamUrl: "wss://my-app.com/voice",
 });
 
 // Read inbox
-for await (const message of agent.messages()) {
+for await (const message of identity.messages()) {
   console.log(message.subject);
 }
 
 // Search transcripts
-const transcripts = await agent.searchTranscripts({ q: "refund" });
+const transcripts = await identity.searchTranscripts({ q: "refund" });
 ```
 
 ## Authentication
@@ -56,165 +56,92 @@ const transcripts = await agent.searchTranscripts({ q: "refund" });
 
 ---
 
-## Identities & Agent object
+## Identities
 
-`inkbox.identities.create()` and `inkbox.identities.get()` return an `Agent` object that holds the agent's channels and exposes convenience methods scoped to those channels.
+`inkbox.createIdentity()` and `inkbox.getIdentity()` return an `AgentIdentity` object that holds the identity's channels and exposes convenience methods scoped to those channels.
 
 ```ts
-// Create and fully provision an agent
-const agent   = await inkbox.identities.create({ agentHandle: "sales-bot" });
-const mailbox = await agent.assignMailbox({ displayName: "Sales Bot" });  // creates + links
-const phone   = await agent.assignPhoneNumber({ type: "toll_free" });     // provisions + links
+// Create and fully provision an identity
+const identity = await inkbox.createIdentity("sales-bot");
+const mailbox  = await identity.assignMailbox({ displayName: "Sales Bot" });  // creates + links
+const phone    = await identity.assignPhoneNumber({ type: "toll_free" });     // provisions + links
 
 console.log(mailbox.emailAddress);
 console.log(phone.number);
 
-// Get an existing agent (returned with current channel state)
-const agent2 = await inkbox.identities.get("sales-bot");
+// Get an existing identity (returned with current channel state)
+const identity2 = await inkbox.getIdentity("sales-bot");
+await identity2.refresh();  // re-fetch channels from API
 
-// If the agent's channels may have changed since you fetched it, re-sync:
-await agent2.refresh();
+// List all identities for your org
+const allIdentities = await inkbox.listIdentities();
 
-// List / update / delete
-const allIdentities = await inkbox.identities.list();
-await inkbox.identities.update("sales-bot", { status: "paused" });
-await agent.delete();
+// Update status or handle
+await identity.update({ status: "paused" });
+await identity.update({ newHandle: "sales-bot-v2" });
+
+// Unlink channels (without deleting them)
+await identity.unlinkMailbox();
+await identity.unlinkPhoneNumber();
+
+// Delete
+await identity.delete();
 ```
 
 ---
 
 ## Mail
 
-### Sending email
-
 ```ts
-// Via agent (no email address needed)
-await agent.sendEmail({
+// Send an email
+await identity.sendEmail({
   to: ["user@example.com"],
   subject: "Hello",
   bodyText: "Hi there!",
   bodyHtml: "<p>Hi there!</p>",
 });
 
-// Via flat namespace (useful when you have a mailbox address directly)
-await inkbox.messages.send("agent@inkboxmail.com", {
-  to: ["user@example.com"],
-  subject: "Hello",
-  bodyText: "Hi there!",
-});
-```
-
-### Reading messages and threads
-
-```ts
-// Via agent — iterates inbox automatically (paginated)
-for await (const msg of agent.messages()) {
+// Iterate inbox (paginated automatically)
+for await (const msg of identity.messages()) {
   console.log(msg.subject, msg.fromAddress);
 }
 
-// Full message body
-const detail = await inkbox.messages.get(mailbox.emailAddress, msg.id);
-console.log(detail.bodyText);
-
-// Threads
-for await (const thread of inkbox.threads.list(mailbox.emailAddress)) {
-  console.log(thread.subject, thread.messageCount);
+// Filter by direction
+for await (const msg of identity.messages({ direction: "inbound" })) {
+  console.log(msg.subject);
 }
-
-const threadDetail = await inkbox.threads.get(mailbox.emailAddress, thread.id);
-for (const msg of threadDetail.messages) {
-  console.log(`[${msg.direction}] ${msg.fromAddress}: ${msg.snippet}`);
-}
-```
-
-### Mailboxes
-
-```ts
-const mailbox = await inkbox.mailboxes.create({ displayName: "Sales Agent" });
-const allMailboxes = await inkbox.mailboxes.list();
-await inkbox.mailboxes.update(mailbox.emailAddress, { displayName: "Sales Agent v2" });
-const results = await inkbox.mailboxes.search(mailbox.emailAddress, { q: "invoice" });
-await inkbox.mailboxes.delete(mailbox.emailAddress);
-```
-
-### Webhooks
-
-```ts
-// Secret is one-time — save it immediately
-const hook = await inkbox.mailWebhooks.create(mailbox.emailAddress, {
-  url: "https://yourapp.com/hooks/mail",
-  eventTypes: ["message.received", "message.sent"],
-});
-console.log(hook.secret);
-
-const hooks = await inkbox.mailWebhooks.list(mailbox.emailAddress);
-await inkbox.mailWebhooks.delete(mailbox.emailAddress, hook.id);
 ```
 
 ---
 
 ## Phone
 
-### Provisioning numbers
-
 ```ts
-const number = await inkbox.numbers.provision({ type: "toll_free" });
-const local  = await inkbox.numbers.provision({ type: "local", state: "NY" });
-
-const allNumbers = await inkbox.numbers.list();
-await inkbox.numbers.update(number.id, {
-  incomingCallAction: "auto_accept",
-  defaultStreamUrl: "wss://your-agent.example.com/ws",
-});
-await inkbox.numbers.release({ number: number.number });
-```
-
-### Placing calls
-
-```ts
-// Via agent (fromNumber is automatic)
-const call = await agent.placeCall({
+// Place an outbound call
+const call = await identity.placeCall({
   toNumber: "+15167251294",
   streamUrl: "wss://your-agent.example.com/ws",
 });
+console.log(call.status, call.rateLimit.callsRemaining);
 
-// Via flat namespace
-const call2 = await inkbox.calls.place({
-  fromNumber: number.number,
-  toNumber: "+15167251294",
-  streamUrl: "wss://your-agent.example.com/ws",
-});
-console.log(call2.status, call2.rateLimit.callsRemaining);
+// Full-text search across transcripts
+const results = await identity.searchTranscripts({ q: "appointment" });
+const filtered = await identity.searchTranscripts({ q: "refund", party: "remote", limit: 10 });
 ```
 
-### Reading calls and transcripts
+---
+
+## Signing Keys
 
 ```ts
-const calls = await inkbox.calls.list(number.id, { limit: 10 });
-const transcripts = await inkbox.transcripts.list(number.id, calls[0].id);
-
-// Full-text search via agent
-const results = await agent.searchTranscripts({ q: "appointment" });
-
-// Or flat namespace
-const results2 = await inkbox.numbers.searchTranscripts(number.id, { q: "appointment" });
+// Create or rotate the org-level webhook signing key (plaintext returned once)
+const key = await inkbox.createSigningKey();
+console.log(key.signingKey); // save this immediately
 ```
 
-### Webhooks
+---
 
-```ts
-const hook = await inkbox.phoneWebhooks.create(number.id, {
-  url: "https://yourapp.com/hooks/phone",
-  eventTypes: ["call.completed"],
-});
-console.log(hook.secret);
-
-const hooks = await inkbox.phoneWebhooks.list(number.id);
-await inkbox.phoneWebhooks.update(number.id, hook.id, { url: "https://yourapp.com/hooks/phone-v2" });
-await inkbox.phoneWebhooks.delete(number.id, hook.id);
-```
-
-### Verifying webhook signatures
+## Verifying Webhook Signatures
 
 Use `verifyWebhook` to confirm that an incoming request was sent by Inkbox.
 
@@ -243,15 +170,11 @@ Runnable example scripts are available in the [examples/typescript](https://gith
 
 | Script | What it demonstrates |
 |---|---|
-| `register-agent-identity.ts` | Create an identity, assign mailbox + phone number via Agent |
-| `create-agent-mailbox.ts` | Create, update, search, and delete a mailbox |
+| `register-agent-identity.ts` | Create an identity, assign mailbox + phone number |
 | `agent-send-email.ts` | Send an email and a threaded reply |
-| `read-agent-messages.ts` | List messages and read full threads |
-| `create-agent-phone-number.ts` | Provision, update, and release a number |
-| `list-agent-phone-numbers.ts` | List all provisioned numbers |
+| `read-agent-messages.ts` | List messages |
+| `create-agent-phone-number.ts` | Provision and update a number |
 | `read-agent-calls.ts` | List calls and print transcripts |
-| `receive-agent-email-webhook.ts` | Register, list, and delete email webhooks |
-| `receive-agent-call-webhook.ts` | Register, list, and delete phone webhooks |
 
 ## License
 
