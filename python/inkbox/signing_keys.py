@@ -10,7 +10,7 @@ import hashlib
 import hmac
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any
+from typing import Any, Mapping
 
 
 @dataclass
@@ -34,23 +34,23 @@ class SigningKey:
 def verify_webhook(
     *,
     payload: bytes,
-    signature: str,
-    request_id: str,
-    timestamp: str,
+    headers: Mapping[str, str],
     secret: str,
 ) -> bool:
     """Verify that an incoming webhook request was sent by Inkbox.
 
     Args:
-        payload:    Raw request body bytes (do not parse/re-serialize).
-        signature:  Value of the ``X-Inkbox-Signature`` header.
-        request_id: Value of the ``X-Inkbox-Request-ID`` header.
-        timestamp:  Value of the ``X-Inkbox-Timestamp`` header.
-        secret:     Your signing key, with or without a ``whsec_`` prefix.
+        payload: Raw request body bytes (do not parse/re-serialize).
+        headers: Request headers mapping (keys are lowercased internally).
+        secret:  Your signing key, with or without a ``whsec_`` prefix.
 
     Returns:
         True if the signature is valid, False otherwise.
     """
+    h = {k.lower(): v for k, v in headers.items()}
+    signature = h.get("x-inkbox-signature", "")
+    request_id = h.get("x-inkbox-request-id", "")
+    timestamp = h.get("x-inkbox-timestamp", "")
     if not signature.startswith("sha256="):
         return False
     key = secret.removeprefix("whsec_")

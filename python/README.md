@@ -168,9 +168,7 @@ async def mail_hook(request: Request):
     raw_body = await request.body()
     if not verify_webhook(
         payload=raw_body,
-        signature=request.headers["X-Inkbox-Signature"],
-        request_id=request.headers["X-Inkbox-Request-ID"],
-        timestamp=request.headers["X-Inkbox-Timestamp"],
+        headers=request.headers,
         secret="whsec_...",
     ):
         raise HTTPException(status_code=403)
@@ -182,9 +180,7 @@ def mail_hook():
     raw_body = request.get_data()
     if not verify_webhook(
         payload=raw_body,
-        signature=request.headers["X-Inkbox-Signature"],
-        request_id=request.headers["X-Inkbox-Request-ID"],
-        timestamp=request.headers["X-Inkbox-Timestamp"],
+        headers=request.headers,
         secret="whsec_...",
     ):
         abort(403)

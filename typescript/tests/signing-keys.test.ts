@@ -21,45 +21,67 @@ function makeResource() {
   return { resource, http: http as { post: ReturnType<typeof vi.fn> } };
 }
 
+function makeHeaders(sig: string): Record<string, string> {
+  return {
+    "x-inkbox-signature": sig,
+    "x-inkbox-request-id": TEST_REQUEST_ID,
+    "x-inkbox-timestamp": TEST_TIMESTAMP,
+  };
+}
+
 describe("verifyWebhook", () => {
   it("returns true for a valid signature", () => {
     const sig = makeSignature(TEST_KEY, TEST_REQUEST_ID, TEST_TIMESTAMP, TEST_BODY);
-    expect(verifyWebhook({ payload: TEST_BODY, signature: sig, requestId: TEST_REQUEST_ID, timestamp: TEST_TIMESTAMP, secret: TEST_KEY })).toBe(true);
+    expect(verifyWebhook({ payload: TEST_BODY, headers: makeHeaders(sig), secret: TEST_KEY })).toBe(true);
   });
 
   it("accepts whsec_ prefixed secret", () => {
     const sig = makeSignature(TEST_KEY, TEST_REQUEST_ID, TEST_TIMESTAMP, TEST_BODY);
-    expect(verifyWebhook({ payload: TEST_BODY, signature: sig, requestId: TEST_REQUEST_ID, timestamp: TEST_TIMESTAMP, secret: `whsec_${TEST_KEY}` })).toBe(true);
+    expect(verifyWebhook({ payload: TEST_BODY, headers: makeHeaders(sig), secret: `whsec_${TEST_KEY}` })).toBe(true);
   });
 
   it("accepts string payload", () => {
     const sig = makeSignature(TEST_KEY, TEST_REQUEST_ID, TEST_TIMESTAMP, TEST_BODY);
-    expect(verifyWebhook({ payload: TEST_BODY.toString(), signature: sig, requestId: TEST_REQUEST_ID, timestamp: TEST_TIMESTAMP, secret: TEST_KEY })).toBe(true);
+    expect(verifyWebhook({ payload: TEST_BODY.toString(), headers: makeHeaders(sig), secret: TEST_KEY })).toBe(true);
+  });
+
+  it("normalizes header casing", () => {
+    const sig = makeSignature(TEST_KEY, TEST_REQUEST_ID, TEST_TIMESTAMP, TEST_BODY);
+    const uppercaseHeaders = {
+      "X-Inkbox-Signature": sig,
+      "X-Inkbox-Request-ID": TEST_REQUEST_ID,
+      "X-Inkbox-Timestamp": TEST_TIMESTAMP,
+    };
+    expect(verifyWebhook({ payload: TEST_BODY, headers: uppercaseHeaders, secret: TEST_KEY })).toBe(true);
   });
 
   it("returns false for wrong key", () => {
     const sig = makeSignature("wrong-key", TEST_REQUEST_ID, TEST_TIMESTAMP, TEST_BODY);
-    expect(verifyWebhook({ payload: TEST_BODY, signature: sig, requestId: TEST_REQUEST_ID, timestamp: TEST_TIMESTAMP, secret: TEST_KEY })).toBe(false);
+    expect(verifyWebhook({ payload: TEST_BODY, headers: makeHeaders(sig), secret: TEST_KEY })).toBe(false);
   });
 
   it("returns false for tampered body", () => {
     const sig = makeSignature(TEST_KEY, TEST_REQUEST_ID, TEST_TIMESTAMP, TEST_BODY);
-    expect(verifyWebhook({ payload: Buffer.from('{"event":"message.sent"}'), signature: sig, requestId: TEST_REQUEST_ID, timestamp: TEST_TIMESTAMP, secret: TEST_KEY })).toBe(false);
+    expect(verifyWebhook({ payload: Buffer.from('{"event":"message.sent"}'), headers: makeHeaders(sig), secret: TEST_KEY })).toBe(false);
   });
 
   it("returns false for wrong requestId", () => {
     const sig = makeSignature(TEST_KEY, TEST_REQUEST_ID, TEST_TIMESTAMP, TEST_BODY);
-    expect(verifyWebhook({ payload: TEST_BODY, signature: sig, requestId: "different-id", timestamp: TEST_TIMESTAMP, secret: TEST_KEY })).toBe(false);
+    expect(verifyWebhook({ payload: TEST_BODY, headers: { ...makeHeaders(sig), "x-inkbox-request-id": "different-id" }, secret: TEST_KEY })).toBe(false);
   });
 
   it("returns false for wrong timestamp", () => {
     const sig = makeSignature(TEST_KEY, TEST_REQUEST_ID, TEST_TIMESTAMP, TEST_BODY);
-    expect(verifyWebhook({ payload: TEST_BODY, signature: sig, requestId: TEST_REQUEST_ID, timestamp: "9999999999", secret: TEST_KEY })).toBe(false);
+    expect(verifyWebhook({ payload: TEST_BODY, headers: { ...makeHeaders(sig), "x-inkbox-timestamp": "9999999999" }, secret: TEST_KEY })).toBe(false);
   });
 
   it("returns false when sha256= prefix is missing", () => {
     const sig = makeSignature(TEST_KEY, TEST_REQUEST_ID, TEST_TIMESTAMP, TEST_BODY).slice("sha256=".length);
-    expect(verifyWebhook({ payload: TEST_BODY, signature: sig, requestId: TEST_REQUEST_ID, timestamp: TEST_TIMESTAMP, secret: TEST_KEY })).toBe(false);
+    expect(verifyWebhook({ payload: TEST_BODY, headers: makeHeaders(sig), secret: TEST_KEY })).toBe(false);
+  });
+
+  it("returns false when headers are missing", () => {
+    expect(verifyWebhook({ payload: TEST_BODY, headers: {}, secret: TEST_KEY })).toBe(false);
   });
 });
 

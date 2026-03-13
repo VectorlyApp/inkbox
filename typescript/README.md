@@ -171,9 +171,7 @@ import { verifyWebhook } from "@inkbox/sdk";
 app.post("/hooks/mail", express.raw({ type: "*/*" }), (req, res) => {
   const valid = verifyWebhook({
     payload: req.body,
-    signature: req.headers["x-inkbox-signature"] as string,
-    requestId: req.headers["x-inkbox-request-id"] as string,
-    timestamp: req.headers["x-inkbox-timestamp"] as string,
+    headers: req.headers,
     secret: "whsec_...",
   });
   if (!valid) return res.status(403).end();

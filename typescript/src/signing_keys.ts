@@ -30,26 +30,27 @@ function parseSigningKey(r: RawSigningKey): SigningKey {
 /**
  * Verify that an incoming webhook request was sent by Inkbox.
  *
- * @param payload    - Raw request body as a Buffer or string.
- * @param signature  - Value of the `X-Inkbox-Signature` header.
- * @param requestId  - Value of the `X-Inkbox-Request-ID` header.
- * @param timestamp  - Value of the `X-Inkbox-Timestamp` header.
- * @param secret     - Your signing key, with or without a `whsec_` prefix.
+ * @param payload  - Raw request body as a Buffer or string.
+ * @param headers  - Request headers object (keys are lowercased internally).
+ * @param secret   - Your signing key, with or without a `whsec_` prefix.
  * @returns True if the signature is valid.
  */
 export function verifyWebhook({
   payload,
-  signature,
-  requestId,
-  timestamp,
+  headers,
   secret,
 }: {
   payload: Buffer | string;
-  signature: string;
-  requestId: string;
-  timestamp: string;
+  headers: Record<string, string | string[] | undefined>;
   secret: string;
 }): boolean {
+  const h: Record<string, string | undefined> = {};
+  for (const [k, v] of Object.entries(headers)) {
+    h[k.toLowerCase()] = Array.isArray(v) ? v[0] : v;
+  }
+  const signature = h["x-inkbox-signature"] ?? "";
+  const requestId = h["x-inkbox-request-id"] ?? "";
+  const timestamp = h["x-inkbox-timestamp"] ?? "";
   if (!signature.startsWith("sha256=")) return false;
   const key = secret.startsWith("whsec_") ? secret.slice("whsec_".length) : secret;
   const body = typeof payload === "string" ? Buffer.from(payload) : payload;
