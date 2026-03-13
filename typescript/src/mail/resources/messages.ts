@@ -4,7 +4,7 @@
  * Message operations: list (auto-paginated), get, send, flag updates, delete.
  */
 
-import { HttpTransport } from "../_http.js";
+import { HttpTransport } from "../../_http.js";
 import {
   Message,
   MessageDetail,
@@ -26,22 +26,24 @@ export class MessagesResource {
    *
    * @example
    * ```ts
-   * for await (const msg of client.messages.list(mailboxId)) {
+   * for await (const msg of client.messages.list(emailAddress)) {
    *   console.log(msg.subject, msg.fromAddress);
    * }
    * ```
    */
   async *list(
-    mailboxId: string,
-    options?: { pageSize?: number },
+    emailAddress: string,
+    options?: { pageSize?: number; direction?: "inbound" | "outbound" },
   ): AsyncGenerator<Message> {
     const limit = options?.pageSize ?? DEFAULT_PAGE_SIZE;
     let cursor: string | undefined;
 
     while (true) {
+      const params: Record<string, string | number | undefined> = { limit, cursor };
+      if (options?.direction !== undefined) params["direction"] = options.direction;
       const page = await this.http.get<RawCursorPage<RawMessage>>(
-        `/mailboxes/${mailboxId}/messages`,
-        { limit, cursor },
+        `/mailboxes/${emailAddress}/messages`,
+        params,
       );
       for (const item of page.items) {
         yield parseMessage(item);
@@ -54,12 +56,12 @@ export class MessagesResource {
   /**
    * Get a message with full body content.
    *
-   * @param mailboxId - UUID of the owning mailbox.
+   * @param emailAddress - Full email address of the owning mailbox.
    * @param messageId - UUID of the message.
    */
-  async get(mailboxId: string, messageId: string): Promise<MessageDetail> {
+  async get(emailAddress: string, messageId: string): Promise<MessageDetail> {
     const data = await this.http.get<RawMessage>(
-      `/mailboxes/${mailboxId}/messages/${messageId}`,
+      `/mailboxes/${emailAddress}/messages/${messageId}`,
     );
     return parseMessageDetail(data);
   }
@@ -67,7 +69,7 @@ export class MessagesResource {
   /**
    * Send an email from a mailbox.
    *
-   * @param mailboxId - UUID of the sending mailbox.
+   * @param emailAddress - Full email address of the sending mailbox.
    * @param options.to - Primary recipient addresses (at least one required).
    * @param options.subject - Email subject line.
    * @param options.bodyText - Plain-text body.
@@ -81,7 +83,7 @@ export class MessagesResource {
    *   file content). Max total size: 25 MB. Blocked: `.exe`, `.bat`, `.scr`.
    */
   async send(
-    mailboxId: string,
+    emailAddress: string,
     options: {
       to: string[];
       subject: string;
@@ -119,7 +121,7 @@ export class MessagesResource {
     }
 
     const data = await this.http.post<RawMessage>(
-      `/mailboxes/${mailboxId}/messages`,
+      `/mailboxes/${emailAddress}/messages`,
       body,
     );
     return parseMessage(data);
@@ -131,7 +133,7 @@ export class MessagesResource {
    * Pass only the flags you want to change; omitted flags are left as-is.
    */
   async updateFlags(
-    mailboxId: string,
+    emailAddress: string,
     messageId: string,
     flags: { isRead?: boolean; isStarred?: boolean },
   ): Promise<Message> {
@@ -140,34 +142,55 @@ export class MessagesResource {
     if (flags.isStarred !== undefined) body["is_starred"] = flags.isStarred;
 
     const data = await this.http.patch<RawMessage>(
-      `/mailboxes/${mailboxId}/messages/${messageId}`,
+      `/mailboxes/${emailAddress}/messages/${messageId}`,
       body,
     );
     return parseMessage(data);
   }
 
   /** Mark a message as read. */
-  async markRead(mailboxId: string, messageId: string): Promise<Message> {
-    return this.updateFlags(mailboxId, messageId, { isRead: true });
+  async markRead(emailAddress: string, messageId: string): Promise<Message> {
+    return this.updateFlags(emailAddress, messageId, { isRead: true });
   }
 
   /** Mark a message as unread. */
-  async markUnread(mailboxId: string, messageId: string): Promise<Message> {
-    return this.updateFlags(mailboxId, messageId, { isRead: false });
+  async markUnread(emailAddress: string, messageId: string): Promise<Message> {
+    return this.updateFlags(emailAddress, messageId, { isRead: false });
   }
 
   /** Star a message. */
-  async star(mailboxId: string, messageId: string): Promise<Message> {
-    return this.updateFlags(mailboxId, messageId, { isStarred: true });
+  async star(emailAddress: string, messageId: string): Promise<Message> {
+    return this.updateFlags(emailAddress, messageId, { isStarred: true });
   }
 
   /** Unstar a message. */
-  async unstar(mailboxId: string, messageId: string): Promise<Message> {
-    return this.updateFlags(mailboxId, messageId, { isStarred: false });
+  async unstar(emailAddress: string, messageId: string): Promise<Message> {
+    return this.updateFlags(emailAddress, messageId, { isStarred: false });
   }
 
   /** Delete a message. */
-  async delete(mailboxId: string, messageId: string): Promise<void> {
-    await this.http.delete(`/mailboxes/${mailboxId}/messages/${messageId}`);
+  async delete(emailAddress: string, messageId: string): Promise<void> {
+    await this.http.delete(`/mailboxes/${emailAddress}/messages/${messageId}`);
+  }
+
+  /**
+   * Get a presigned URL for a message attachment.
+   *
+   * @param emailAddress - Full email address of the owning mailbox.
+   * @param messageId - UUID of the message.
+   * @param filename - Attachment filename.
+   * @param options.redirect - If `true`, follows the redirect. If `false` (default),
+   *   returns `{ url, filename, expiresIn }`.
+   */
+  async getAttachment(
+    emailAddress: string,
+    messageId: string,
+    filename: string,
+    options?: { redirect?: boolean },
+  ): Promise<{ url: string; filename: string; expiresIn: number }> {
+    return this.http.get(
+      `/mailboxes/${emailAddress}/messages/${messageId}/attachments/${filename}`,
+      { redirect: options?.redirect ? "true" : "false" },
+    );
   }
 }
