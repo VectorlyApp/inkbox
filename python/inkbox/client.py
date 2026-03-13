@@ -10,12 +10,10 @@ from inkbox.mail._http import HttpTransport as MailHttpTransport
 from inkbox.mail.resources.mailboxes import MailboxesResource
 from inkbox.mail.resources.messages import MessagesResource
 from inkbox.mail.resources.threads import ThreadsResource
-from inkbox.mail.resources.webhooks import WebhooksResource as MailWebhooksResource
 from inkbox.phone._http import HttpTransport as PhoneHttpTransport
 from inkbox.phone.resources.calls import CallsResource
 from inkbox.phone.resources.numbers import PhoneNumbersResource
 from inkbox.phone.resources.transcripts import TranscriptsResource
-from inkbox.phone.resources.webhooks import PhoneWebhooksResource
 from inkbox.identities._http import HttpTransport as IdsHttpTransport
 from inkbox.identities.resources.identities import IdentitiesResource
 from inkbox.agent_identity import AgentIdentity
@@ -73,12 +71,10 @@ class Inkbox:
         self._mailboxes = MailboxesResource(self._mail_http)
         self._messages = MessagesResource(self._mail_http)
         self._threads = ThreadsResource(self._mail_http)
-        self._mail_webhooks = MailWebhooksResource(self._mail_http)
 
         self._calls = CallsResource(self._phone_http)
         self._numbers = PhoneNumbersResource(self._phone_http)
         self._transcripts = TranscriptsResource(self._phone_http)
-        self._phone_webhooks = PhoneWebhooksResource(self._phone_http)
 
         self._signing_keys = SigningKeysResource(self._api_http)
         self._ids_resource = IdentitiesResource(self._ids_http)

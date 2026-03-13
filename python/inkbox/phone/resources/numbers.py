@@ -37,8 +37,8 @@ class PhoneNumbersResource:
         phone_number_id: UUID | str,
         *,
         incoming_call_action: str | None = _UNSET,  # type: ignore[assignment]
-        default_stream_url: str | None = _UNSET,  # type: ignore[assignment]
-        default_pipeline_mode: str | None = _UNSET,  # type: ignore[assignment]
+        client_websocket_url: str | None = _UNSET,  # type: ignore[assignment]
+        incoming_call_webhook_url: str | None = _UNSET,  # type: ignore[assignment]
     ) -> PhoneNumber:
         """Update phone number settings.
 
@@ -48,16 +48,16 @@ class PhoneNumbersResource:
         Args:
             phone_number_id: UUID of the phone number.
             incoming_call_action: ``"auto_accept"``, ``"auto_reject"``, or ``"webhook"``.
-            default_stream_url: WebSocket URL (wss://) for audio bridging.
-            default_pipeline_mode: Default pipeline mode for incoming calls.
+            client_websocket_url: WebSocket URL (wss://) for audio bridging.
+            incoming_call_webhook_url: Webhook URL called for incoming calls when action is ``"webhook"``.
         """
         body: dict[str, Any] = {}
         if incoming_call_action is not _UNSET:
             body["incoming_call_action"] = incoming_call_action
-        if default_stream_url is not _UNSET:
-            body["default_stream_url"] = default_stream_url
-        if default_pipeline_mode is not _UNSET:
-            body["default_pipeline_mode"] = default_pipeline_mode
+        if client_websocket_url is not _UNSET:
+            body["client_websocket_url"] = client_websocket_url
+        if incoming_call_webhook_url is not _UNSET:
+            body["incoming_call_webhook_url"] = incoming_call_webhook_url
         data = self._http.patch(f"{_BASE}/{phone_number_id}", json=body)
         return PhoneNumber._from_dict(data)
 

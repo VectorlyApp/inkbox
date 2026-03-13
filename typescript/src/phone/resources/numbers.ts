@@ -39,26 +39,26 @@ export class PhoneNumbersResource {
    *
    * @param phoneNumberId - UUID of the phone number.
    * @param options.incomingCallAction - `"auto_accept"`, `"auto_reject"`, or `"webhook"`.
-   * @param options.defaultStreamUrl - WebSocket URL (wss://) for audio bridging.
-   * @param options.defaultPipelineMode - Default pipeline mode for incoming calls.
+   * @param options.clientWebsocketUrl - WebSocket URL (wss://) for audio bridging.
+   * @param options.incomingCallWebhookUrl - Webhook URL called for incoming calls when action is `"webhook"`.
    */
   async update(
     phoneNumberId: string,
     options: {
       incomingCallAction?: string;
-      defaultStreamUrl?: string | null;
-      defaultPipelineMode?: string | null;
+      clientWebsocketUrl?: string | null;
+      incomingCallWebhookUrl?: string | null;
     },
   ): Promise<PhoneNumber> {
     const body: Record<string, unknown> = {};
     if (options.incomingCallAction !== undefined) {
       body["incoming_call_action"] = options.incomingCallAction;
     }
-    if ("defaultStreamUrl" in options) {
-      body["default_stream_url"] = options.defaultStreamUrl;
+    if ("clientWebsocketUrl" in options) {
+      body["client_websocket_url"] = options.clientWebsocketUrl;
     }
-    if ("defaultPipelineMode" in options) {
-      body["default_pipeline_mode"] = options.defaultPipelineMode;
+    if ("incomingCallWebhookUrl" in options) {
+      body["incoming_call_webhook_url"] = options.incomingCallWebhookUrl;
     }
     const data = await this.http.patch<RawPhoneNumber>(
       `${BASE}/${phoneNumberId}`,

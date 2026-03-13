@@ -62,19 +62,6 @@ export interface ThreadDetail extends Thread {
   messages: Message[];
 }
 
-export interface Webhook {
-  id: string;
-  mailboxId: string;
-  url: string;
-  eventTypes: string[];
-  status: string;
-  createdAt: Date;
-}
-
-export interface WebhookCreateResult extends Webhook {
-  secret: string;
-}
-
 // ---- internal raw API shapes (snake_case from JSON) ----
 
 export interface RawMailbox {
@@ -123,19 +110,6 @@ export interface RawThread {
   last_message_at: string;
   created_at: string;
   messages?: RawMessage[];
-}
-
-export interface RawWebhook {
-  id: string;
-  mailbox_id: string;
-  url: string;
-  event_types: string[];
-  status: string;
-  created_at: string;
-}
-
-export interface RawWebhookCreateResult extends RawWebhook {
-  secret: string;
 }
 
 export interface RawCursorPage<T> {
@@ -211,20 +185,3 @@ export function parseThreadDetail(r: RawThread): ThreadDetail {
   };
 }
 
-export function parseWebhook(r: RawWebhook): Webhook {
-  return {
-    id: r.id,
-    mailboxId: r.mailbox_id,
-    url: r.url,
-    eventTypes: r.event_types,
-    status: r.status,
-    createdAt: new Date(r.created_at),
-  };
-}
-
-export function parseWebhookCreateResult(r: RawWebhookCreateResult): WebhookCreateResult {
-  return {
-    ...parseWebhook(r),
-    secret: r.secret,
-  };
-}

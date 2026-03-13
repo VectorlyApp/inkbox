@@ -4,7 +4,6 @@ from inkbox import Inkbox
 from inkbox.phone.resources.numbers import PhoneNumbersResource
 from inkbox.phone.resources.calls import CallsResource
 from inkbox.phone.resources.transcripts import TranscriptsResource
-from inkbox.phone.resources.webhooks import PhoneWebhooksResource
 from inkbox.signing_keys import SigningKeysResource
 
 
@@ -15,7 +14,6 @@ class TestInkboxPhoneResources:
         assert isinstance(client._numbers, PhoneNumbersResource)
         assert isinstance(client._calls, CallsResource)
         assert isinstance(client._transcripts, TranscriptsResource)
-        assert isinstance(client._phone_webhooks, PhoneWebhooksResource)
         assert isinstance(client._signing_keys, SigningKeysResource)
 
         client.close()

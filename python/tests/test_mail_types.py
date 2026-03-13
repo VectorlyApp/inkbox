@@ -9,8 +9,6 @@ from sample_data_mail import (
     MESSAGE_DETAIL_DICT,
     THREAD_DICT,
     THREAD_DETAIL_DICT,
-    WEBHOOK_DICT,
-    WEBHOOK_CREATE_DICT,
 )
 from inkbox.mail.types import (
     Mailbox,
@@ -18,8 +16,6 @@ from inkbox.mail.types import (
     MessageDetail,
     Thread,
     ThreadDetail,
-    Webhook,
-    WebhookCreateResult,
 )
 
 
@@ -104,18 +100,3 @@ class TestThreadDetailParsing:
         assert t.messages == []
 
 
-class TestWebhookParsing:
-    def test_from_dict(self):
-        w = Webhook._from_dict(WEBHOOK_DICT)
-
-        assert isinstance(w.id, UUID)
-        assert isinstance(w.mailbox_id, UUID)
-        assert w.url == "https://example.com/hooks/mail"
-        assert w.event_types == ["message.received"]
-        assert w.status == "active"
-
-    def test_create_result_includes_secret(self):
-        w = WebhookCreateResult._from_dict(WEBHOOK_CREATE_DICT)
-
-        assert w.secret == "test-hmac-secret-mail-abc123"
-        assert w.url == "https://example.com/hooks/mail"

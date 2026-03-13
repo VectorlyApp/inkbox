@@ -4,7 +4,6 @@ from inkbox import Inkbox
 from inkbox.mail.resources.mailboxes import MailboxesResource
 from inkbox.mail.resources.messages import MessagesResource
 from inkbox.mail.resources.threads import ThreadsResource
-from inkbox.mail.resources.webhooks import WebhooksResource
 from inkbox.signing_keys import SigningKeysResource
 
 
@@ -15,7 +14,6 @@ class TestInkboxMailResources:
         assert isinstance(client._mailboxes, MailboxesResource)
         assert isinstance(client._messages, MessagesResource)
         assert isinstance(client._threads, ThreadsResource)
-        assert isinstance(client._mail_webhooks, WebhooksResource)
         assert isinstance(client._signing_keys, SigningKeysResource)
 
         client.close()

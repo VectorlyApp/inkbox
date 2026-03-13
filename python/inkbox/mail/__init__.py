@@ -9,8 +9,6 @@ from inkbox.mail.types import (
     MessageDetail,
     Thread,
     ThreadDetail,
-    Webhook,
-    WebhookCreateResult,
 )
 from inkbox.signing_keys import SigningKey
 
@@ -23,6 +21,4 @@ __all__ = [
     "SigningKey",
     "Thread",
     "ThreadDetail",
-    "Webhook",
-    "WebhookCreateResult",
 ]

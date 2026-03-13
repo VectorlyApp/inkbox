@@ -6,8 +6,8 @@ PHONE_NUMBER_DICT = {
     "type": "toll_free",
     "status": "active",
     "incoming_call_action": "auto_reject",
-    "default_stream_url": None,
-    "default_pipeline_mode": "client_llm_only",
+    "client_websocket_url": None,
+    "incoming_call_webhook_url": None,
     "created_at": "2026-03-09T00:00:00Z",
     "updated_at": "2026-03-09T00:00:00Z",
 }
@@ -18,8 +18,10 @@ PHONE_CALL_DICT = {
     "remote_phone_number": "+15167251294",
     "direction": "outbound",
     "status": "completed",
-    "pipeline_mode": "client_llm_only",
-    "stream_url": "wss://agent.example.com/ws",
+    "client_websocket_url": "wss://agent.example.com/ws",
+    "use_inkbox_tts": None,
+    "use_inkbox_stt": None,
+    "hangup_reason": None,
     "started_at": "2026-03-09T00:01:00Z",
     "ended_at": "2026-03-09T00:05:00Z",
     "created_at": "2026-03-09T00:00:00Z",
@@ -34,19 +36,4 @@ PHONE_TRANSCRIPT_DICT = {
     "party": "local",
     "text": "Hello, how can I help you?",
     "created_at": "2026-03-09T00:01:01Z",
-}
-
-PHONE_WEBHOOK_DICT = {
-    "id": "dddd4444-0000-0000-0000-000000000001",
-    "source_id": "aaaa1111-0000-0000-0000-000000000001",
-    "source_type": "phone_number",
-    "url": "https://example.com/webhooks/phone",
-    "event_types": ["incoming_call"],
-    "status": "active",
-    "created_at": "2026-03-09T00:00:00Z",
-}
-
-PHONE_WEBHOOK_CREATE_DICT = {
-    **PHONE_WEBHOOK_DICT,
-    "secret": "test-hmac-secret-abc123",
 }

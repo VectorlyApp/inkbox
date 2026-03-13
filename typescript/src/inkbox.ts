@@ -8,13 +8,11 @@ import { HttpTransport } from "./_http.js";
 import { MailboxesResource } from "./mail/resources/mailboxes.js";
 import { MessagesResource } from "./mail/resources/messages.js";
 import { ThreadsResource } from "./mail/resources/threads.js";
-import { WebhooksResource } from "./mail/resources/webhooks.js";
 import { SigningKeysResource } from "./signing_keys.js";
 import type { SigningKey } from "./signing_keys.js";
 import { PhoneNumbersResource } from "./phone/resources/numbers.js";
 import { CallsResource } from "./phone/resources/calls.js";
 import { TranscriptsResource } from "./phone/resources/transcripts.js";
-import { PhoneWebhooksResource } from "./phone/resources/webhooks.js";
 import { IdentitiesResource } from "./identities/resources/identities.js";
 import { AgentIdentity } from "./agent.js";
 import type { AgentIdentitySummary } from "./identities/types.js";
@@ -62,8 +60,6 @@ export class Inkbox {
   /** @internal */
   readonly _threads: ThreadsResource;
   /** @internal */
-  readonly _mailWebhooks: WebhooksResource;
-  /** @internal */
   readonly _signingKeys: SigningKeysResource;
 
   /** @internal — used by AgentIdentity */
@@ -72,8 +68,6 @@ export class Inkbox {
   readonly _calls: CallsResource;
   /** @internal */
   readonly _transcripts: TranscriptsResource;
-  /** @internal */
-  readonly _phoneWebhooks: PhoneWebhooksResource;
 
   /** @internal — used by AgentIdentity to link channels */
   readonly _idsResource: IdentitiesResource;
@@ -87,16 +81,14 @@ export class Inkbox {
     const idsHttp   = new HttpTransport(options.apiKey, `${apiRoot}/identities`, ms);
     const apiHttp   = new HttpTransport(options.apiKey, apiRoot, ms);
 
-    this._mailboxes    = new MailboxesResource(mailHttp);
-    this._messages     = new MessagesResource(mailHttp);
-    this._threads      = new ThreadsResource(mailHttp);
-    this._mailWebhooks = new WebhooksResource(mailHttp);
-    this._signingKeys  = new SigningKeysResource(apiHttp);
+    this._mailboxes   = new MailboxesResource(mailHttp);
+    this._messages    = new MessagesResource(mailHttp);
+    this._threads     = new ThreadsResource(mailHttp);
+    this._signingKeys = new SigningKeysResource(apiHttp);
 
-    this._numbers       = new PhoneNumbersResource(phoneHttp);
-    this._calls         = new CallsResource(phoneHttp);
-    this._transcripts   = new TranscriptsResource(phoneHttp);
-    this._phoneWebhooks = new PhoneWebhooksResource(phoneHttp);
+    this._numbers     = new PhoneNumbersResource(phoneHttp);
+    this._calls       = new CallsResource(phoneHttp);
+    this._transcripts = new TranscriptsResource(phoneHttp);
 
     this._idsResource = new IdentitiesResource(idsHttp);
   }

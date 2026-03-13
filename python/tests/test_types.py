@@ -7,15 +7,11 @@ from sample_data import (
     PHONE_NUMBER_DICT,
     PHONE_CALL_DICT,
     PHONE_TRANSCRIPT_DICT,
-    PHONE_WEBHOOK_DICT,
-    PHONE_WEBHOOK_CREATE_DICT,
 )
 from inkbox.phone.types import (
     PhoneNumber,
     PhoneCall,
     PhoneTranscript,
-    PhoneWebhook,
-    PhoneWebhookCreateResult,
 )
 
 
@@ -28,18 +24,10 @@ class TestPhoneNumberParsing:
         assert n.type == "toll_free"
         assert n.status == "active"
         assert n.incoming_call_action == "auto_reject"
-        assert n.default_stream_url is None
-        assert n.default_pipeline_mode == "client_llm_only"
+        assert n.client_websocket_url is None
+        assert n.incoming_call_webhook_url is None
         assert isinstance(n.created_at, datetime)
         assert isinstance(n.updated_at, datetime)
-
-    def test_default_pipeline_mode_when_missing(self):
-        d = {**PHONE_NUMBER_DICT}
-        del d["default_pipeline_mode"]
-
-        n = PhoneNumber._from_dict(d)
-
-        assert n.default_pipeline_mode == "client_llm_only"
 
 
 class TestPhoneCallParsing:
@@ -51,8 +39,9 @@ class TestPhoneCallParsing:
         assert c.remote_phone_number == "+15167251294"
         assert c.direction == "outbound"
         assert c.status == "completed"
-        assert c.pipeline_mode == "client_llm_only"
-        assert c.stream_url == "wss://agent.example.com/ws"
+        assert c.client_websocket_url == "wss://agent.example.com/ws"
+        assert c.use_inkbox_tts is None
+        assert c.use_inkbox_stt is None
         assert isinstance(c.started_at, datetime)
         assert isinstance(c.ended_at, datetime)
 
@@ -76,21 +65,3 @@ class TestPhoneTranscriptParsing:
         assert t.party == "local"
         assert t.text == "Hello, how can I help you?"
         assert isinstance(t.created_at, datetime)
-
-
-class TestPhoneWebhookParsing:
-    def test_from_dict(self):
-        w = PhoneWebhook._from_dict(PHONE_WEBHOOK_DICT)
-
-        assert isinstance(w.id, UUID)
-        assert isinstance(w.source_id, UUID)
-        assert w.source_type == "phone_number"
-        assert w.url == "https://example.com/webhooks/phone"
-        assert w.event_types == ["incoming_call"]
-        assert w.status == "active"
-
-    def test_create_result_includes_secret(self):
-        w = PhoneWebhookCreateResult._from_dict(PHONE_WEBHOOK_CREATE_DICT)
-
-        assert w.secret == "test-hmac-secret-abc123"
-        assert w.url == "https://example.com/webhooks/phone"

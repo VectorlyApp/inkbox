@@ -5,8 +5,6 @@ import {
   parseRateLimitInfo,
   parsePhoneCallWithRateLimit,
   parsePhoneTranscript,
-  parsePhoneWebhook,
-  parsePhoneWebhookCreateResult,
 } from "../../src/phone/types.js";
 import {
   RAW_PHONE_NUMBER,
@@ -14,8 +12,6 @@ import {
   RAW_RATE_LIMIT,
   RAW_PHONE_CALL_WITH_RATE_LIMIT,
   RAW_PHONE_TRANSCRIPT,
-  RAW_PHONE_WEBHOOK,
-  RAW_PHONE_WEBHOOK_CREATE,
 } from "../sampleData.js";
 
 describe("parsePhoneNumber", () => {
@@ -85,23 +81,3 @@ describe("parsePhoneTranscript", () => {
   });
 });
 
-describe("parsePhoneWebhook", () => {
-  it("converts all fields", () => {
-    const w = parsePhoneWebhook(RAW_PHONE_WEBHOOK);
-    expect(w.id).toBe(RAW_PHONE_WEBHOOK.id);
-    expect(w.sourceId).toBe(RAW_PHONE_WEBHOOK.source_id);
-    expect(w.sourceType).toBe("phone_number");
-    expect(w.url).toBe("https://example.com/webhooks/phone");
-    expect(w.eventTypes).toEqual(["incoming_call"]);
-    expect(w.status).toBe("active");
-    expect(w.createdAt).toBeInstanceOf(Date);
-  });
-});
-
-describe("parsePhoneWebhookCreateResult", () => {
-  it("includes secret", () => {
-    const w = parsePhoneWebhookCreateResult(RAW_PHONE_WEBHOOK_CREATE);
-    expect(w.secret).toBe("test-hmac-secret-abc123");
-    expect(w.url).toBe("https://example.com/webhooks/phone");
-  });
-});

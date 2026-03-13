@@ -10,8 +10,6 @@ export type {
   MessageDetail,
   Thread,
   ThreadDetail,
-  Webhook as MailWebhook,
-  WebhookCreateResult as MailWebhookCreateResult,
 } from "./mail/types.js";
 export type {
   PhoneNumber,
@@ -19,8 +17,6 @@ export type {
   PhoneCallWithRateLimit,
   RateLimitInfo,
   PhoneTranscript,
-  PhoneWebhook,
-  PhoneWebhookCreateResult,
 } from "./phone/types.js";
 export type {
   AgentIdentitySummary,

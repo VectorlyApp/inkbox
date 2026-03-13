@@ -5,8 +5,6 @@ import {
   parseMessageDetail,
   parseThread,
   parseThreadDetail,
-  parseWebhook,
-  parseWebhookCreateResult,
 } from "../../src/mail/types.js";
 import {
   RAW_MAILBOX,
@@ -14,8 +12,6 @@ import {
   RAW_MESSAGE_DETAIL,
   RAW_THREAD,
   RAW_THREAD_DETAIL,
-  RAW_WEBHOOK,
-  RAW_WEBHOOK_CREATE,
 } from "../sampleData.js";
 
 describe("parseMailbox", () => {
@@ -89,22 +85,3 @@ describe("parseThreadDetail", () => {
   });
 });
 
-describe("parseWebhook", () => {
-  it("converts all fields", () => {
-    const w = parseWebhook(RAW_WEBHOOK);
-    expect(w.id).toBe(RAW_WEBHOOK.id);
-    expect(w.mailboxId).toBe(RAW_WEBHOOK.mailbox_id);
-    expect(w.url).toBe("https://example.com/hooks/mail");
-    expect(w.eventTypes).toEqual(["message.received"]);
-    expect(w.status).toBe("active");
-    expect(w.createdAt).toBeInstanceOf(Date);
-  });
-});
-
-describe("parseWebhookCreateResult", () => {
-  it("includes secret", () => {
-    const w = parseWebhookCreateResult(RAW_WEBHOOK_CREATE);
-    expect(w.secret).toBe("test-hmac-secret-mail-abc123");
-    expect(w.url).toBe("https://example.com/hooks/mail");
-  });
-});

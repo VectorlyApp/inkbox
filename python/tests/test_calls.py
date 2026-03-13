@@ -53,8 +53,7 @@ class TestCallsGet:
         transport.get.assert_called_once_with(f"/numbers/{NUM_ID}/calls/{CALL_ID}")
         assert call.id == UUID(CALL_ID)
         assert call.status == "completed"
-        assert call.pipeline_mode == "client_llm_only"
-        assert call.stream_url == "wss://agent.example.com/ws"
+        assert call.client_websocket_url == "wss://agent.example.com/ws"
         assert call.started_at is not None
         assert call.ended_at is not None
 
@@ -71,7 +70,7 @@ class TestCallsPlace:
         call = client._calls.place(
             from_number="+18335794607",
             to_number="+15167251294",
-            stream_url="wss://agent.example.com/ws",
+            client_websocket_url="wss://agent.example.com/ws",
         )
 
         transport.post.assert_called_once_with(
@@ -79,24 +78,23 @@ class TestCallsPlace:
             json={
                 "from_number": "+18335794607",
                 "to_number": "+15167251294",
-                "stream_url": "wss://agent.example.com/ws",
+                "client_websocket_url": "wss://agent.example.com/ws",
             },
         )
         assert call.status == "ringing"
 
-    def test_place_with_pipeline_mode_and_webhook(self, client, transport):
+    def test_place_with_websocket_and_webhook(self, client, transport):
         transport.post.return_value = PHONE_CALL_DICT
 
         client._calls.place(
             from_number="+18335794607",
             to_number="+15167251294",
-            stream_url="wss://agent.example.com/ws",
-            pipeline_mode="client_llm_tts_stt",
+            client_websocket_url="wss://agent.example.com/ws",
             webhook_url="https://example.com/hook",
         )
 
         _, kwargs = transport.post.call_args
-        assert kwargs["json"]["pipeline_mode"] == "client_llm_tts_stt"
+        assert kwargs["json"]["client_websocket_url"] == "wss://agent.example.com/ws"
         assert kwargs["json"]["webhook_url"] == "https://example.com/hook"
 
     def test_optional_fields_omitted_when_none(self, client, transport):
@@ -108,6 +106,5 @@ class TestCallsPlace:
         )
 
         _, kwargs = transport.post.call_args
-        assert "stream_url" not in kwargs["json"]
-        assert "pipeline_mode" not in kwargs["json"]
+        assert "client_websocket_url" not in kwargs["json"]
         assert "webhook_url" not in kwargs["json"]

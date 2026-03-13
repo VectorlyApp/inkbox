@@ -16,7 +16,7 @@ class TestNumbersList:
         assert numbers[0].number == "+18335794607"
         assert numbers[0].type == "toll_free"
         assert numbers[0].status == "active"
-        assert numbers[0].default_pipeline_mode == "client_llm_only"
+        assert numbers[0].client_websocket_url is None
 
     def test_empty_list(self, client, transport):
         transport.get.return_value = []
@@ -56,30 +56,30 @@ class TestNumbersUpdate:
     def test_update_multiple_fields(self, client, transport):
         updated = {
             **PHONE_NUMBER_DICT,
-            "incoming_call_action": "auto_accept",
-            "default_stream_url": "wss://agent.example.com/ws",
-            "default_pipeline_mode": "client_llm_tts_stt",
+            "incoming_call_action": "webhook",
+            "client_websocket_url": "wss://agent.example.com/ws",
+            "incoming_call_webhook_url": "https://example.com/hook",
         }
         transport.patch.return_value = updated
         uid = "aaaa1111-0000-0000-0000-000000000001"
 
         result = client._numbers.update(
             uid,
-            incoming_call_action="auto_accept",
-            default_stream_url="wss://agent.example.com/ws",
-            default_pipeline_mode="client_llm_tts_stt",
+            incoming_call_action="webhook",
+            client_websocket_url="wss://agent.example.com/ws",
+            incoming_call_webhook_url="https://example.com/hook",
         )
 
         transport.patch.assert_called_once_with(
             f"/numbers/{uid}",
             json={
-                "incoming_call_action": "auto_accept",
-                "default_stream_url": "wss://agent.example.com/ws",
-                "default_pipeline_mode": "client_llm_tts_stt",
+                "incoming_call_action": "webhook",
+                "client_websocket_url": "wss://agent.example.com/ws",
+                "incoming_call_webhook_url": "https://example.com/hook",
             },
         )
-        assert result.default_stream_url == "wss://agent.example.com/ws"
-        assert result.default_pipeline_mode == "client_llm_tts_stt"
+        assert result.client_websocket_url == "wss://agent.example.com/ws"
+        assert result.incoming_call_webhook_url == "https://example.com/hook"
 
     def test_omitted_fields_not_sent(self, client, transport):
         transport.patch.return_value = PHONE_NUMBER_DICT
@@ -88,8 +88,8 @@ class TestNumbersUpdate:
         client._numbers.update(uid, incoming_call_action="auto_reject")
 
         _, kwargs = transport.patch.call_args
-        assert "default_stream_url" not in kwargs["json"]
-        assert "default_pipeline_mode" not in kwargs["json"]
+        assert "client_websocket_url" not in kwargs["json"]
+        assert "incoming_call_webhook_url" not in kwargs["json"]
 
 
 class TestNumbersProvision:

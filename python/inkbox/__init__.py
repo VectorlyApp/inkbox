@@ -15,8 +15,6 @@ from inkbox.mail.types import (
     MessageDetail,
     Thread,
     ThreadDetail,
-    Webhook as MailWebhook,
-    WebhookCreateResult as MailWebhookCreateResult,
 )
 
 # Phone types
@@ -25,8 +23,6 @@ from inkbox.phone.types import (
     PhoneCallWithRateLimit,
     PhoneNumber,
     PhoneTranscript,
-    PhoneWebhook,
-    PhoneWebhookCreateResult,
     RateLimitInfo,
 )
 
@@ -53,15 +49,11 @@ __all__ = [
     "MessageDetail",
     "Thread",
     "ThreadDetail",
-    "MailWebhook",
-    "MailWebhookCreateResult",
     # Phone types
     "PhoneCall",
     "PhoneCallWithRateLimit",
     "PhoneNumber",
     "PhoneTranscript",
-    "PhoneWebhook",
-    "PhoneWebhookCreateResult",
     "RateLimitInfo",
     # Identity types
     "AgentIdentitySummary",

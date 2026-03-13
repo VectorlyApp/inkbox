@@ -37,7 +37,7 @@ class AgentIdentity:
         identity.assign_phone_number(type="toll_free")
 
         identity.send_email(to=["user@example.com"], subject="Hi", body_text="Hello")
-        identity.place_call(to_number="+15555550100", stream_url="wss://my-app.com/ws")
+        identity.place_call(to_number="+15555550100", client_websocket_url="wss://my-app.com/ws")
 
         for msg in identity.messages():
             print(msg.subject)
@@ -198,24 +198,21 @@ class AgentIdentity:
         self,
         *,
         to_number: str,
-        stream_url: str | None = None,
-        pipeline_mode: str | None = None,
+        client_websocket_url: str | None = None,
         webhook_url: str | None = None,
     ) -> PhoneCallWithRateLimit:
         """Place an outbound call from this identity's phone number.
 
         Args:
             to_number: E.164 destination number.
-            stream_url: WebSocket URL (wss://) for audio bridging.
-            pipeline_mode: Pipeline mode override for this call.
+            client_websocket_url: WebSocket URL (wss://) for audio bridging.
             webhook_url: Custom webhook URL for call lifecycle events.
         """
         self._require_phone()
         return self._inkbox._calls.place(
             from_number=self._phone_number.number,  # type: ignore[union-attr]
             to_number=to_number,
-            stream_url=stream_url,
-            pipeline_mode=pipeline_mode,
+            client_websocket_url=client_websocket_url,
             webhook_url=webhook_url,
         )
 

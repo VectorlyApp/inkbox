@@ -25,8 +25,8 @@ class PhoneNumber:
     type: str
     status: str
     incoming_call_action: str
-    default_stream_url: str | None
-    default_pipeline_mode: str
+    client_websocket_url: str | None
+    incoming_call_webhook_url: str | None
     created_at: datetime
     updated_at: datetime
 
@@ -38,8 +38,8 @@ class PhoneNumber:
             type=d["type"],
             status=d["status"],
             incoming_call_action=d["incoming_call_action"],
-            default_stream_url=d.get("default_stream_url"),
-            default_pipeline_mode=d.get("default_pipeline_mode", "client_llm_only"),
+            client_websocket_url=d.get("client_websocket_url"),
+            incoming_call_webhook_url=d.get("incoming_call_webhook_url"),
             created_at=datetime.fromisoformat(d["created_at"]),
             updated_at=datetime.fromisoformat(d["updated_at"]),
         )
@@ -54,8 +54,9 @@ class PhoneCall:
     remote_phone_number: str
     direction: str
     status: str
-    pipeline_mode: str | None
-    stream_url: str | None
+    client_websocket_url: str | None
+    use_inkbox_tts: bool | None
+    use_inkbox_stt: bool | None
     hangup_reason: str | None
     started_at: datetime | None
     ended_at: datetime | None
@@ -70,8 +71,9 @@ class PhoneCall:
             remote_phone_number=d["remote_phone_number"],
             direction=d["direction"],
             status=d["status"],
-            pipeline_mode=d.get("pipeline_mode"),
-            stream_url=d.get("stream_url"),
+            client_websocket_url=d.get("client_websocket_url"),
+            use_inkbox_tts=d.get("use_inkbox_tts"),
+            use_inkbox_stt=d.get("use_inkbox_stt"),
             hangup_reason=d.get("hangup_reason"),
             started_at=_dt(d.get("started_at")),
             ended_at=_dt(d.get("ended_at")),
@@ -145,43 +147,4 @@ class PhoneTranscript:
             created_at=datetime.fromisoformat(d["created_at"]),
         )
 
-
-@dataclass
-class PhoneWebhook:
-    """A webhook subscription for phone events."""
-
-    id: UUID
-    source_id: UUID
-    source_type: str
-    url: str
-    event_types: list[str]
-    status: str
-    created_at: datetime
-
-    @classmethod
-    def _from_dict(cls, d: dict[str, Any]) -> PhoneWebhook:
-        return cls(
-            id=UUID(d["id"]),
-            source_id=UUID(d["source_id"]),
-            source_type=d["source_type"],
-            url=d["url"],
-            event_types=d["event_types"],
-            status=d["status"],
-            created_at=datetime.fromisoformat(d["created_at"]),
-        )
-
-
-@dataclass
-class PhoneWebhookCreateResult(PhoneWebhook):
-    """Result of creating a phone webhook, includes the signing secret."""
-
-    secret: str = ""
-
-    @classmethod
-    def _from_dict(cls, d: dict[str, Any]) -> PhoneWebhookCreateResult:  # type: ignore[override]
-        base = PhoneWebhook._from_dict(d)
-        return cls(
-            **base.__dict__,
-            secret=d["secret"],
-        )
 

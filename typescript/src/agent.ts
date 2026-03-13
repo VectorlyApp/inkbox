@@ -156,23 +156,20 @@ export class AgentIdentity {
    * Place an outbound call from this identity's phone number.
    *
    * @param options.toNumber - E.164 destination number.
-   * @param options.streamUrl - WebSocket URL (wss://) for audio bridging.
-   * @param options.pipelineMode - Pipeline mode override for this call.
+   * @param options.clientWebsocketUrl - WebSocket URL (wss://) for audio bridging.
    * @param options.webhookUrl - Custom webhook URL for call lifecycle events.
    */
   async placeCall(options: {
     toNumber: string;
-    streamUrl?: string;
-    pipelineMode?: string;
+    clientWebsocketUrl?: string;
     webhookUrl?: string;
   }): Promise<PhoneCallWithRateLimit> {
     this._requirePhone();
     return this._inkbox._calls.place({
-      fromNumber:   this._phoneNumber!.number,
-      toNumber:     options.toNumber,
-      streamUrl:    options.streamUrl,
-      pipelineMode: options.pipelineMode,
-      webhookUrl:   options.webhookUrl,
+      fromNumber:          this._phoneNumber!.number,
+      toNumber:            options.toNumber,
+      clientWebsocketUrl:  options.clientWebsocketUrl,
+      webhookUrl:          options.webhookUrl,
     });
   }
 

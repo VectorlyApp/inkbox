@@ -8,8 +8,6 @@ from inkbox.phone.types import (
     PhoneCallWithRateLimit,
     PhoneNumber,
     PhoneTranscript,
-    PhoneWebhook,
-    PhoneWebhookCreateResult,
     RateLimitInfo,
 )
 from inkbox.signing_keys import SigningKey
@@ -21,8 +19,6 @@ __all__ = [
     "PhoneCallWithRateLimit",
     "PhoneNumber",
     "PhoneTranscript",
-    "PhoneWebhook",
-    "PhoneWebhookCreateResult",
     "RateLimitInfo",
     "SigningKey",
 ]

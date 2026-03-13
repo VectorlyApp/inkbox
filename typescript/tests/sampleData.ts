@@ -56,20 +56,6 @@ export const RAW_THREAD_DETAIL = {
   messages: [RAW_MESSAGE],
 };
 
-export const RAW_WEBHOOK = {
-  id: "dddd4444-0000-0000-0000-000000000001",
-  mailbox_id: "aaaa1111-0000-0000-0000-000000000001",
-  url: "https://example.com/hooks/mail",
-  event_types: ["message.received"],
-  status: "active",
-  created_at: "2026-03-09T00:00:00Z",
-};
-
-export const RAW_WEBHOOK_CREATE = {
-  ...RAW_WEBHOOK,
-  secret: "test-hmac-secret-mail-abc123",
-};
-
 export const CURSOR_PAGE_MESSAGES = {
   items: [RAW_MESSAGE],
   next_cursor: null,
@@ -139,21 +125,6 @@ export const RAW_PHONE_TRANSCRIPT = {
   party: "local",
   text: "Hello, how can I help you?",
   created_at: "2026-03-09T00:01:01Z",
-};
-
-export const RAW_PHONE_WEBHOOK = {
-  id: "dddd4444-0000-0000-0000-000000000001",
-  source_id: "aaaa1111-0000-0000-0000-000000000001",
-  source_type: "phone_number",
-  url: "https://example.com/webhooks/phone",
-  event_types: ["incoming_call"],
-  status: "active",
-  created_at: "2026-03-09T00:00:00Z",
-};
-
-export const RAW_PHONE_WEBHOOK_CREATE = {
-  ...RAW_PHONE_WEBHOOK,
-  secret: "test-hmac-secret-abc123",
 };
 
 // ---- Identities ----

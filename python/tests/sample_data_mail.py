@@ -54,20 +54,6 @@ THREAD_DETAIL_DICT = {
     "messages": [MESSAGE_DICT],
 }
 
-WEBHOOK_DICT = {
-    "id": "dddd4444-0000-0000-0000-000000000001",
-    "mailbox_id": "aaaa1111-0000-0000-0000-000000000001",
-    "url": "https://example.com/hooks/mail",
-    "event_types": ["message.received"],
-    "status": "active",
-    "created_at": "2026-03-09T00:00:00Z",
-}
-
-WEBHOOK_CREATE_DICT = {
-    **WEBHOOK_DICT,
-    "secret": "test-hmac-secret-mail-abc123",
-}
-
 CURSOR_PAGE_MESSAGES = {
     "items": [MESSAGE_DICT],
     "next_cursor": None,
