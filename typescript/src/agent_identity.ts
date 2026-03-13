@@ -102,10 +102,8 @@ export class AgentIdentity {
   async provisionPhoneNumber(
     options: { type?: string; state?: string } = {},
   ): Promise<IdentityPhoneNumber> {
-    const number = await this._inkbox._numbers.provision(options);
-    const data   = await this._inkbox._idsResource.assignPhoneNumber(this.agentHandle, {
-      phoneNumberId: number.id,
-    });
+    await this._inkbox._numbers.provision({ agentHandle: this.agentHandle, ...options });
+    const data = await this._inkbox._idsResource.get(this.agentHandle);
     this._phoneNumber = data.phoneNumber;
     this._data        = data;
     return this._phoneNumber!;

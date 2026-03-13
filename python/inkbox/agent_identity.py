@@ -129,10 +129,8 @@ class AgentIdentity:
         Returns:
             The newly provisioned and linked phone number.
         """
-        number = self._inkbox._numbers.provision(type=type, state=state)
-        data = self._inkbox._ids_resource.assign_phone_number(
-            self.agent_handle, phone_number_id=number.id
-        )
+        self._inkbox._numbers.provision(agent_handle=self.agent_handle, type=type, state=state)
+        data = self._inkbox._ids_resource.get(self.agent_handle)
         self._phone_number = data.phone_number
         self._data = data
         return self._phone_number  # type: ignore[return-value]

@@ -64,31 +64,33 @@ class PhoneNumbersResource:
     def provision(
         self,
         *,
+        agent_handle: str,
         type: str = "toll_free",
         state: str | None = None,
     ) -> PhoneNumber:
-        """Provision a new phone number.
+        """Provision a new phone number and link it to an agent identity.
 
         Args:
+            agent_handle: Handle of the agent identity to assign this number to.
             type: ``"toll_free"`` or ``"local"``. Defaults to ``"toll_free"``.
             state: US state abbreviation (e.g. ``"NY"``). Only valid for ``local`` numbers.
 
         Returns:
             The provisioned phone number.
         """
-        body: dict[str, Any] = {"type": type}
+        body: dict[str, Any] = {"agent_handle": agent_handle, "type": type}
         if state is not None:
             body["state"] = state
-        data = self._http.post(f"{_BASE}/provision", json=body)
+        data = self._http.post(_BASE, json=body)
         return PhoneNumber._from_dict(data)
 
-    def release(self, *, number: str) -> None:
+    def release(self, phone_number_id: UUID | str) -> None:
         """Release a phone number.
 
         Args:
-            number: E.164 phone number to release.
+            phone_number_id: UUID of the phone number to release.
         """
-        self._http.post(f"{_BASE}/release", json={"number": number})
+        self._http.delete(f"{_BASE}/{phone_number_id}")
 
     def search_transcripts(
         self,

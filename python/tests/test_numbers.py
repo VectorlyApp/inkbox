@@ -96,11 +96,11 @@ class TestNumbersProvision:
     def test_provision_toll_free(self, client, transport):
         transport.post.return_value = PHONE_NUMBER_DICT
 
-        number = client._numbers.provision(type="toll_free")
+        number = client._numbers.provision(agent_handle="sales-bot", type="toll_free")
 
         transport.post.assert_called_once_with(
-            "/numbers/provision",
-            json={"type": "toll_free"},
+            "/numbers",
+            json={"agent_handle": "sales-bot", "type": "toll_free"},
         )
         assert number.type == "toll_free"
 
@@ -108,33 +108,31 @@ class TestNumbersProvision:
         local = {**PHONE_NUMBER_DICT, "type": "local", "number": "+12125551234"}
         transport.post.return_value = local
 
-        number = client._numbers.provision(type="local", state="NY")
+        number = client._numbers.provision(agent_handle="sales-bot", type="local", state="NY")
 
         transport.post.assert_called_once_with(
-            "/numbers/provision",
-            json={"type": "local", "state": "NY"},
+            "/numbers",
+            json={"agent_handle": "sales-bot", "type": "local", "state": "NY"},
         )
         assert number.type == "local"
 
     def test_provision_defaults_to_toll_free(self, client, transport):
         transport.post.return_value = PHONE_NUMBER_DICT
 
-        client._numbers.provision()
+        client._numbers.provision(agent_handle="sales-bot")
 
         _, kwargs = transport.post.call_args
         assert kwargs["json"]["type"] == "toll_free"
+        assert kwargs["json"]["agent_handle"] == "sales-bot"
 
 
 class TestNumbersRelease:
-    def test_release_posts_number(self, client, transport):
-        transport.post.return_value = None
+    def test_release_deletes_by_id(self, client, transport):
+        uid = "aaaa1111-0000-0000-0000-000000000001"
 
-        client._numbers.release(number="+18335794607")
+        client._numbers.release(uid)
 
-        transport.post.assert_called_once_with(
-            "/numbers/release",
-            json={"number": "+18335794607"},
-        )
+        transport.delete.assert_called_once_with(f"/numbers/{uid}")
 
 
 class TestNumbersSearchTranscripts:

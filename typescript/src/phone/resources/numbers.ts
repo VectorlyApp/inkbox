@@ -68,32 +68,35 @@ export class PhoneNumbersResource {
   }
 
   /**
-   * Provision a new phone number.
+   * Provision a new phone number and link it to an agent identity.
    *
+   * @param options.agentHandle - Handle of the agent identity to assign this number to.
    * @param options.type - `"toll_free"` or `"local"`. Defaults to `"toll_free"`.
    * @param options.state - US state abbreviation (e.g. `"NY"`). Only valid for `local` numbers.
    */
   async provision(options: {
+    agentHandle: string;
     type?: string;
     state?: string;
-  } = {}): Promise<PhoneNumber> {
+  }): Promise<PhoneNumber> {
     const body: Record<string, unknown> = {
+      agent_handle: options.agentHandle,
       type: options.type ?? "toll_free",
     };
     if (options.state !== undefined) {
       body["state"] = options.state;
     }
-    const data = await this.http.post<RawPhoneNumber>(`${BASE}/provision`, body);
+    const data = await this.http.post<RawPhoneNumber>(BASE, body);
     return parsePhoneNumber(data);
   }
 
   /**
    * Release a phone number.
    *
-   * @param options.number - E.164 phone number to release.
+   * @param phoneNumberId - UUID of the phone number to release.
    */
-  async release(options: { number: string }): Promise<void> {
-    await this.http.post(`${BASE}/release`, { number: options.number });
+  async release(phoneNumberId: string): Promise<void> {
+    await this.http.delete(`${BASE}/${phoneNumberId}`);
   }
 
   /**
