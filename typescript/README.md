@@ -34,7 +34,7 @@ await identity.sendEmail({
 // Place an outbound call
 await identity.placeCall({
   toNumber: "+18005559999",
-  streamUrl: "wss://my-app.com/voice",
+  clientWebsocketUrl: "wss://my-app.com/voice",
 });
 
 // Read inbox
@@ -42,8 +42,8 @@ for await (const message of identity.iterEmails()) {
   console.log(message.subject);
 }
 
-// Search transcripts
-const transcripts = await identity.searchTranscripts({ q: "refund" });
+// List calls
+const calls = await identity.listCalls();
 ```
 
 ## Authentication
@@ -69,6 +69,10 @@ const phone    = await identity.provisionPhoneNumber({ type: "toll_free" });    
 console.log(mailbox.emailAddress);
 console.log(phone.number);
 
+// Link an existing mailbox or phone number instead of creating new ones
+await identity.assignMailbox("mailbox-uuid-here");
+await identity.assignPhoneNumber("phone-number-uuid-here");
+
 // Get an existing identity (returned with current channel state)
 const identity2 = await inkbox.getIdentity("sales-bot");
 await identity2.refresh();  // re-fetch channels from API
@@ -93,20 +97,42 @@ await identity.delete();
 ## Mail
 
 ```ts
-// Send an email
-await identity.sendEmail({
+// Send an email (plain text and/or HTML)
+const sent = await identity.sendEmail({
   to: ["user@example.com"],
-  subject: "Hello",
+  subject: "Hello from Inkbox",
   bodyText: "Hi there!",
   bodyHtml: "<p>Hi there!</p>",
+  cc: ["manager@example.com"],
+  bcc: ["archive@example.com"],
+});
+
+// Send a threaded reply
+await identity.sendEmail({
+  to: ["user@example.com"],
+  subject: `Re: ${sent.subject}`,
+  bodyText: "Following up!",
+  inReplyToMessageId: sent.id,
+});
+
+// Send with attachments
+await identity.sendEmail({
+  to: ["user@example.com"],
+  subject: "See attached",
+  bodyText: "Please find the file attached.",
+  attachments: [{
+    filename: "report.pdf",
+    contentType: "application/pdf",
+    contentBase64: "<base64-encoded-content>",
+  }],
 });
 
 // Iterate inbox (paginated automatically)
 for await (const msg of identity.iterEmails()) {
-  console.log(msg.subject, msg.fromAddress);
+  console.log(msg.subject, msg.fromAddress, msg.isRead);
 }
 
-// Filter by direction
+// Filter by direction: "inbound" or "outbound"
 for await (const msg of identity.iterEmails({ direction: "inbound" })) {
   console.log(msg.subject);
 }
@@ -133,19 +159,156 @@ for (const m of thread.messages) {
 ## Phone
 
 ```ts
-// Place an outbound call
+// Place an outbound call — stream audio over WebSocket
 const call = await identity.placeCall({
   toNumber: "+15167251294",
-  streamUrl: "wss://your-agent.example.com/ws",
+  clientWebsocketUrl: "wss://your-agent.example.com/ws",
 });
 console.log(call.status, call.rateLimit.callsRemaining);
 
-// List calls
-const calls = await identity.listCalls();
-const paged = await identity.listCalls({ limit: 10, offset: 0 });
+// Or receive call events via webhook instead
+const call2 = await identity.placeCall({
+  toNumber: "+15167251294",
+  webhookUrl: "https://your-agent.example.com/call-events",
+});
+
+// List calls (paginated)
+const calls = await identity.listCalls({ limit: 10, offset: 0 });
+for (const c of calls) {
+  console.log(c.id, c.direction, c.remotePhoneNumber, c.status);
+}
 
 // Fetch transcript segments for a call
 const segments = await identity.listTranscripts(calls[0].id);
+for (const t of segments) {
+  console.log(`[${t.party}] ${t.text}`);  // party: "local" or "remote"
+}
+
+// Read transcripts across all recent calls
+const recentCalls = await identity.listCalls({ limit: 10 });
+for (const call of recentCalls) {
+  const segs = await identity.listTranscripts(call.id);
+  if (!segs.length) continue;
+  console.log(`\n--- Call ${call.id} (${call.direction}) ---`);
+  for (const t of segs) {
+    console.log(`  [${t.party.padEnd(6)}] ${t.text}`);
+  }
+}
+
+// Filter to only the remote party's speech
+const remoteOnly = segments.filter(t => t.party === "remote");
+for (const t of remoteOnly) console.log(t.text);
+
+// Search transcripts across a phone number (org-level)
+const hits = await inkbox.phoneNumbers.searchTranscripts(phone.id, { q: "refund", party: "remote" });
+for (const t of hits) {
+  console.log(`[${t.party}] ${t.text}`);
+}
+```
+
+---
+
+## Org-level Mailboxes
+
+Manage mailboxes directly without going through an identity. Access via `inkbox.mailboxes`.
+
+```ts
+// List all mailboxes in the organisation
+const mailboxes = await inkbox.mailboxes.list();
+
+// Get a specific mailbox
+const mailbox = await inkbox.mailboxes.get("abc-xyz@inkboxmail.com");
+
+// Create a standalone mailbox
+const mb = await inkbox.mailboxes.create({ displayName: "Support Inbox" });
+console.log(mb.emailAddress);
+
+// Update display name or webhook URL
+await inkbox.mailboxes.update(mb.emailAddress, { displayName: "New Name" });
+await inkbox.mailboxes.update(mb.emailAddress, { webhookUrl: "https://example.com/hook" });
+await inkbox.mailboxes.update(mb.emailAddress, { webhookUrl: null }); // remove webhook
+
+// Full-text search across messages in a mailbox
+const results = await inkbox.mailboxes.search(mb.emailAddress, { q: "invoice", limit: 20 });
+for (const msg of results) {
+  console.log(msg.subject, msg.fromAddress);
+}
+
+// Delete a mailbox
+await inkbox.mailboxes.delete(mb.emailAddress);
+```
+
+---
+
+## Org-level Phone Numbers
+
+Manage phone numbers directly without going through an identity. Access via `inkbox.phoneNumbers`.
+
+```ts
+// List all phone numbers in the organisation
+const numbers = await inkbox.phoneNumbers.list();
+
+// Get a specific phone number by ID
+const number = await inkbox.phoneNumbers.get("phone-number-uuid");
+
+// Provision a new number
+const num   = await inkbox.phoneNumbers.provision({ type: "toll_free" });
+const local = await inkbox.phoneNumbers.provision({ type: "local", state: "NY" });
+
+// Update incoming call behaviour
+await inkbox.phoneNumbers.update(num.id, {
+  incomingCallAction: "webhook",
+  incomingCallWebhookUrl: "https://example.com/calls",
+});
+await inkbox.phoneNumbers.update(num.id, {
+  incomingCallAction: "auto_accept",
+  clientWebsocketUrl: "wss://example.com/ws",
+});
+
+// Full-text search across transcripts
+const hits = await inkbox.phoneNumbers.searchTranscripts(num.id, { q: "refund", party: "remote" });
+for (const t of hits) {
+  console.log(`[${t.party}] ${t.text}`);
+}
+
+// Release a number
+await inkbox.phoneNumbers.release({ number: num.number });
+```
+
+---
+
+## Webhooks
+
+Webhooks are configured on the mailbox or phone number resource — no separate registration step.
+
+### Mailbox webhooks
+
+Set a URL on a mailbox to receive `message.received` and `message.sent` events.
+
+```ts
+// Set webhook
+await inkbox.mailboxes.update("abc@inkboxmail.com", { webhookUrl: "https://example.com/hook" });
+
+// Remove webhook
+await inkbox.mailboxes.update("abc@inkboxmail.com", { webhookUrl: null });
+```
+
+### Phone webhooks
+
+Set an incoming call webhook URL and action on a phone number.
+
+```ts
+// Route incoming calls to a webhook
+await inkbox.phoneNumbers.update(number.id, {
+  incomingCallAction: "webhook",
+  incomingCallWebhookUrl: "https://example.com/calls",
+});
+```
+
+You can also supply a per-call webhook URL when placing a call:
+
+```ts
+await identity.placeCall({ toNumber: "+15005550006", webhookUrl: "https://example.com/call-events" });
 ```
 
 ---

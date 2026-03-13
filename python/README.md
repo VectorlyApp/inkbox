@@ -34,7 +34,7 @@ with Inkbox(api_key=os.environ["INKBOX_API_KEY"]) as inkbox:
     # Place an outbound call
     identity.place_call(
         to_number="+18005559999",
-        stream_url="wss://my-app.com/voice",
+        client_websocket_url="wss://my-app.com/voice",
     )
 
     # Read inbox
@@ -70,6 +70,10 @@ phone    = identity.provision_phone_number(type="toll_free")      # provisions +
 print(mailbox.email_address)
 print(phone.number)
 
+# Link an existing mailbox or phone number instead of creating new ones
+identity.assign_mailbox("mailbox-uuid-here")
+identity.assign_phone_number("phone-number-uuid-here")
+
 # Get an existing identity
 identity = inkbox.get_identity("sales-bot")
 identity.refresh()  # re-fetch channels from API
@@ -94,19 +98,41 @@ identity.delete()
 ## Mail
 
 ```python
-# Send an email
-identity.send_email(
+# Send an email (plain text and/or HTML)
+sent = identity.send_email(
     to=["user@example.com"],
-    subject="Hello",
+    subject="Hello from Inkbox",
     body_text="Hi there!",
     body_html="<p>Hi there!</p>",
+    cc=["manager@example.com"],
+    bcc=["archive@example.com"],
+)
+
+# Send a threaded reply
+identity.send_email(
+    to=["user@example.com"],
+    subject=f"Re: {sent.subject}",
+    body_text="Following up!",
+    in_reply_to_message_id=sent.id,
+)
+
+# Send with attachments
+identity.send_email(
+    to=["user@example.com"],
+    subject="See attached",
+    body_text="Please find the file attached.",
+    attachments=[{
+        "filename": "report.pdf",
+        "content_type": "application/pdf",
+        "content_base64": "<base64-encoded-content>",
+    }],
 )
 
 # Iterate inbox (paginated automatically)
 for msg in identity.iter_emails():
-    print(msg.subject, msg.from_address)
+    print(msg.subject, msg.from_address, msg.is_read)
 
-# Filter by direction
+# Filter by direction: "inbound" or "outbound"
 for msg in identity.iter_emails(direction="inbound"):
     print(msg.subject)
 
@@ -128,19 +154,153 @@ for m in thread.messages:
 ## Phone
 
 ```python
-# Place an outbound call
+# Place an outbound call — stream audio over WebSocket
 call = identity.place_call(
     to_number="+15167251294",
-    stream_url="wss://your-agent.example.com/ws",
+    client_websocket_url="wss://your-agent.example.com/ws",
 )
 print(call.status, call.rate_limit.calls_remaining)
 
-# List calls
-calls = identity.list_calls()
+# Or receive call events via webhook instead
+call = identity.place_call(
+    to_number="+15167251294",
+    webhook_url="https://your-agent.example.com/call-events",
+)
+
+# List calls (paginated)
 calls = identity.list_calls(limit=10, offset=0)
+for call in calls:
+    print(call.id, call.direction, call.remote_phone_number, call.status)
 
 # Fetch transcript segments for a call
 segments = identity.list_transcripts(calls[0].id)
+for t in segments:
+    print(f"[{t.party}] {t.text}")  # party: "local" or "remote"
+
+# Read transcripts across all recent calls
+for call in identity.list_calls(limit=10):
+    segments = identity.list_transcripts(call.id)
+    if not segments:
+        continue
+    print(f"\n--- Call {call.id} ({call.direction}) ---")
+    for t in segments:
+        print(f"  [{t.party:6}] {t.text}")
+
+# Filter to only the remote party's speech
+for t in identity.list_transcripts(calls[0].id):
+    if t.party == "remote":
+        print(t.text)
+
+# Search transcripts across a phone number (org-level)
+hits = inkbox.phone_numbers.search_transcripts(phone.id, q="refund", party="remote")
+for t in hits:
+    print(f"[{t.party}] {t.text}")
+```
+
+---
+
+## Org-level Mailboxes
+
+Manage mailboxes directly without going through an identity. Access via `inkbox.mailboxes`.
+
+```python
+# List all mailboxes in the organisation
+mailboxes = inkbox.mailboxes.list()
+
+# Get a specific mailbox
+mailbox = inkbox.mailboxes.get("abc-xyz@inkboxmail.com")
+
+# Create a standalone mailbox
+mailbox = inkbox.mailboxes.create(display_name="Support Inbox")
+print(mailbox.email_address)
+
+# Update display name or webhook URL
+inkbox.mailboxes.update(mailbox.email_address, display_name="New Name")
+inkbox.mailboxes.update(mailbox.email_address, webhook_url="https://example.com/hook")
+inkbox.mailboxes.update(mailbox.email_address, webhook_url=None)  # remove webhook
+
+# Full-text search across messages in a mailbox
+results = inkbox.mailboxes.search(mailbox.email_address, q="invoice", limit=20)
+for msg in results:
+    print(msg.subject, msg.from_address)
+
+# Delete a mailbox
+inkbox.mailboxes.delete(mailbox.email_address)
+```
+
+---
+
+## Org-level Phone Numbers
+
+Manage phone numbers directly without going through an identity. Access via `inkbox.phone_numbers`.
+
+```python
+# List all phone numbers in the organisation
+numbers = inkbox.phone_numbers.list()
+
+# Get a specific phone number by ID
+number = inkbox.phone_numbers.get("phone-number-uuid")
+
+# Provision a new number
+number = inkbox.phone_numbers.provision(type="toll_free")
+local  = inkbox.phone_numbers.provision(type="local", state="NY")
+
+# Update incoming call behaviour
+inkbox.phone_numbers.update(
+    number.id,
+    incoming_call_action="webhook",
+    incoming_call_webhook_url="https://example.com/calls",
+)
+inkbox.phone_numbers.update(
+    number.id,
+    incoming_call_action="auto_accept",
+    client_websocket_url="wss://example.com/ws",
+)
+
+# Full-text search across transcripts
+hits = inkbox.phone_numbers.search_transcripts(number.id, q="refund", party="remote")
+for t in hits:
+    print(f"[{t.party}] {t.text}")
+
+# Release a number
+inkbox.phone_numbers.release(number=number.number)
+```
+
+---
+
+## Webhooks
+
+Webhooks are configured on the mailbox or phone number resource — no separate registration step.
+
+### Mailbox webhooks
+
+Set a URL on a mailbox to receive `message.received` and `message.sent` events.
+
+```python
+# Set webhook
+inkbox.mailboxes.update("abc@inkboxmail.com", webhook_url="https://example.com/hook")
+
+# Remove webhook
+inkbox.mailboxes.update("abc@inkboxmail.com", webhook_url=None)
+```
+
+### Phone webhooks
+
+Set an incoming call webhook URL and action on a phone number.
+
+```python
+# Route incoming calls to a webhook
+inkbox.phone_numbers.update(
+    number.id,
+    incoming_call_action="webhook",
+    incoming_call_webhook_url="https://example.com/calls",
+)
+```
+
+You can also supply a per-call webhook URL when placing a call:
+
+```python
+identity.place_call(to_number="+15005550006", webhook_url="https://example.com/call-events")
 ```
 
 ---
