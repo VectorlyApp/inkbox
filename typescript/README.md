@@ -69,9 +69,11 @@ const phone   = await agent.assignPhoneNumber({ type: "toll_free" });     // pro
 console.log(mailbox.emailAddress);
 console.log(phone.number);
 
-// Get an existing agent
+// Get an existing agent (returned with current channel state)
 const agent2 = await inkbox.identities.get("sales-bot");
-await agent2.refresh();  // re-fetch channels from API
+
+// If the agent's channels may have changed since you fetched it, re-sync:
+await agent2.refresh();
 
 // List / update / delete
 const allIdentities = await inkbox.identities.list();
