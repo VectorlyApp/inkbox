@@ -9,7 +9,7 @@ class TestNumbersList:
     def test_returns_list_of_phone_numbers(self, client, transport):
         transport.get.return_value = [PHONE_NUMBER_DICT]
 
-        numbers = client.numbers.list()
+        numbers = client._numbers.list()
 
         transport.get.assert_called_once_with("/numbers")
         assert len(numbers) == 1
@@ -21,7 +21,7 @@ class TestNumbersList:
     def test_empty_list(self, client, transport):
         transport.get.return_value = []
 
-        numbers = client.numbers.list()
+        numbers = client._numbers.list()
 
         assert numbers == []
 
@@ -31,7 +31,7 @@ class TestNumbersGet:
         transport.get.return_value = PHONE_NUMBER_DICT
         uid = "aaaa1111-0000-0000-0000-000000000001"
 
-        number = client.numbers.get(uid)
+        number = client._numbers.get(uid)
 
         transport.get.assert_called_once_with(f"/numbers/{uid}")
         assert number.id == UUID(uid)
@@ -45,7 +45,7 @@ class TestNumbersUpdate:
         transport.patch.return_value = updated
         uid = "aaaa1111-0000-0000-0000-000000000001"
 
-        result = client.numbers.update(uid, incoming_call_action="webhook")
+        result = client._numbers.update(uid, incoming_call_action="webhook")
 
         transport.patch.assert_called_once_with(
             f"/numbers/{uid}",
@@ -63,7 +63,7 @@ class TestNumbersUpdate:
         transport.patch.return_value = updated
         uid = "aaaa1111-0000-0000-0000-000000000001"
 
-        result = client.numbers.update(
+        result = client._numbers.update(
             uid,
             incoming_call_action="auto_accept",
             default_stream_url="wss://agent.example.com/ws",
@@ -85,7 +85,7 @@ class TestNumbersUpdate:
         transport.patch.return_value = PHONE_NUMBER_DICT
         uid = "aaaa1111-0000-0000-0000-000000000001"
 
-        client.numbers.update(uid, incoming_call_action="auto_reject")
+        client._numbers.update(uid, incoming_call_action="auto_reject")
 
         _, kwargs = transport.patch.call_args
         assert "default_stream_url" not in kwargs["json"]
@@ -96,7 +96,7 @@ class TestNumbersProvision:
     def test_provision_toll_free(self, client, transport):
         transport.post.return_value = PHONE_NUMBER_DICT
 
-        number = client.numbers.provision(type="toll_free")
+        number = client._numbers.provision(type="toll_free")
 
         transport.post.assert_called_once_with(
             "/numbers/provision",
@@ -108,7 +108,7 @@ class TestNumbersProvision:
         local = {**PHONE_NUMBER_DICT, "type": "local", "number": "+12125551234"}
         transport.post.return_value = local
 
-        number = client.numbers.provision(type="local", state="NY")
+        number = client._numbers.provision(type="local", state="NY")
 
         transport.post.assert_called_once_with(
             "/numbers/provision",
@@ -119,7 +119,7 @@ class TestNumbersProvision:
     def test_provision_defaults_to_toll_free(self, client, transport):
         transport.post.return_value = PHONE_NUMBER_DICT
 
-        client.numbers.provision()
+        client._numbers.provision()
 
         _, kwargs = transport.post.call_args
         assert kwargs["json"]["type"] == "toll_free"
@@ -129,7 +129,7 @@ class TestNumbersRelease:
     def test_release_posts_number(self, client, transport):
         transport.post.return_value = None
 
-        client.numbers.release(number="+18335794607")
+        client._numbers.release(number="+18335794607")
 
         transport.post.assert_called_once_with(
             "/numbers/release",
@@ -142,7 +142,7 @@ class TestNumbersSearchTranscripts:
         transport.get.return_value = [PHONE_TRANSCRIPT_DICT]
         uid = "aaaa1111-0000-0000-0000-000000000001"
 
-        results = client.numbers.search_transcripts(uid, q="hello")
+        results = client._numbers.search_transcripts(uid, q="hello")
 
         transport.get.assert_called_once_with(
             f"/numbers/{uid}/search",
@@ -155,7 +155,7 @@ class TestNumbersSearchTranscripts:
         transport.get.return_value = []
         uid = "aaaa1111-0000-0000-0000-000000000001"
 
-        results = client.numbers.search_transcripts(
+        results = client._numbers.search_transcripts(
             uid, q="test", party="remote", limit=10
         )
 

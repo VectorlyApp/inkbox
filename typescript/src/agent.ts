@@ -1,49 +1,50 @@
 /**
  * inkbox/src/agent.ts
  *
- * Agent — a domain object representing one agent identity.
- * Returned by inkbox.identities.create() and inkbox.identities.get().
+ * AgentIdentity — a domain object representing one agent identity.
+ * Returned by inkbox.createIdentity() and inkbox.getIdentity().
  *
  * Convenience methods (sendEmail, placeCall, etc.) are scoped to this
- * agent's assigned channels so callers never need to pass an email address
- * or phone number ID explicitly.
+ * identity's assigned channels so callers never need to pass an email
+ * address or phone number ID explicitly.
  */
 
 import { InkboxAPIError } from "./_http.js";
 import type { Message } from "./types.js";
 import type { PhoneCallWithRateLimit, PhoneTranscript } from "./phone/types.js";
 import type {
-  AgentIdentityDetail,
+  AgentIdentitySummary,
+  _AgentIdentityData,
   IdentityMailbox,
   IdentityPhoneNumber,
 } from "./identities/types.js";
 import type { Inkbox } from "./inkbox.js";
 
-export class Agent {
-  private _identity: AgentIdentityDetail;
+export class AgentIdentity {
+  private _data: _AgentIdentityData;
   private readonly _inkbox: Inkbox;
   private _mailbox: IdentityMailbox | null;
   private _phoneNumber: IdentityPhoneNumber | null;
 
-  constructor(identity: AgentIdentityDetail, inkbox: Inkbox) {
-    this._identity    = identity;
+  constructor(data: _AgentIdentityData, inkbox: Inkbox) {
+    this._data        = data;
     this._inkbox      = inkbox;
-    this._mailbox     = identity.mailbox;
-    this._phoneNumber = identity.phoneNumber;
+    this._mailbox     = data.mailbox;
+    this._phoneNumber = data.phoneNumber;
   }
 
   // ------------------------------------------------------------------
   // Identity properties
   // ------------------------------------------------------------------
 
-  get agentHandle(): string { return this._identity.agentHandle; }
-  get id(): string           { return this._identity.id; }
-  get status(): string       { return this._identity.status; }
+  get agentHandle(): string { return this._data.agentHandle; }
+  get id(): string           { return this._data.id; }
+  get status(): string       { return this._data.status; }
 
-  /** The mailbox currently assigned to this agent, or `null` if none. */
+  /** The mailbox currently assigned to this identity, or `null` if none. */
   get mailbox(): IdentityMailbox | null { return this._mailbox; }
 
-  /** The phone number currently assigned to this agent, or `null` if none. */
+  /** The phone number currently assigned to this identity, or `null` if none. */
   get phoneNumber(): IdentityPhoneNumber | null { return this._phoneNumber; }
 
   // ------------------------------------------------------------------
@@ -52,23 +53,32 @@ export class Agent {
   // ------------------------------------------------------------------
 
   /**
-   * Create a new mailbox and assign it to this agent.
+   * Create a new mailbox and assign it to this identity.
    *
    * @param options.displayName - Optional human-readable sender name.
    * @returns The assigned {@link IdentityMailbox}.
    */
   async assignMailbox(options: { displayName?: string } = {}): Promise<IdentityMailbox> {
-    const mailbox = await this._inkbox.mailboxes.create(options);
-    const detail  = await this._inkbox._idsResource.assignMailbox(this.agentHandle, {
+    const mailbox = await this._inkbox._mailboxes.create(options);
+    const data    = await this._inkbox._idsResource.assignMailbox(this.agentHandle, {
       mailboxId: mailbox.id,
     });
-    this._mailbox   = detail.mailbox;
-    this._identity  = detail;
+    this._mailbox  = data.mailbox;
+    this._data     = data;
     return this._mailbox!;
   }
 
   /**
-   * Provision a new phone number and assign it to this agent.
+   * Unlink this identity's mailbox (does not delete the mailbox).
+   */
+  async unlinkMailbox(): Promise<void> {
+    this._requireMailbox();
+    await this._inkbox._idsResource.unlinkMailbox(this.agentHandle);
+    this._mailbox = null;
+  }
+
+  /**
+   * Provision a new phone number and assign it to this identity.
    *
    * @param options.type - `"toll_free"` (default) or `"local"`.
    * @param options.state - US state abbreviation (e.g. `"NY"`), valid for local numbers only.
@@ -77,13 +87,22 @@ export class Agent {
   async assignPhoneNumber(
     options: { type?: string; state?: string } = {},
   ): Promise<IdentityPhoneNumber> {
-    const number = await this._inkbox.numbers.provision(options);
-    const detail = await this._inkbox._idsResource.assignPhoneNumber(this.agentHandle, {
+    const number = await this._inkbox._numbers.provision(options);
+    const data   = await this._inkbox._idsResource.assignPhoneNumber(this.agentHandle, {
       phoneNumberId: number.id,
     });
-    this._phoneNumber = detail.phoneNumber;
-    this._identity    = detail;
+    this._phoneNumber = data.phoneNumber;
+    this._data        = data;
     return this._phoneNumber!;
+  }
+
+  /**
+   * Unlink this identity's phone number (does not release the number).
+   */
+  async unlinkPhoneNumber(): Promise<void> {
+    this._requirePhone();
+    await this._inkbox._idsResource.unlinkPhoneNumber(this.agentHandle);
+    this._phoneNumber = null;
   }
 
   // ------------------------------------------------------------------
@@ -91,7 +110,7 @@ export class Agent {
   // ------------------------------------------------------------------
 
   /**
-   * Send an email from this agent's mailbox.
+   * Send an email from this identity's mailbox.
    *
    * @param options.to - Primary recipient addresses (at least one required).
    * @param options.subject - Email subject line.
@@ -113,11 +132,11 @@ export class Agent {
     attachments?: Array<{ filename: string; contentType: string; contentBase64: string }>;
   }): Promise<Message> {
     this._requireMailbox();
-    return this._inkbox.messages.send(this._mailbox!.emailAddress, options);
+    return this._inkbox._messages.send(this._mailbox!.emailAddress, options);
   }
 
   /**
-   * Iterate over messages in this agent's inbox, newest first.
+   * Iterate over messages in this identity's inbox, newest first.
    *
    * Pagination is handled automatically.
    *
@@ -126,7 +145,7 @@ export class Agent {
    */
   messages(options: { pageSize?: number; direction?: "inbound" | "outbound" } = {}): AsyncGenerator<Message> {
     this._requireMailbox();
-    return this._inkbox.messages.list(this._mailbox!.emailAddress, options);
+    return this._inkbox._messages.list(this._mailbox!.emailAddress, options);
   }
 
   // ------------------------------------------------------------------
@@ -134,7 +153,7 @@ export class Agent {
   // ------------------------------------------------------------------
 
   /**
-   * Place an outbound call from this agent's phone number.
+   * Place an outbound call from this identity's phone number.
    *
    * @param options.toNumber - E.164 destination number.
    * @param options.streamUrl - WebSocket URL (wss://) for audio bridging.
@@ -148,17 +167,17 @@ export class Agent {
     webhookUrl?: string;
   }): Promise<PhoneCallWithRateLimit> {
     this._requirePhone();
-    return this._inkbox.calls.place({
-      fromNumber: this._phoneNumber!.number,
-      toNumber:   options.toNumber,
-      streamUrl:  options.streamUrl,
+    return this._inkbox._calls.place({
+      fromNumber:   this._phoneNumber!.number,
+      toNumber:     options.toNumber,
+      streamUrl:    options.streamUrl,
       pipelineMode: options.pipelineMode,
-      webhookUrl: options.webhookUrl,
+      webhookUrl:   options.webhookUrl,
     });
   }
 
   /**
-   * Full-text search across call transcripts for this agent's number.
+   * Full-text search across call transcripts for this identity's number.
    *
    * @param options.q - Search query string.
    * @param options.party - Filter by speaker: `"local"` or `"remote"`.
@@ -170,23 +189,38 @@ export class Agent {
     limit?: number;
   }): Promise<PhoneTranscript[]> {
     this._requirePhone();
-    return this._inkbox.numbers.searchTranscripts(this._phoneNumber!.id, options);
+    return this._inkbox._numbers.searchTranscripts(this._phoneNumber!.id, options);
   }
 
   // ------------------------------------------------------------------
-  // Misc
+  // Identity management
   // ------------------------------------------------------------------
 
   /**
-   * Re-fetch this agent's identity from the API and update cached channels.
+   * Update this identity's handle or status.
+   *
+   * @param options.newHandle - New agent handle.
+   * @param options.status - New lifecycle status: `"active"` or `"paused"`.
+   */
+  async update(options: { newHandle?: string; status?: string }): Promise<void> {
+    const result = await this._inkbox._idsResource.update(this.agentHandle, options);
+    this._data = {
+      ...result,
+      mailbox:     this._mailbox,
+      phoneNumber: this._phoneNumber,
+    };
+  }
+
+  /**
+   * Re-fetch this identity from the API and update cached channels.
    *
    * @returns `this` for chaining.
    */
-  async refresh(): Promise<Agent> {
-    const detail      = await this._inkbox._idsResource.get(this.agentHandle);
-    this._identity    = detail;
-    this._mailbox     = detail.mailbox;
-    this._phoneNumber = detail.phoneNumber;
+  async refresh(): Promise<AgentIdentity> {
+    const data        = await this._inkbox._idsResource.get(this.agentHandle);
+    this._data        = data;
+    this._mailbox     = data.mailbox;
+    this._phoneNumber = data.phoneNumber;
     return this;
   }
 
@@ -203,7 +237,7 @@ export class Agent {
     if (!this._mailbox) {
       throw new InkboxAPIError(
         0,
-        `Agent '${this.agentHandle}' has no mailbox assigned. Call agent.assignMailbox() first.`,
+        `Identity '${this.agentHandle}' has no mailbox assigned. Call identity.assignMailbox() first.`,
       );
     }
   }
@@ -212,7 +246,7 @@ export class Agent {
     if (!this._phoneNumber) {
       throw new InkboxAPIError(
         0,
-        `Agent '${this.agentHandle}' has no phone number assigned. Call agent.assignPhoneNumber() first.`,
+        `Identity '${this.agentHandle}' has no phone number assigned. Call identity.assignPhoneNumber() first.`,
       );
     }
   }

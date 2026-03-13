@@ -1,8 +1,8 @@
 """
-inkbox/agent.py
+inkbox/agent_identity.py
 
-Agent — a domain object representing one agent identity.
-Returned by inkbox.identities.create() and inkbox.identities.get().
+AgentIdentity — a domain object representing one agent identity.
+Returned by inkbox.create_identity() and inkbox.get_identity().
 
 Convenience methods (send_email, place_call, etc.) are scoped to this
 agent's assigned channels so callers never need to pass an email address
@@ -13,7 +13,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Iterator
 
-from inkbox.identities.types import AgentIdentityDetail, IdentityMailbox, IdentityPhoneNumber
+from inkbox.identities.types import _AgentIdentityData, IdentityMailbox, IdentityPhoneNumber
 from inkbox.mail.exceptions import InkboxError
 from inkbox.mail.types import Message
 from inkbox.phone.types import PhoneCallWithRateLimit, PhoneTranscript
@@ -22,32 +22,32 @@ if TYPE_CHECKING:
     from inkbox.client import Inkbox
 
 
-class Agent:
+class AgentIdentity:
     """An agent identity with convenience methods for its assigned channels.
 
     Obtain an instance via::
 
-        agent = inkbox.identities.create(agent_handle="support-bot")
+        identity = inkbox.create_identity("support-bot")
         # or
-        agent = inkbox.identities.get("support-bot")
+        identity = inkbox.get_identity("support-bot")
 
     After assigning channels you can communicate directly::
 
-        agent.assign_mailbox(display_name="Support Bot")
-        agent.assign_phone_number(type="toll_free")
+        identity.assign_mailbox(display_name="Support Bot")
+        identity.assign_phone_number(type="toll_free")
 
-        agent.send_email(to=["user@example.com"], subject="Hi", body_text="Hello")
-        agent.place_call(to_number="+15555550100", stream_url="wss://my-app.com/ws")
+        identity.send_email(to=["user@example.com"], subject="Hi", body_text="Hello")
+        identity.place_call(to_number="+15555550100", stream_url="wss://my-app.com/ws")
 
-        for msg in agent.messages():
+        for msg in identity.messages():
             print(msg.subject)
     """
 
-    def __init__(self, identity: AgentIdentityDetail, inkbox: Inkbox) -> None:
-        self._identity = identity
+    def __init__(self, data: _AgentIdentityData, inkbox: Inkbox) -> None:
+        self._data = data
         self._inkbox = inkbox
-        self._mailbox: IdentityMailbox | None = identity.mailbox
-        self._phone_number: IdentityPhoneNumber | None = identity.phone_number
+        self._mailbox: IdentityMailbox | None = data.mailbox
+        self._phone_number: IdentityPhoneNumber | None = data.phone_number
 
     # ------------------------------------------------------------------
     # Identity properties
@@ -55,15 +55,15 @@ class Agent:
 
     @property
     def agent_handle(self) -> str:
-        return self._identity.agent_handle
+        return self._data.agent_handle
 
     @property
     def id(self):
-        return self._identity.id
+        return self._data.id
 
     @property
     def status(self) -> str:
-        return self._identity.status
+        return self._data.status
 
     @property
     def mailbox(self) -> IdentityMailbox | None:
@@ -79,7 +79,7 @@ class Agent:
     # ------------------------------------------------------------------
 
     def assign_mailbox(self, *, display_name: str | None = None) -> IdentityMailbox:
-        """Create a new mailbox and assign it to this agent.
+        """Create a new mailbox and assign it to this identity.
 
         Args:
             display_name: Optional human-readable sender name.
@@ -87,18 +87,24 @@ class Agent:
         Returns:
             The assigned mailbox.
         """
-        mailbox = self._inkbox.mailboxes.create(display_name=display_name)
-        detail = self._inkbox._ids_resource.assign_mailbox(
+        mailbox = self._inkbox._mailboxes.create(display_name=display_name)
+        data = self._inkbox._ids_resource.assign_mailbox(
             self.agent_handle, mailbox_id=mailbox.id
         )
-        self._mailbox = detail.mailbox
-        self._identity = detail
+        self._mailbox = data.mailbox
+        self._data = data
         return self._mailbox  # type: ignore[return-value]
+
+    def unlink_mailbox(self) -> None:
+        """Unlink this identity's mailbox (does not delete the mailbox)."""
+        self._require_mailbox()
+        self._inkbox._ids_resource.unlink_mailbox(self.agent_handle)
+        self._mailbox = None
 
     def assign_phone_number(
         self, *, type: str = "toll_free", state: str | None = None
     ) -> IdentityPhoneNumber:
-        """Provision a new phone number and assign it to this agent.
+        """Provision a new phone number and assign it to this identity.
 
         Args:
             type: ``"toll_free"`` (default) or ``"local"``.
@@ -107,13 +113,19 @@ class Agent:
         Returns:
             The assigned phone number.
         """
-        number = self._inkbox.numbers.provision(type=type, state=state)
-        detail = self._inkbox._ids_resource.assign_phone_number(
+        number = self._inkbox._numbers.provision(type=type, state=state)
+        data = self._inkbox._ids_resource.assign_phone_number(
             self.agent_handle, phone_number_id=number.id
         )
-        self._phone_number = detail.phone_number
-        self._identity = detail
+        self._phone_number = data.phone_number
+        self._data = data
         return self._phone_number  # type: ignore[return-value]
+
+    def unlink_phone_number(self) -> None:
+        """Unlink this identity's phone number (does not release the number)."""
+        self._require_phone()
+        self._inkbox._ids_resource.unlink_phone_number(self.agent_handle)
+        self._phone_number = None
 
     # ------------------------------------------------------------------
     # Mail helpers
@@ -131,7 +143,7 @@ class Agent:
         in_reply_to_message_id: str | None = None,
         attachments: list[dict] | None = None,
     ) -> Message:
-        """Send an email from this agent's mailbox.
+        """Send an email from this identity's mailbox.
 
         Args:
             to: Primary recipient addresses (at least one required).
@@ -145,7 +157,7 @@ class Agent:
                 ``content_type``, and ``content_base64`` keys.
         """
         self._require_mailbox()
-        return self._inkbox.messages.send(
+        return self._inkbox._messages.send(
             self._mailbox.email_address,  # type: ignore[union-attr]
             to=to,
             subject=subject,
@@ -163,7 +175,7 @@ class Agent:
         page_size: int = 50,
         direction: str | None = None,
     ) -> Iterator[Message]:
-        """Iterate over messages in this agent's inbox, newest first.
+        """Iterate over messages in this identity's inbox, newest first.
 
         Pagination is handled automatically.
 
@@ -172,7 +184,7 @@ class Agent:
             direction: Filter by ``"inbound"`` or ``"outbound"``.
         """
         self._require_mailbox()
-        return self._inkbox.messages.list(
+        return self._inkbox._messages.list(
             self._mailbox.email_address,  # type: ignore[union-attr]
             page_size=page_size,
             direction=direction,
@@ -190,7 +202,7 @@ class Agent:
         pipeline_mode: str | None = None,
         webhook_url: str | None = None,
     ) -> PhoneCallWithRateLimit:
-        """Place an outbound call from this agent's phone number.
+        """Place an outbound call from this identity's phone number.
 
         Args:
             to_number: E.164 destination number.
@@ -199,7 +211,7 @@ class Agent:
             webhook_url: Custom webhook URL for call lifecycle events.
         """
         self._require_phone()
-        return self._inkbox.calls.place(
+        return self._inkbox._calls.place(
             from_number=self._phone_number.number,  # type: ignore[union-attr]
             to_number=to_number,
             stream_url=stream_url,
@@ -214,7 +226,7 @@ class Agent:
         party: str | None = None,
         limit: int = 50,
     ) -> list[PhoneTranscript]:
-        """Full-text search across call transcripts for this agent's number.
+        """Full-text search across call transcripts for this identity's number.
 
         Args:
             q: Search query string.
@@ -222,7 +234,7 @@ class Agent:
             limit: Maximum number of results (1–200).
         """
         self._require_phone()
-        return self._inkbox.numbers.search_transcripts(
+        return self._inkbox._numbers.search_transcripts(
             self._phone_number.id,  # type: ignore[union-attr]
             q=q,
             party=party,
@@ -230,19 +242,45 @@ class Agent:
         )
 
     # ------------------------------------------------------------------
-    # Misc
+    # Identity management
     # ------------------------------------------------------------------
 
-    def refresh(self) -> Agent:
-        """Re-fetch this agent's identity from the API and update cached channels.
+    def update(
+        self,
+        *,
+        new_handle: str | None = None,
+        status: str | None = None,
+    ) -> None:
+        """Update this identity's handle or status.
+
+        Args:
+            new_handle: New agent handle.
+            status: New lifecycle status: ``"active"`` or ``"paused"``.
+        """
+        result = self._inkbox._ids_resource.update(
+            self.agent_handle, new_handle=new_handle, status=status
+        )
+        self._data = _AgentIdentityData(
+            id=result.id,
+            organization_id=result.organization_id,
+            agent_handle=result.agent_handle,
+            status=result.status,
+            created_at=result.created_at,
+            updated_at=result.updated_at,
+            mailbox=self._mailbox,
+            phone_number=self._phone_number,
+        )
+
+    def refresh(self) -> AgentIdentity:
+        """Re-fetch this identity from the API and update cached channels.
 
         Returns:
             ``self`` for chaining.
         """
-        detail = self._inkbox._ids_resource.get(self.agent_handle)
-        self._identity = detail
-        self._mailbox = detail.mailbox
-        self._phone_number = detail.phone_number
+        data = self._inkbox._ids_resource.get(self.agent_handle)
+        self._data = data
+        self._mailbox = data.mailbox
+        self._phone_number = data.phone_number
         return self
 
     def delete(self) -> None:
@@ -256,20 +294,20 @@ class Agent:
     def _require_mailbox(self) -> None:
         if not self._mailbox:
             raise InkboxError(
-                f"Agent '{self.agent_handle}' has no mailbox assigned. "
-                "Call agent.assign_mailbox() first."
+                f"Identity '{self.agent_handle}' has no mailbox assigned. "
+                "Call identity.assign_mailbox() first."
             )
 
     def _require_phone(self) -> None:
         if not self._phone_number:
             raise InkboxError(
-                f"Agent '{self.agent_handle}' has no phone number assigned. "
-                "Call agent.assign_phone_number() first."
+                f"Identity '{self.agent_handle}' has no phone number assigned. "
+                "Call identity.assign_phone_number() first."
             )
 
     def __repr__(self) -> str:
         return (
-            f"Agent(agent_handle={self.agent_handle!r}, "
+            f"AgentIdentity(agent_handle={self.agent_handle!r}, "
             f"mailbox={self._mailbox.email_address if self._mailbox else None!r}, "
             f"phone={self._phone_number.number if self._phone_number else None!r})"
         )

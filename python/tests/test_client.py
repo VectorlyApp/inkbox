@@ -12,11 +12,11 @@ class TestInkboxPhoneResources:
     def test_creates_phone_resource_instances(self):
         client = Inkbox(api_key="sk-test")
 
-        assert isinstance(client.numbers, PhoneNumbersResource)
-        assert isinstance(client.calls, CallsResource)
-        assert isinstance(client.transcripts, TranscriptsResource)
-        assert isinstance(client.phone_webhooks, PhoneWebhooksResource)
-        assert isinstance(client.signing_keys, SigningKeysResource)
+        assert isinstance(client._numbers, PhoneNumbersResource)
+        assert isinstance(client._calls, CallsResource)
+        assert isinstance(client._transcripts, TranscriptsResource)
+        assert isinstance(client._phone_webhooks, PhoneWebhooksResource)
+        assert isinstance(client._signing_keys, SigningKeysResource)
 
         client.close()
 

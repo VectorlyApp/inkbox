@@ -26,7 +26,8 @@ export interface IdentityPhoneNumber {
   updatedAt: Date;
 }
 
-export interface AgentIdentity {
+/** Lightweight identity returned by list and update endpoints. */
+export interface AgentIdentitySummary {
   id: string;
   organizationId: string;
   agentHandle: string;
@@ -36,7 +37,8 @@ export interface AgentIdentity {
   updatedAt: Date;
 }
 
-export interface AgentIdentityDetail extends AgentIdentity {
+/** @internal Full identity data with channels — users interact with AgentIdentity (the class) instead. */
+export interface _AgentIdentityData extends AgentIdentitySummary {
   /** Mailbox assigned to this identity, or null if unlinked. */
   mailbox: IdentityMailbox | null;
   /** Phone number assigned to this identity, or null if unlinked. */
@@ -65,7 +67,7 @@ export interface RawIdentityPhoneNumber {
   updated_at: string;
 }
 
-export interface RawAgentIdentity {
+export interface RawAgentIdentitySummary {
   id: string;
   organization_id: string;
   agent_handle: string;
@@ -74,7 +76,7 @@ export interface RawAgentIdentity {
   updated_at: string;
 }
 
-export interface RawAgentIdentityDetail extends RawAgentIdentity {
+export interface RawAgentIdentityData extends RawAgentIdentitySummary {
   mailbox: RawIdentityMailbox | null;
   phone_number: RawIdentityPhoneNumber | null;
 }
@@ -105,7 +107,7 @@ export function parseIdentityPhoneNumber(r: RawIdentityPhoneNumber): IdentityPho
   };
 }
 
-export function parseAgentIdentity(r: RawAgentIdentity): AgentIdentity {
+export function parseAgentIdentitySummary(r: RawAgentIdentitySummary): AgentIdentitySummary {
   return {
     id: r.id,
     organizationId: r.organization_id,
@@ -116,9 +118,9 @@ export function parseAgentIdentity(r: RawAgentIdentity): AgentIdentity {
   };
 }
 
-export function parseAgentIdentityDetail(r: RawAgentIdentityDetail): AgentIdentityDetail {
+export function parseAgentIdentityData(r: RawAgentIdentityData): _AgentIdentityData {
   return {
-    ...parseAgentIdentity(r),
+    ...parseAgentIdentitySummary(r),
     mailbox: r.mailbox ? parseIdentityMailbox(r.mailbox) : null,
     phoneNumber: r.phone_number ? parseIdentityPhoneNumber(r.phone_number) : null,
   };

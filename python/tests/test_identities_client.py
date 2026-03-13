@@ -1,15 +1,13 @@
-"""Tests for Inkbox unified client — identities namespace."""
+"""Tests for Inkbox unified client — identities."""
 
 from inkbox import Inkbox
-from inkbox.client import _IdentitiesNamespace
 from inkbox.identities.resources.identities import IdentitiesResource
 
 
 class TestInkboxIdentitiesResources:
-    def test_creates_identities_namespace(self):
+    def test_creates_identities_resource(self):
         client = Inkbox(api_key="sk-test")
 
-        assert isinstance(client.identities, _IdentitiesNamespace)
         assert isinstance(client._ids_resource, IdentitiesResource)
 
         client.close()

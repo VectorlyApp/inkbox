@@ -21,7 +21,7 @@ class TestTranscriptsList:
         }
         transport.get.return_value = [PHONE_TRANSCRIPT_DICT, second]
 
-        transcripts = client.transcripts.list(NUM_ID, CALL_ID)
+        transcripts = client._transcripts.list(NUM_ID, CALL_ID)
 
         transport.get.assert_called_once_with(
             f"/numbers/{NUM_ID}/calls/{CALL_ID}/transcripts",
@@ -38,6 +38,6 @@ class TestTranscriptsList:
     def test_empty_transcripts(self, client, transport):
         transport.get.return_value = []
 
-        transcripts = client.transcripts.list(NUM_ID, CALL_ID)
+        transcripts = client._transcripts.list(NUM_ID, CALL_ID)
 
         assert transcripts == []

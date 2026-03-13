@@ -13,7 +13,7 @@ class TestCallsList:
     def test_returns_calls(self, client, transport):
         transport.get.return_value = [PHONE_CALL_DICT]
 
-        calls = client.calls.list(NUM_ID, limit=5)
+        calls = client._calls.list(NUM_ID, limit=5)
 
         transport.get.assert_called_once_with(
             f"/numbers/{NUM_ID}/calls",
@@ -26,7 +26,7 @@ class TestCallsList:
     def test_default_limit_and_offset(self, client, transport):
         transport.get.return_value = []
 
-        client.calls.list(NUM_ID)
+        client._calls.list(NUM_ID)
 
         transport.get.assert_called_once_with(
             f"/numbers/{NUM_ID}/calls",
@@ -36,7 +36,7 @@ class TestCallsList:
     def test_custom_offset(self, client, transport):
         transport.get.return_value = []
 
-        client.calls.list(NUM_ID, limit=10, offset=20)
+        client._calls.list(NUM_ID, limit=10, offset=20)
 
         transport.get.assert_called_once_with(
             f"/numbers/{NUM_ID}/calls",
@@ -48,7 +48,7 @@ class TestCallsGet:
     def test_returns_call(self, client, transport):
         transport.get.return_value = PHONE_CALL_DICT
 
-        call = client.calls.get(NUM_ID, CALL_ID)
+        call = client._calls.get(NUM_ID, CALL_ID)
 
         transport.get.assert_called_once_with(f"/numbers/{NUM_ID}/calls/{CALL_ID}")
         assert call.id == UUID(CALL_ID)
@@ -68,7 +68,7 @@ class TestCallsPlace:
             "ended_at": None,
         }
 
-        call = client.calls.place(
+        call = client._calls.place(
             from_number="+18335794607",
             to_number="+15167251294",
             stream_url="wss://agent.example.com/ws",
@@ -87,7 +87,7 @@ class TestCallsPlace:
     def test_place_with_pipeline_mode_and_webhook(self, client, transport):
         transport.post.return_value = PHONE_CALL_DICT
 
-        client.calls.place(
+        client._calls.place(
             from_number="+18335794607",
             to_number="+15167251294",
             stream_url="wss://agent.example.com/ws",
@@ -102,7 +102,7 @@ class TestCallsPlace:
     def test_optional_fields_omitted_when_none(self, client, transport):
         transport.post.return_value = PHONE_CALL_DICT
 
-        client.calls.place(
+        client._calls.place(
             from_number="+18335794607",
             to_number="+15167251294",
         )

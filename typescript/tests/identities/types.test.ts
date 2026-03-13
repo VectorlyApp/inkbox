@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import {
-  parseAgentIdentity,
-  parseAgentIdentityDetail,
+  parseAgentIdentitySummary,
+  parseAgentIdentityData,
   parseIdentityMailbox,
   parseIdentityPhoneNumber,
 } from "../../src/identities/types.js";
@@ -12,9 +12,9 @@ import {
   RAW_IDENTITY_PHONE,
 } from "../sampleData.js";
 
-describe("parseAgentIdentity", () => {
+describe("parseAgentIdentitySummary", () => {
   it("converts all fields", () => {
-    const i = parseAgentIdentity(RAW_IDENTITY);
+    const i = parseAgentIdentitySummary(RAW_IDENTITY);
     expect(i.id).toBe(RAW_IDENTITY.id);
     expect(i.organizationId).toBe("org-abc123");
     expect(i.agentHandle).toBe("sales-agent");
@@ -24,9 +24,9 @@ describe("parseAgentIdentity", () => {
   });
 });
 
-describe("parseAgentIdentityDetail", () => {
+describe("parseAgentIdentityData", () => {
   it("includes nested mailbox and phone number", () => {
-    const d = parseAgentIdentityDetail(RAW_IDENTITY_DETAIL);
+    const d = parseAgentIdentityData(RAW_IDENTITY_DETAIL);
     expect(d.agentHandle).toBe("sales-agent");
     expect(d.mailbox).not.toBeNull();
     expect(d.mailbox!.emailAddress).toBe("sales-agent@inkbox.ai");
@@ -35,7 +35,7 @@ describe("parseAgentIdentityDetail", () => {
   });
 
   it("returns null for missing channels", () => {
-    const d = parseAgentIdentityDetail({ ...RAW_IDENTITY, mailbox: null, phone_number: null });
+    const d = parseAgentIdentityData({ ...RAW_IDENTITY, mailbox: null, phone_number: null });
     expect(d.mailbox).toBeNull();
     expect(d.phoneNumber).toBeNull();
   });

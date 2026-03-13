@@ -4,7 +4,7 @@ from unittest.mock import MagicMock
 
 from sample_data_identities import IDENTITY_DICT, IDENTITY_DETAIL_DICT
 from inkbox.identities.resources.identities import IdentitiesResource
-from inkbox.identities.types import AgentIdentity, AgentIdentityDetail
+from inkbox.identities.types import AgentIdentitySummary, _AgentIdentityData
 
 
 def _resource():
@@ -23,7 +23,7 @@ class TestIdentitiesCreate:
         identity = res.create(agent_handle=HANDLE)
 
         http.post.assert_called_once_with("/", json={"agent_handle": HANDLE})
-        assert isinstance(identity, AgentIdentity)
+        assert isinstance(identity, AgentIdentitySummary)
         assert identity.agent_handle == HANDLE
 
 
@@ -53,7 +53,7 @@ class TestIdentitiesGet:
         detail = res.get(HANDLE)
 
         http.get.assert_called_once_with(f"/{HANDLE}")
-        assert isinstance(detail, AgentIdentityDetail)
+        assert isinstance(detail, _AgentIdentityData)
         assert detail.mailbox.email_address == "sales-agent@inkbox.ai"
         assert detail.phone_number.number == "+18335794607"
 
@@ -109,7 +109,7 @@ class TestIdentitiesAssignMailbox:
         http.post.assert_called_once_with(
             f"/{HANDLE}/mailbox", json={"mailbox_id": mailbox_id}
         )
-        assert isinstance(detail, AgentIdentityDetail)
+        assert isinstance(detail, _AgentIdentityData)
 
 
 class TestIdentitiesUnlinkMailbox:
@@ -132,7 +132,7 @@ class TestIdentitiesAssignPhoneNumber:
         http.post.assert_called_once_with(
             f"/{HANDLE}/phone_number", json={"phone_number_id": phone_id}
         )
-        assert isinstance(detail, AgentIdentityDetail)
+        assert isinstance(detail, _AgentIdentityData)
 
 
 class TestIdentitiesUnlinkPhoneNumber:

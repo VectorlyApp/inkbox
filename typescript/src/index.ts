@@ -1,5 +1,5 @@
 export { Inkbox } from "./inkbox.js";
-export { Agent } from "./agent.js";
+export { AgentIdentity } from "./agent.js";
 export type { InkboxOptions } from "./inkbox.js";
 export { InkboxAPIError } from "./_http.js";
 export type { SigningKey } from "./resources/signing-keys.js";
@@ -23,8 +23,7 @@ export type {
   PhoneWebhookCreateResult,
 } from "./phone/types.js";
 export type {
-  AgentIdentity,
-  AgentIdentityDetail,
+  AgentIdentitySummary,
   IdentityMailbox,
   IdentityPhoneNumber,
 } from "./identities/types.js";

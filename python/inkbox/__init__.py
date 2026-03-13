@@ -3,7 +3,7 @@ inkbox — Python SDK for the Inkbox APIs.
 """
 
 from inkbox.client import Inkbox
-from inkbox.agent import Agent
+from inkbox.agent_identity import AgentIdentity
 
 # Exceptions (canonical source: mail; identical in all submodules)
 from inkbox.mail.exceptions import InkboxAPIError, InkboxError
@@ -32,8 +32,7 @@ from inkbox.phone.types import (
 
 # Identity types
 from inkbox.identities.types import (
-    AgentIdentity,
-    AgentIdentityDetail,
+    AgentIdentitySummary,
     IdentityMailbox,
     IdentityPhoneNumber,
 )
@@ -44,7 +43,7 @@ from inkbox.signing_keys import SigningKey, verify_webhook
 __all__ = [
     # Entry points
     "Inkbox",
-    "Agent",
+    "AgentIdentity",
     # Exceptions
     "InkboxError",
     "InkboxAPIError",
@@ -65,8 +64,7 @@ __all__ = [
     "PhoneWebhookCreateResult",
     "RateLimitInfo",
     # Identity types
-    "AgentIdentity",
-    "AgentIdentityDetail",
+    "AgentIdentitySummary",
     "IdentityMailbox",
     "IdentityPhoneNumber",
     # Signing key + webhook verification

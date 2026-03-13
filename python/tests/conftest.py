@@ -30,9 +30,9 @@ def client(transport: FakeHttpTransport) -> Inkbox:
     c = Inkbox(api_key="sk-test")
     c._phone_http = transport  # type: ignore[attr-defined]
     c._api_http = transport  # type: ignore[attr-defined]
-    c.numbers._http = transport
-    c.calls._http = transport
-    c.transcripts._http = transport
-    c.phone_webhooks._http = transport
-    c.signing_keys._http = transport
+    c._numbers._http = transport
+    c._calls._http = transport
+    c._transcripts._http = transport
+    c._phone_webhooks._http = transport
+    c._signing_keys._http = transport
     return c

@@ -10,16 +10,16 @@ from sample_data_identities import (
     IDENTITY_PHONE_DICT,
 )
 from inkbox.identities.types import (
-    AgentIdentity,
-    AgentIdentityDetail,
+    AgentIdentitySummary,
+    _AgentIdentityData,
     IdentityMailbox,
     IdentityPhoneNumber,
 )
 
 
-class TestAgentIdentityParsing:
+class TestAgentIdentitySummaryParsing:
     def test_from_dict(self):
-        i = AgentIdentity._from_dict(IDENTITY_DICT)
+        i = AgentIdentitySummary._from_dict(IDENTITY_DICT)
 
         assert isinstance(i.id, UUID)
         assert i.organization_id == "org-abc123"
@@ -29,9 +29,9 @@ class TestAgentIdentityParsing:
         assert isinstance(i.updated_at, datetime)
 
 
-class TestAgentIdentityDetailParsing:
+class TestAgentIdentityDataParsing:
     def test_with_channels(self):
-        d = AgentIdentityDetail._from_dict(IDENTITY_DETAIL_DICT)
+        d = _AgentIdentityData._from_dict(IDENTITY_DETAIL_DICT)
 
         assert isinstance(d.id, UUID)
         assert d.agent_handle == "sales-agent"
@@ -41,7 +41,7 @@ class TestAgentIdentityDetailParsing:
         assert d.phone_number.number == "+18335794607"
 
     def test_no_channels(self):
-        d = AgentIdentityDetail._from_dict(IDENTITY_DICT)
+        d = _AgentIdentityData._from_dict(IDENTITY_DICT)
 
         assert d.mailbox is None
         assert d.phone_number is None

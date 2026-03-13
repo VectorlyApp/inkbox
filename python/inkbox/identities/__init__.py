@@ -3,15 +3,15 @@ inkbox.identities — identity types.
 """
 
 from inkbox.identities.types import (
-    AgentIdentity,
-    AgentIdentityDetail,
+    AgentIdentitySummary,
+    _AgentIdentityData,
     IdentityMailbox,
     IdentityPhoneNumber,
 )
 
 __all__ = [
-    "AgentIdentity",
-    "AgentIdentityDetail",
+    "AgentIdentitySummary",
+    "_AgentIdentityData",
     "IdentityMailbox",
     "IdentityPhoneNumber",
 ]

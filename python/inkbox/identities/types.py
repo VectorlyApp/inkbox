@@ -67,8 +67,8 @@ class IdentityPhoneNumber:
 
 
 @dataclass
-class AgentIdentity:
-    """An agent identity returned by create, list, and update endpoints."""
+class AgentIdentitySummary:
+    """Lightweight agent identity returned by list and update endpoints."""
 
     id: UUID
     organization_id: str
@@ -78,7 +78,7 @@ class AgentIdentity:
     updated_at: datetime
 
     @classmethod
-    def _from_dict(cls, d: dict[str, Any]) -> AgentIdentity:
+    def _from_dict(cls, d: dict[str, Any]) -> AgentIdentitySummary:
         return cls(
             id=UUID(d["id"]),
             organization_id=d["organization_id"],
@@ -90,18 +90,19 @@ class AgentIdentity:
 
 
 @dataclass
-class AgentIdentityDetail(AgentIdentity):
+class _AgentIdentityData(AgentIdentitySummary):
     """Agent identity with linked communication channels.
 
     Returned by get, assign-mailbox, and assign-phone-number endpoints.
+    Internal — users interact with AgentIdentity (the domain class) instead.
     """
 
     mailbox: IdentityMailbox | None = field(default=None)
     phone_number: IdentityPhoneNumber | None = field(default=None)
 
     @classmethod
-    def _from_dict(cls, d: dict[str, Any]) -> AgentIdentityDetail:  # type: ignore[override]
-        base = AgentIdentity._from_dict(d)
+    def _from_dict(cls, d: dict[str, Any]) -> _AgentIdentityData:  # type: ignore[override]
+        base = AgentIdentitySummary._from_dict(d)
         mailbox_data = d.get("mailbox")
         phone_data = d.get("phone_number")
         return cls(

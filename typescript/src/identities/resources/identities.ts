@@ -6,12 +6,12 @@
 
 import { HttpTransport } from "../../_http.js";
 import {
-  AgentIdentity,
-  AgentIdentityDetail,
-  RawAgentIdentity,
-  RawAgentIdentityDetail,
-  parseAgentIdentity,
-  parseAgentIdentityDetail,
+  AgentIdentitySummary,
+  _AgentIdentityData,
+  RawAgentIdentitySummary,
+  RawAgentIdentityData,
+  parseAgentIdentitySummary,
+  parseAgentIdentityData,
 } from "../types.js";
 
 export class IdentitiesResource {
@@ -23,17 +23,17 @@ export class IdentitiesResource {
    * @param options.agentHandle - Unique handle for this identity within your organisation
    *   (e.g. `"sales-agent"` or `"@sales-agent"`).
    */
-  async create(options: { agentHandle: string }): Promise<AgentIdentity> {
-    const data = await this.http.post<RawAgentIdentity>("/", {
+  async create(options: { agentHandle: string }): Promise<AgentIdentitySummary> {
+    const data = await this.http.post<RawAgentIdentitySummary>("/", {
       agent_handle: options.agentHandle,
     });
-    return parseAgentIdentity(data);
+    return parseAgentIdentitySummary(data);
   }
 
   /** List all identities for your organisation. */
-  async list(): Promise<AgentIdentity[]> {
-    const data = await this.http.get<RawAgentIdentity[]>("/");
-    return data.map(parseAgentIdentity);
+  async list(): Promise<AgentIdentitySummary[]> {
+    const data = await this.http.get<RawAgentIdentitySummary[]>("/");
+    return data.map(parseAgentIdentitySummary);
   }
 
   /**
@@ -41,9 +41,9 @@ export class IdentitiesResource {
    *
    * @param agentHandle - Handle of the identity to fetch.
    */
-  async get(agentHandle: string): Promise<AgentIdentityDetail> {
-    const data = await this.http.get<RawAgentIdentityDetail>(`/${agentHandle}`);
-    return parseAgentIdentityDetail(data);
+  async get(agentHandle: string): Promise<_AgentIdentityData> {
+    const data = await this.http.get<RawAgentIdentityData>(`/${agentHandle}`);
+    return parseAgentIdentityData(data);
   }
 
   /**
@@ -58,12 +58,12 @@ export class IdentitiesResource {
   async update(
     agentHandle: string,
     options: { newHandle?: string; status?: string },
-  ): Promise<AgentIdentity> {
+  ): Promise<AgentIdentitySummary> {
     const body: Record<string, unknown> = {};
     if (options.newHandle !== undefined) body["agent_handle"] = options.newHandle;
     if (options.status !== undefined) body["status"] = options.status;
-    const data = await this.http.patch<RawAgentIdentity>(`/${agentHandle}`, body);
-    return parseAgentIdentity(data);
+    const data = await this.http.patch<RawAgentIdentitySummary>(`/${agentHandle}`, body);
+    return parseAgentIdentitySummary(data);
   }
 
   /**
@@ -86,12 +86,12 @@ export class IdentitiesResource {
   async assignMailbox(
     agentHandle: string,
     options: { mailboxId: string },
-  ): Promise<AgentIdentityDetail> {
-    const data = await this.http.post<RawAgentIdentityDetail>(
+  ): Promise<_AgentIdentityData> {
+    const data = await this.http.post<RawAgentIdentityData>(
       `/${agentHandle}/mailbox`,
       { mailbox_id: options.mailboxId },
     );
-    return parseAgentIdentityDetail(data);
+    return parseAgentIdentityData(data);
   }
 
   /**
@@ -112,12 +112,12 @@ export class IdentitiesResource {
   async assignPhoneNumber(
     agentHandle: string,
     options: { phoneNumberId: string },
-  ): Promise<AgentIdentityDetail> {
-    const data = await this.http.post<RawAgentIdentityDetail>(
+  ): Promise<_AgentIdentityData> {
+    const data = await this.http.post<RawAgentIdentityData>(
       `/${agentHandle}/phone_number`,
       { phone_number_id: options.phoneNumberId },
     );
-    return parseAgentIdentityDetail(data);
+    return parseAgentIdentityData(data);
   }
 
   /**

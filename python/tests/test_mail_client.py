@@ -12,11 +12,11 @@ class TestInkboxMailResources:
     def test_creates_mail_resource_instances(self):
         client = Inkbox(api_key="sk-test")
 
-        assert isinstance(client.mailboxes, MailboxesResource)
-        assert isinstance(client.messages, MessagesResource)
-        assert isinstance(client.threads, ThreadsResource)
-        assert isinstance(client.mail_webhooks, WebhooksResource)
-        assert isinstance(client.signing_keys, SigningKeysResource)
+        assert isinstance(client._mailboxes, MailboxesResource)
+        assert isinstance(client._messages, MessagesResource)
+        assert isinstance(client._threads, ThreadsResource)
+        assert isinstance(client._mail_webhooks, WebhooksResource)
+        assert isinstance(client._signing_keys, SigningKeysResource)
 
         client.close()
 
