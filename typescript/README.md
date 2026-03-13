@@ -120,6 +120,12 @@ for await (const msg of identity.iterUnreadEmails()) {
 const unread: string[] = [];
 for await (const msg of identity.iterUnreadEmails()) unread.push(msg.id);
 await identity.markEmailsRead(unread);
+
+// Get all emails in a thread (threadId comes from msg.threadId)
+const thread = await identity.getThread(msg.threadId!);
+for (const m of thread.messages) {
+  console.log(m.subject, m.fromAddress);
+}
 ```
 
 ---

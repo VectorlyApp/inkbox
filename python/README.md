@@ -116,6 +116,11 @@ for msg in identity.iter_unread_emails():
 
 # Mark messages as read
 identity.mark_emails_read([msg.id for msg in identity.iter_unread_emails()])
+
+# Get all emails in a thread (thread_id comes from msg.thread_id)
+thread = identity.get_thread(msg.thread_id)
+for m in thread.messages:
+    print(m.subject, m.from_address)
 ```
 
 ---

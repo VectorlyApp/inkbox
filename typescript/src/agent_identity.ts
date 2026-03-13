@@ -10,7 +10,7 @@
  */
 
 import { InkboxAPIError } from "./_http.js";
-import type { Message } from "./mail/types.js";
+import type { Message, ThreadDetail } from "./mail/types.js";
 import type { PhoneCall, PhoneCallWithRateLimit, PhoneTranscript } from "./phone/types.js";
 import type {
   AgentIdentitySummary,
@@ -203,6 +203,17 @@ export class AgentIdentity {
     for (const id of messageIds) {
       await this._inkbox._messages.markRead(this._mailbox!.emailAddress, id);
     }
+  }
+
+  /**
+   * Get a thread with all its messages inlined (oldest-first).
+   *
+   * @param threadId - UUID of the thread to fetch. Obtain via `msg.threadId`
+   *   on any {@link Message}.
+   */
+  async getThread(threadId: string): Promise<ThreadDetail> {
+    this._requireMailbox();
+    return this._inkbox._threads.get(this._mailbox!.emailAddress, threadId);
   }
 
   // ------------------------------------------------------------------

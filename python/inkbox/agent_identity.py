@@ -15,7 +15,7 @@ from typing import TYPE_CHECKING, Iterator
 
 from inkbox.identities.types import _AgentIdentityData, IdentityMailbox, IdentityPhoneNumber
 from inkbox.mail.exceptions import InkboxError
-from inkbox.mail.types import Message
+from inkbox.mail.types import Message, ThreadDetail
 from inkbox.phone.types import PhoneCall, PhoneCallWithRateLimit, PhoneTranscript
 
 if TYPE_CHECKING:
@@ -252,6 +252,19 @@ class AgentIdentity:
                 self._mailbox.email_address,  # type: ignore[union-attr]
                 mid,
             )
+
+    def get_thread(self, thread_id: str) -> ThreadDetail:
+        """Get a thread with all its messages inlined (oldest-first).
+
+        Args:
+            thread_id: UUID of the thread to fetch. Obtain via ``msg.thread_id``
+                on any :class:`~inkbox.mail.types.Message`.
+        """
+        self._require_mailbox()
+        return self._inkbox._threads.get(
+            self._mailbox.email_address,  # type: ignore[union-attr]
+            thread_id,
+        )
 
     # ------------------------------------------------------------------
     # Phone helpers
