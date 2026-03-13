@@ -10,10 +10,6 @@
     ".": {
       "import": "./dist/index.js",
       "types": "./dist/index.d.ts"
-    },
-    "./phone": {
-      "import": "./dist/phone/index.js",
-      "types": "./dist/phone/index.d.ts"
     }
   },
   "files": [
