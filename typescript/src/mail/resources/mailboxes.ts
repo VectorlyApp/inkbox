@@ -4,7 +4,7 @@
  * Mailbox CRUD and full-text search.
  */
 
-import { HttpTransport } from "../_http.js";
+import { HttpTransport } from "../../_http.js";
 import {
   Mailbox,
   Message,

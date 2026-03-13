@@ -4,7 +4,7 @@
  * Message operations: list (auto-paginated), get, send, flag updates, delete.
  */
 
-import { HttpTransport } from "../_http.js";
+import { HttpTransport } from "../../_http.js";
 import {
   Message,
   MessageDetail,

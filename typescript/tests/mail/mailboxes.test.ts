@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { MailboxesResource } from "../../src/resources/mailboxes.js";
+import { MailboxesResource } from "../../src/mail/resources/mailboxes.js";
 import type { HttpTransport } from "../../src/_http.js";
 import { RAW_MAILBOX, RAW_MESSAGE, CURSOR_PAGE_MESSAGES } from "../sampleData.js";
 

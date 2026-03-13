@@ -5,7 +5,7 @@
  */
 
 import { createHmac, timingSafeEqual } from "crypto";
-import { HttpTransport } from "../_http.js";
+import { HttpTransport } from "./_http.js";
 
 const PATH = "/signing-keys";
 

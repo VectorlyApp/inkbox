@@ -10,7 +10,7 @@
  */
 
 import { InkboxAPIError } from "./_http.js";
-import type { Message } from "./types.js";
+import type { Message } from "./mail/types.js";
 import type { PhoneCallWithRateLimit, PhoneTranscript } from "./phone/types.js";
 import type {
   AgentIdentitySummary,

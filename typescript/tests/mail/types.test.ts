@@ -7,7 +7,7 @@ import {
   parseThreadDetail,
   parseWebhook,
   parseWebhookCreateResult,
-} from "../../src/types.js";
+} from "../../src/mail/types.js";
 import {
   RAW_MAILBOX,
   RAW_MESSAGE,

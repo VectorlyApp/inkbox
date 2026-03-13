@@ -2,8 +2,8 @@ export { Inkbox } from "./inkbox.js";
 export { AgentIdentity } from "./agent.js";
 export type { InkboxOptions } from "./inkbox.js";
 export { InkboxAPIError } from "./_http.js";
-export type { SigningKey } from "./resources/signing-keys.js";
-export { verifyWebhook } from "./resources/signing-keys.js";
+export type { SigningKey } from "./signing_keys.js";
+export { verifyWebhook } from "./signing_keys.js";
 export type {
   Mailbox,
   Message,
@@ -12,7 +12,7 @@ export type {
   ThreadDetail,
   Webhook as MailWebhook,
   WebhookCreateResult as MailWebhookCreateResult,
-} from "./types.js";
+} from "./mail/types.js";
 export type {
   PhoneNumber,
   PhoneCall,

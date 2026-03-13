@@ -4,7 +4,7 @@
  * Thread operations: list (auto-paginated), get with messages, delete.
  */
 
-import { HttpTransport } from "../_http.js";
+import { HttpTransport } from "../../_http.js";
 import {
   RawCursorPage,
   RawThread,

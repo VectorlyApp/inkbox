@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { WebhooksResource } from "../../src/resources/webhooks.js";
+import { WebhooksResource } from "../../src/mail/resources/webhooks.js";
 import type { HttpTransport } from "../../src/_http.js";
 import { RAW_WEBHOOK, RAW_WEBHOOK_CREATE } from "../sampleData.js";
 

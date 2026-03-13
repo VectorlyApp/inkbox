@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { ThreadsResource } from "../../src/resources/threads.js";
+import { ThreadsResource } from "../../src/mail/resources/threads.js";
 import type { HttpTransport } from "../../src/_http.js";
 import { RAW_THREAD, RAW_THREAD_DETAIL, CURSOR_PAGE_THREADS } from "../sampleData.js";
 

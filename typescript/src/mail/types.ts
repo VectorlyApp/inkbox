@@ -228,4 +228,3 @@ export function parseWebhookCreateResult(r: RawWebhookCreateResult): WebhookCrea
     secret: r.secret,
   };
 }
-

@@ -1,6 +1,6 @@
 import { createHmac } from "crypto";
 import { describe, it, expect, vi } from "vitest";
-import { SigningKeysResource, verifyWebhook } from "../src/resources/signing-keys.js";
+import { SigningKeysResource, verifyWebhook } from "../src/signing_keys.js";
 import { HttpTransport } from "../src/_http.js";
 import { RAW_SIGNING_KEY } from "./sampleData.js";
 

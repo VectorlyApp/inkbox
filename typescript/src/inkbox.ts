@@ -5,12 +5,12 @@
  */
 
 import { HttpTransport } from "./_http.js";
-import { MailboxesResource } from "./resources/mailboxes.js";
-import { MessagesResource } from "./resources/messages.js";
-import { ThreadsResource } from "./resources/threads.js";
-import { WebhooksResource } from "./resources/webhooks.js";
-import { SigningKeysResource } from "./resources/signing-keys.js";
-import type { SigningKey } from "./resources/signing-keys.js";
+import { MailboxesResource } from "./mail/resources/mailboxes.js";
+import { MessagesResource } from "./mail/resources/messages.js";
+import { ThreadsResource } from "./mail/resources/threads.js";
+import { WebhooksResource } from "./mail/resources/webhooks.js";
+import { SigningKeysResource } from "./signing_keys.js";
+import type { SigningKey } from "./signing_keys.js";
 import { PhoneNumbersResource } from "./phone/resources/numbers.js";
 import { CallsResource } from "./phone/resources/calls.js";
 import { TranscriptsResource } from "./phone/resources/transcripts.js";

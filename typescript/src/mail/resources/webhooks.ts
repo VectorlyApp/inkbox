@@ -4,7 +4,7 @@
  * Webhook CRUD for mailboxes.
  */
 
-import { HttpTransport } from "../_http.js";
+import { HttpTransport } from "../../_http.js";
 import {
   Webhook,
   WebhookCreateResult,

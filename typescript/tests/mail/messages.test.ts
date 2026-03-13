@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { MessagesResource } from "../../src/resources/messages.js";
+import { MessagesResource } from "../../src/mail/resources/messages.js";
 import type { HttpTransport } from "../../src/_http.js";
 import {
   RAW_MESSAGE,
