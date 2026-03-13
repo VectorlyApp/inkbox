@@ -20,9 +20,9 @@ const inkbox = new Inkbox({ apiKey: process.env.INKBOX_API_KEY! });
 // Create an agent identity
 const identity = await inkbox.createIdentity("support-bot");
 
-// Provision and link channels in one call each
-const mailbox = await identity.assignMailbox({ displayName: "Support Bot" });
-const phone   = await identity.assignPhoneNumber({ type: "toll_free" });
+// Create and link new channels
+const mailbox = await identity.createMailbox({ displayName: "Support Bot" });
+const phone   = await identity.provisionPhoneNumber({ type: "toll_free" });
 
 // Send email directly from the identity
 await identity.sendEmail({
@@ -63,8 +63,8 @@ const transcripts = await identity.searchTranscripts({ q: "refund" });
 ```ts
 // Create and fully provision an identity
 const identity = await inkbox.createIdentity("sales-bot");
-const mailbox  = await identity.assignMailbox({ displayName: "Sales Bot" });  // creates + links
-const phone    = await identity.assignPhoneNumber({ type: "toll_free" });     // provisions + links
+const mailbox  = await identity.createMailbox({ displayName: "Sales Bot" });      // creates + links
+const phone    = await identity.provisionPhoneNumber({ type: "toll_free" });      // provisions + links
 
 console.log(mailbox.emailAddress);
 console.log(phone.number);

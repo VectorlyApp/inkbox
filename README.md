@@ -22,9 +22,9 @@ with Inkbox(api_key="ApiKey_...") as inkbox:
     # Create an identity — returns an AgentIdentity object
     identity = inkbox.create_identity("sales-agent")
 
-    # Provision and link channels in one call each
-    mailbox = identity.assign_mailbox(display_name="Sales Agent")
-    phone   = identity.assign_phone_number(type="toll_free")
+    # Create and link new channels
+    mailbox = identity.create_mailbox(display_name="Sales Agent")
+    phone   = identity.provision_phone_number(type="toll_free")
 
     print(mailbox.email_address)
     print(phone.number)
@@ -46,9 +46,9 @@ const inkbox = new Inkbox({ apiKey: "ApiKey_..." });
 // Create an identity — returns an AgentIdentity object
 const identity = await inkbox.createIdentity("sales-agent");
 
-// Provision and link channels in one call each
-const mailbox = await identity.assignMailbox({ displayName: "Sales Agent" });
-const phone   = await identity.assignPhoneNumber({ type: "toll_free" });
+// Create and link new channels
+const mailbox = await identity.createMailbox({ displayName: "Sales Agent" });
+const phone   = await identity.provisionPhoneNumber({ type: "toll_free" });
 
 console.log(mailbox.emailAddress);
 console.log(phone.number);
@@ -71,7 +71,7 @@ from inkbox import Inkbox
 
 with Inkbox(api_key="ApiKey_...") as inkbox:
     identity = inkbox.create_identity("sales-agent")
-    identity.assign_mailbox(display_name="Sales Agent")
+    identity.create_mailbox(display_name="Sales Agent")
 
     # Send an email
     identity.send_email(
@@ -92,7 +92,7 @@ import { Inkbox } from "@inkbox/sdk";
 
 const inkbox = new Inkbox({ apiKey: "ApiKey_..." });
 const identity = await inkbox.createIdentity("sales-agent");
-await identity.assignMailbox({ displayName: "Sales Agent" });
+await identity.createMailbox({ displayName: "Sales Agent" });
 
 // Send an email
 await identity.sendEmail({
@@ -118,7 +118,7 @@ from inkbox import Inkbox
 
 with Inkbox(api_key="ApiKey_...") as inkbox:
     identity = inkbox.create_identity("sales-agent")
-    identity.assign_phone_number(type="toll_free")
+    identity.provision_phone_number(type="toll_free")
 
     # Place an outbound call
     call = identity.place_call(
@@ -145,7 +145,7 @@ import { Inkbox } from "@inkbox/sdk";
 
 const inkbox = new Inkbox({ apiKey: "ApiKey_..." });
 const identity = await inkbox.createIdentity("sales-agent");
-await identity.assignPhoneNumber({ type: "toll_free" });
+await identity.provisionPhoneNumber({ type: "toll_free" });
 
 // Place an outbound call
 const call = await identity.placeCall({

@@ -48,20 +48,35 @@ export class AgentIdentity {
   get phoneNumber(): IdentityPhoneNumber | null { return this._phoneNumber; }
 
   // ------------------------------------------------------------------
-  // Channel assignment
-  // Combines resource creation/provisioning + identity linking in one call.
+  // Channel management
   // ------------------------------------------------------------------
 
   /**
-   * Create a new mailbox and assign it to this identity.
+   * Create a new mailbox and link it to this identity.
    *
    * @param options.displayName - Optional human-readable sender name.
-   * @returns The assigned {@link IdentityMailbox}.
+   * @returns The newly created and linked {@link IdentityMailbox}.
    */
-  async assignMailbox(options: { displayName?: string } = {}): Promise<IdentityMailbox> {
+  async createMailbox(options: { displayName?: string } = {}): Promise<IdentityMailbox> {
     const mailbox = await this._inkbox._mailboxes.create(options);
     const data    = await this._inkbox._idsResource.assignMailbox(this.agentHandle, {
       mailboxId: mailbox.id,
+    });
+    this._mailbox  = data.mailbox;
+    this._data     = data;
+    return this._mailbox!;
+  }
+
+  /**
+   * Link an existing mailbox to this identity.
+   *
+   * @param mailboxId - UUID of the mailbox to link. Obtain via
+   *   `inkbox.mailboxes.list()` or `inkbox.mailboxes.get()`.
+   * @returns The linked {@link IdentityMailbox}.
+   */
+  async assignMailbox(mailboxId: string): Promise<IdentityMailbox> {
+    const data    = await this._inkbox._idsResource.assignMailbox(this.agentHandle, {
+      mailboxId,
     });
     this._mailbox  = data.mailbox;
     this._data     = data;
@@ -78,18 +93,34 @@ export class AgentIdentity {
   }
 
   /**
-   * Provision a new phone number and assign it to this identity.
+   * Provision a new phone number and link it to this identity.
    *
    * @param options.type - `"toll_free"` (default) or `"local"`.
    * @param options.state - US state abbreviation (e.g. `"NY"`), valid for local numbers only.
-   * @returns The assigned {@link IdentityPhoneNumber}.
+   * @returns The newly provisioned and linked {@link IdentityPhoneNumber}.
    */
-  async assignPhoneNumber(
+  async provisionPhoneNumber(
     options: { type?: string; state?: string } = {},
   ): Promise<IdentityPhoneNumber> {
     const number = await this._inkbox._numbers.provision(options);
     const data   = await this._inkbox._idsResource.assignPhoneNumber(this.agentHandle, {
       phoneNumberId: number.id,
+    });
+    this._phoneNumber = data.phoneNumber;
+    this._data        = data;
+    return this._phoneNumber!;
+  }
+
+  /**
+   * Link an existing phone number to this identity.
+   *
+   * @param phoneNumberId - UUID of the phone number to link. Obtain via
+   *   `inkbox.phoneNumbers.list()` or `inkbox.phoneNumbers.get()`.
+   * @returns The linked {@link IdentityPhoneNumber}.
+   */
+  async assignPhoneNumber(phoneNumberId: string): Promise<IdentityPhoneNumber> {
+    const data   = await this._inkbox._idsResource.assignPhoneNumber(this.agentHandle, {
+      phoneNumberId,
     });
     this._phoneNumber = data.phoneNumber;
     this._data        = data;
@@ -255,7 +286,7 @@ export class AgentIdentity {
     if (!this._mailbox) {
       throw new InkboxAPIError(
         0,
-        `Identity '${this.agentHandle}' has no mailbox assigned. Call identity.assignMailbox() first.`,
+        `Identity '${this.agentHandle}' has no mailbox assigned. Call identity.createMailbox() or identity.assignMailbox() first.`,
       );
     }
   }
@@ -264,7 +295,7 @@ export class AgentIdentity {
     if (!this._phoneNumber) {
       throw new InkboxAPIError(
         0,
-        `Identity '${this.agentHandle}' has no phone number assigned. Call identity.assignPhoneNumber() first.`,
+        `Identity '${this.agentHandle}' has no phone number assigned. Call identity.provisionPhoneNumber() or identity.assignPhoneNumber() first.`,
       );
     }
   }

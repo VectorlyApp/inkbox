@@ -37,7 +37,7 @@ class Inkbox:
 
         with Inkbox(api_key="ApiKey_...") as inkbox:
             identity = inkbox.create_identity("support-bot")
-            identity.assign_mailbox(display_name="Support Bot")
+            identity.create_mailbox(display_name="Support Bot")
             identity.send_email(
                 to=["customer@example.com"],
                 subject="Hello!",
@@ -67,7 +67,6 @@ class Inkbox:
             api_key=api_key, base_url=_api_root, timeout=timeout
         )
 
-        # Internal resources — used by AgentIdentity
         self._mailboxes = MailboxesResource(self._mail_http)
         self._messages = MessagesResource(self._mail_http)
         self._threads = ThreadsResource(self._mail_http)
@@ -78,6 +77,20 @@ class Inkbox:
 
         self._signing_keys = SigningKeysResource(self._api_http)
         self._ids_resource = IdentitiesResource(self._ids_http)
+
+    # ------------------------------------------------------------------
+    # Public resource accessors
+    # ------------------------------------------------------------------
+
+    @property
+    def mailboxes(self) -> MailboxesResource:
+        """Access org-level mailbox operations (list, get, create, update, delete)."""
+        return self._mailboxes
+
+    @property
+    def phone_numbers(self) -> PhoneNumbersResource:
+        """Access org-level phone number operations (list, get, provision, release)."""
+        return self._numbers
 
     # ------------------------------------------------------------------
     # Org-level operations

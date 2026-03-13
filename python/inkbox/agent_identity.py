@@ -33,8 +33,8 @@ class AgentIdentity:
 
     After assigning channels you can communicate directly::
 
-        identity.assign_mailbox(display_name="Support Bot")
-        identity.assign_phone_number(type="toll_free")
+        identity.create_mailbox(display_name="Support Bot")
+        identity.provision_phone_number(type="toll_free")
 
         identity.send_email(to=["user@example.com"], subject="Hi", body_text="Hello")
         identity.place_call(to_number="+15555550100", client_websocket_url="wss://my-app.com/ws")
@@ -74,22 +74,38 @@ class AgentIdentity:
         return self._phone_number
 
     # ------------------------------------------------------------------
-    # Channel assignment
-    # Combines resource creation/provisioning + identity linking in one call.
+    # Channel management
     # ------------------------------------------------------------------
 
-    def assign_mailbox(self, *, display_name: str | None = None) -> IdentityMailbox:
-        """Create a new mailbox and assign it to this identity.
+    def create_mailbox(self, *, display_name: str | None = None) -> IdentityMailbox:
+        """Create a new mailbox and link it to this identity.
 
         Args:
             display_name: Optional human-readable sender name.
 
         Returns:
-            The assigned mailbox.
+            The newly created and linked mailbox.
         """
         mailbox = self._inkbox._mailboxes.create(display_name=display_name)
         data = self._inkbox._ids_resource.assign_mailbox(
             self.agent_handle, mailbox_id=mailbox.id
+        )
+        self._mailbox = data.mailbox
+        self._data = data
+        return self._mailbox  # type: ignore[return-value]
+
+    def assign_mailbox(self, mailbox_id: str) -> IdentityMailbox:
+        """Link an existing mailbox to this identity.
+
+        Args:
+            mailbox_id: UUID of the mailbox to link. Obtain via
+                ``inkbox.mailboxes.list()`` or ``inkbox.mailboxes.get()``.
+
+        Returns:
+            The linked mailbox.
+        """
+        data = self._inkbox._ids_resource.assign_mailbox(
+            self.agent_handle, mailbox_id=mailbox_id
         )
         self._mailbox = data.mailbox
         self._data = data
@@ -101,21 +117,38 @@ class AgentIdentity:
         self._inkbox._ids_resource.unlink_mailbox(self.agent_handle)
         self._mailbox = None
 
-    def assign_phone_number(
+    def provision_phone_number(
         self, *, type: str = "toll_free", state: str | None = None
     ) -> IdentityPhoneNumber:
-        """Provision a new phone number and assign it to this identity.
+        """Provision a new phone number and link it to this identity.
 
         Args:
             type: ``"toll_free"`` (default) or ``"local"``.
             state: US state abbreviation (e.g. ``"NY"``), valid for local numbers only.
 
         Returns:
-            The assigned phone number.
+            The newly provisioned and linked phone number.
         """
         number = self._inkbox._numbers.provision(type=type, state=state)
         data = self._inkbox._ids_resource.assign_phone_number(
             self.agent_handle, phone_number_id=number.id
+        )
+        self._phone_number = data.phone_number
+        self._data = data
+        return self._phone_number  # type: ignore[return-value]
+
+    def assign_phone_number(self, phone_number_id: str) -> IdentityPhoneNumber:
+        """Link an existing phone number to this identity.
+
+        Args:
+            phone_number_id: UUID of the phone number to link. Obtain via
+                ``inkbox.phone_numbers.list()`` or ``inkbox.phone_numbers.get()``.
+
+        Returns:
+            The linked phone number.
+        """
+        data = self._inkbox._ids_resource.assign_phone_number(
+            self.agent_handle, phone_number_id=phone_number_id
         )
         self._phone_number = data.phone_number
         self._data = data
@@ -318,14 +351,14 @@ class AgentIdentity:
         if not self._mailbox:
             raise InkboxError(
                 f"Identity '{self.agent_handle}' has no mailbox assigned. "
-                "Call identity.assign_mailbox() first."
+                "Call identity.create_mailbox() or identity.assign_mailbox() first."
             )
 
     def _require_phone(self) -> None:
         if not self._phone_number:
             raise InkboxError(
                 f"Identity '{self.agent_handle}' has no phone number assigned. "
-                "Call identity.assign_phone_number() first."
+                "Call identity.provision_phone_number() or identity.assign_phone_number() first."
             )
 
     def __repr__(self) -> str:

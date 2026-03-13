@@ -20,9 +20,9 @@ with Inkbox(api_key=os.environ["INKBOX_API_KEY"]) as inkbox:
     # Create an agent identity
     identity = inkbox.create_identity("support-bot")
 
-    # Provision and link channels in one call each
-    identity.assign_mailbox(display_name="Support Bot")
-    identity.assign_phone_number(type="toll_free")
+    # Create and link new channels
+    identity.create_mailbox(display_name="Support Bot")
+    identity.provision_phone_number(type="toll_free")
 
     # Send email directly from the identity
     identity.send_email(
@@ -64,8 +64,8 @@ Use `with Inkbox(...) as inkbox:` (recommended) or call `inkbox.close()` manuall
 ```python
 # Create and fully provision an identity
 identity = inkbox.create_identity("sales-bot")
-mailbox  = identity.assign_mailbox(display_name="Sales Bot")  # creates + links
-phone    = identity.assign_phone_number(type="toll_free")     # provisions + links
+mailbox  = identity.create_mailbox(display_name="Sales Bot")      # creates + links
+phone    = identity.provision_phone_number(type="toll_free")      # provisions + links
 
 print(mailbox.email_address)
 print(phone.number)

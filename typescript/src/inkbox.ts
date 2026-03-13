@@ -40,9 +40,9 @@ export interface InkboxOptions {
  * // Create an agent identity
  * const identity = await inkbox.createIdentity("support-bot");
  *
- * // Provision and link channels in one call each
- * const mailbox = await identity.assignMailbox({ displayName: "Support Bot" });
- * const phone   = await identity.assignPhoneNumber({ type: "toll_free" });
+ * // Create and link new channels
+ * const mailbox = await identity.createMailbox({ displayName: "Support Bot" });
+ * const phone   = await identity.provisionPhoneNumber({ type: "toll_free" });
  *
  * // Send email directly from the identity
  * await identity.sendEmail({
@@ -53,23 +53,13 @@ export interface InkboxOptions {
  * ```
  */
 export class Inkbox {
-  /** @internal — used by AgentIdentity */
   readonly _mailboxes: MailboxesResource;
-  /** @internal — used by AgentIdentity */
   readonly _messages: MessagesResource;
-  /** @internal */
   readonly _threads: ThreadsResource;
-  /** @internal */
   readonly _signingKeys: SigningKeysResource;
-
-  /** @internal — used by AgentIdentity */
   readonly _numbers: PhoneNumbersResource;
-  /** @internal — used by AgentIdentity */
   readonly _calls: CallsResource;
-  /** @internal */
   readonly _transcripts: TranscriptsResource;
-
-  /** @internal — used by AgentIdentity to link channels */
   readonly _idsResource: IdentitiesResource;
 
   constructor(options: InkboxOptions) {
@@ -92,6 +82,16 @@ export class Inkbox {
 
     this._idsResource = new IdentitiesResource(idsHttp);
   }
+
+  // ------------------------------------------------------------------
+  // Public resource accessors
+  // ------------------------------------------------------------------
+
+  /** Org-level mailbox operations (list, get, create, update, delete). */
+  get mailboxes(): MailboxesResource { return this._mailboxes; }
+
+  /** Org-level phone number operations (list, get, provision, release). */
+  get phoneNumbers(): PhoneNumbersResource { return this._numbers; }
 
   // ------------------------------------------------------------------
   // Org-level operations
