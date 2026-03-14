@@ -223,8 +223,8 @@ const mailboxes = await inkbox.mailboxes.list();
 // Get a specific mailbox
 const mailbox = await inkbox.mailboxes.get("abc-xyz@inkboxmail.com");
 
-// Create a standalone mailbox
-const mb = await inkbox.mailboxes.create({ displayName: "Support Inbox" });
+// Create a mailbox linked to an agent identity
+const mb = await inkbox.mailboxes.create({ agentHandle: "support-agent", displayName: "Support Inbox" });
 console.log(mb.emailAddress);
 
 // Update display name or webhook URL

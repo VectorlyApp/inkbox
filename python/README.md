@@ -214,8 +214,8 @@ mailboxes = inkbox.mailboxes.list()
 # Get a specific mailbox
 mailbox = inkbox.mailboxes.get("abc-xyz@inkboxmail.com")
 
-# Create a standalone mailbox
-mailbox = inkbox.mailboxes.create(display_name="Support Inbox")
+# Create a mailbox linked to an agent identity
+mailbox = inkbox.mailboxes.create(agent_handle="support-agent", display_name="Support Inbox")
 print(mailbox.email_address)
 
 # Update display name or webhook URL
