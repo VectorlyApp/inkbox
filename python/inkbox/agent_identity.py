@@ -86,13 +86,20 @@ class AgentIdentity:
         Returns:
             The newly created and linked mailbox.
         """
-        mailbox = self._inkbox._mailboxes.create(display_name=display_name)
-        data = self._inkbox._ids_resource.assign_mailbox(
-            self.agent_handle, mailbox_id=mailbox.id
+        mailbox = self._inkbox._mailboxes.create(
+            agent_handle=self.agent_handle,
+            display_name=display_name,
         )
-        self._mailbox = data.mailbox
-        self._data = data
-        return self._mailbox  # type: ignore[return-value]
+        linked = IdentityMailbox(
+            id=mailbox.id,
+            email_address=mailbox.email_address,
+            display_name=mailbox.display_name,
+            status=mailbox.status,
+            created_at=mailbox.created_at,
+            updated_at=mailbox.updated_at,
+        )
+        self._mailbox = linked
+        return linked
 
     def assign_mailbox(self, mailbox_id: str) -> IdentityMailbox:
         """Link an existing mailbox to this identity.

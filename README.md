@@ -308,8 +308,8 @@ with Inkbox(api_key="ApiKey_...") as inkbox:
     # Get a specific mailbox
     mailbox = inkbox.mailboxes.get("abc-xyz@inkboxmail.com")
 
-    # Create a standalone mailbox
-    mailbox = inkbox.mailboxes.create(display_name="Support Inbox")
+    # Create a mailbox linked to an agent identity
+    mailbox = inkbox.mailboxes.create(agent_handle="support-agent", display_name="Support Inbox")
     print(mailbox.email_address)
 
     # Update display name or webhook URL
@@ -339,8 +339,8 @@ const mailboxes = await inkbox.mailboxes.list();
 // Get a specific mailbox
 const mailbox = await inkbox.mailboxes.get("abc-xyz@inkboxmail.com");
 
-// Create a standalone mailbox
-const mb = await inkbox.mailboxes.create({ displayName: "Support Inbox" });
+// Create a mailbox linked to an agent identity
+const mb = await inkbox.mailboxes.create({ agentHandle: "support-agent", displayName: "Support Inbox" });
 console.log(mb.emailAddress);
 
 // Update display name or webhook URL

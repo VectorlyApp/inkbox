@@ -48,10 +48,10 @@ class TestMailboxesCreate:
         res, http = _resource()
         http.post.return_value = MAILBOX_DICT
 
-        mailbox = res.create(display_name="Agent 01")
+        mailbox = res.create(agent_handle="support-agent", display_name="Agent 01")
 
         http.post.assert_called_once_with(
-            "/mailboxes", json={"display_name": "Agent 01"}
+            "/mailboxes", json={"agent_handle": "support-agent", "display_name": "Agent 01"}
         )
         assert mailbox.display_name == "Agent 01"
 
@@ -59,9 +59,9 @@ class TestMailboxesCreate:
         res, http = _resource()
         http.post.return_value = {**MAILBOX_DICT, "display_name": None}
 
-        mailbox = res.create()
+        mailbox = res.create(agent_handle="support-agent")
 
-        http.post.assert_called_once_with("/mailboxes", json={})
+        http.post.assert_called_once_with("/mailboxes", json={"agent_handle": "support-agent"})
         assert mailbox.display_name is None
 
 
