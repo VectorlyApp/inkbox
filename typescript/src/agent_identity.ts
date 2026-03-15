@@ -58,13 +58,20 @@ export class AgentIdentity {
    * @returns The newly created and linked {@link IdentityMailbox}.
    */
   async createMailbox(options: { displayName?: string } = {}): Promise<IdentityMailbox> {
-    const mailbox = await this._inkbox._mailboxes.create(options);
-    const data    = await this._inkbox._idsResource.assignMailbox(this.agentHandle, {
-      mailboxId: mailbox.id,
+    const mailbox = await this._inkbox._mailboxes.create({
+      agentHandle: this.agentHandle,
+      ...options,
     });
-    this._mailbox  = data.mailbox;
-    this._data     = data;
-    return this._mailbox!;
+    const linked: IdentityMailbox = {
+      id: mailbox.id,
+      emailAddress: mailbox.emailAddress,
+      displayName: mailbox.displayName,
+      status: mailbox.status,
+      createdAt: mailbox.createdAt,
+      updatedAt: mailbox.updatedAt,
+    };
+    this._mailbox = linked;
+    return linked;
   }
 
   /**
